@@ -1,4 +1,4 @@
-# TIS Middleware GDS Dashboard
+# Xiami Seckill
 
 ### Reference
 
