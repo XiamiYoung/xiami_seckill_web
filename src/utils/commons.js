@@ -2,6 +2,7 @@ import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import constants from "@/utils/constants.js";
+import lodash from 'lodash';
 var store = require('@/store/store')
 
 Vue.use(VueAxios, axios);
@@ -328,6 +329,9 @@ var commonsJS = {
     }else{
       return 'normal'
     }
+  },
+  isJsonEquals:function(obj1, obj2){
+    return lodash.isEqual(obj1, obj2)
   }
 }
 

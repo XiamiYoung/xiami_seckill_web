@@ -49,7 +49,7 @@
                       <v-timeline-item
                         v-for="seckill_item in item.seckill_items" :key="seckill_item.id" :color="seckill_item.tagText?colors.red:colors.primary"  small
                       >
-                        <v-card min-height="330" width="650"  class="round-corner">
+                        <v-card min-height="370" width="650"  class="round-corner">
                               <v-chip 
                                     v-if="seckill_item.tagText"
                                     class="ma-2 chips float:left"
@@ -139,35 +139,30 @@
       </v-card>
       </v-expansion-panel-content>
     </v-expansion-panel>
-    <v-chip
-      v-if="jdUsers.length!=0"
-      class="ma-2"
-      color="orange"
-      text-color="white"
-    >
-      已扫码账号
-      <v-icon right>
-        mdi-star
-      </v-icon>
-    </v-chip>
-    <v-chip
-      v-else
-      class="ma-2"
-      color="orange"
-      text-color="white"
-    >
-      还没有扫码登录京东账号
-      <v-icon right>
-        mdi-star
-      </v-icon>
-    </v-chip>
+    <template>
+      <v-chip
+        v-if="jdUsers.length==0"
+        class="ma-2"
+        color="orange"
+        text-color="white"
+      >
+        还没有扫码登录京东账号
+        <v-icon right>
+          mdi-star
+        </v-icon>
+      </v-chip>
+      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
+      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
+      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期计划</v-btn>
+      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false)">清除所有计划</v-btn>
+    </template>
     <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard">
       <v-layout row wrap>
         <v-flex xs2>
-          <v-card min-height="330" color="amber" class="round-corner">
+          <v-card min-height="370" color="amber" class="card-outter round-corner">
                 <v-card-text>
                   <v-layout row wrap>
-                    <v-flex xs4>
+                    <v-flex xs6>
                       <v-card-text>
                           <avatar class="avatar-svg"></avatar>
                       </v-card-text>
@@ -175,32 +170,52 @@
                           <strong v-html="jd_user.nick_name"></strong>
                       </v-card-text>
                     </v-flex>
-                    <v-flex xs4>
+                    <v-flex xs6>
                       <v-card-text>
                           <strong>收货信息</strong>
                       </v-card-text>
-                      <v-spacer></v-spacer>
                       <v-card-text>
                           <strong v-html="jd_user.recipient_name"></strong>
                       </v-card-text>
                       <v-card-text>
-                          <div class="text-wrap">
                             <strong v-html="jd_user.full_addr"></strong>
-                          </div>
                       </v-card-text>
                     </v-flex>
                   </v-layout>
                 </v-card-text>
-                <v-card-actions>
-                  <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_seckill" block @click="startSeckill(jd_user.nick_name)">开始抢购</v-btn>
-                  <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkSeckillLog(jd_user.nick_name)">查看日志</v-btn>
-                  <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkOrder(jd_user.nick_name)">查看订单</v-btn>
-                  <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_cancel_seckill" block @click="cancelSeckill(jd_user.nick_name)">取消抢购</v-btn>
+                <v-card-actions class="card-actions actions-margin-left">
+                  <v-layout row wrap>
+                    <v-flex xs3>
+                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_seckill" block @click="startSeckill(jd_user.nick_name, false)">开始抢购</v-btn>
+                    </v-flex>
+                    <v-flex xs3>
+                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkSeckillLog(jd_user.nick_name)">查看日志</v-btn>
+                    </v-flex>
+                    <v-flex xs3>
+                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkOrder(jd_user.nick_name)">查看订单</v-btn>
+                    </v-flex>
+                    <v-flex xs3>
+                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_cancel_seckill" block @click="cancelSeckill(jd_user.nick_name, false)">取消抢购</v-btn>
+                    </v-flex>
+                  </v-layout>
                 </v-card-actions>
             </v-card>
         </v-flex>
+        <v-flex xs1>
+          <v-card min-height="370" color="amber" class="round-corner">
+            <v-card-text>
+              <v-text-field 
+                label="提前下单时间(毫秒)" 
+                :color="colors.primary"
+                v-model="jd_user.leading_time" 
+                clearable 
+                clear-icon="cancel"
+              ></v-text-field>
+            </v-card-text>
+          </v-card>
+        </v-flex>
         <v-flex xs2>
-          <v-card min-height="330" color="amber" class="round-corner">
+          <v-card min-height="370" color="amber" class="round-corner">
             <v-card-text>
                 <strong>PC端登录状态</strong>
                 <v-chip v-if="jd_user.pc_cookie_expire_level==1"
@@ -272,7 +287,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="330" color="amber" class="round-corner">
+          <v-card min-height="370" color="amber" class="round-corner">
               <v-card-text>
                   <strong>移动端登录状态</strong>
                   <v-chip v-if="jd_user.mobile_cookie_expire_level==1"
@@ -343,9 +358,9 @@
               </v-card-text>
           </v-card>
         </v-flex>
-        <v-flex xs6>
-            <v-card min-height="330" color="amber" class="round-corner" >
-              <v-card-text class="py-0">
+        <v-flex xs5>
+            <v-card min-height="370" color="amber" class="round-corner" >
+              <v-card-text>
                 <v-timeline
                       align-top
                       dense
@@ -356,7 +371,7 @@
                       small
                     >
                       <v-layout pt-3>
-                        <v-flex xs1>
+                        <v-flex xs2>
                           <v-chip
                               v-if="arrenge.status=='未开始'"
                               :v-model="arrenge.status!=null"
@@ -425,7 +440,7 @@
                             <v-icon v-if="arrenge.status=='系统错误'" dark right>block</v-icon>
                           </v-chip>
                         </v-flex>
-                        <v-flex xs2>
+                        <v-flex xs8>
                           <strong>{{arrenge.startTime}}</strong>
                         </v-flex>
                         <v-flex xs2>
@@ -525,7 +540,7 @@
               <v-divider></v-divider>
               <v-card-text id="logScrollContentContainer">
                 <v-list>
-                  <template v-for="item in executionLog[selectedUserForLog]">
+                  <template v-for="item in executionLog[selectedUserForLog].logArray">
                     <v-list-tile  :key="item.id">
                       <v-list-tile-content>
                         <v-list-tile-title v-text="item.message"></v-list-tile-title>
@@ -551,7 +566,6 @@
 </template>
 
 <script>
-var store = require('@/store/store')
 
 export default {
   components: {},
@@ -564,10 +578,12 @@ export default {
     if(this.readExecutionLogInterval){
       Object.keys(this.readExecutionLogInterval).forEach(function(key) {
         clearInterval(ins.readExecutionLogInterval[key])
+        ins.readExecutionLogInterval[key] = null
       })
     }
     if(this.getArrangementStatusInterval){
       clearInterval(this.getArrangementStatusInterval)
+      this.getArrangementStatusInterval = null
     }
   },
   data() {
@@ -593,8 +609,15 @@ export default {
       getArrangementStatusInterval:'',
       executionLog: {},
       readExecutionLogInterval:{},
+      readExecutionLogIntervalClearInProgress:{},
       selectedUserForLog:'',
       showOutputLog:false,
+      isBatchStartArrangementInProgress:false,
+      isBatchCancelArrangementInProgress: false,
+      batchStartCounter: 0,
+      targetBatchStartCounter: 0,
+      batchCancelCounter: 0,
+      targetBatchCancelCounter: 0,
       colors:{
         red:'red',
         orange:'orange',
@@ -627,44 +650,22 @@ export default {
     onSuccessGetAssociatedJdUsers:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['success']){
-              var ins = this;
               for(var i=0;i<response.data.body.jd_users.length;i++){
                 this.syncJdUsers(response.data.body.jd_users[i], true)
               }
               
-              if(store.default.state.jdUsers){
-                this.jdUsers = JSON.parse(store.default.state.jdUsers)
-                this.checkTsExpireLevel()
-              }
-              if(store.default.state.userArrangement){
-                this.userArrangement = JSON.parse(store.default.state.userArrangement)
-              }
-              for(var number=1;number<=10;number++){
-                this.skuNumbers.push(number)
-              }
-
-              if(!this.getArrangementStatusInterval){
-                this.getArrangementStatusInterval = setInterval(() => {
-                  this.getSeckillStatus()
-                }, 3000)
-              }
-              if(store.default.state.executionLog){
-                this.executionLog = JSON.parse(store.default.state.executionLog)
-              }
-
-              Object.keys(this.userArrangement).forEach(function(nick_name) {
-                var userArrangementListEachUser = ins.userArrangement[nick_name]
-                for(var i=0;i<userArrangementListEachUser.length;i++){
-                  if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
-                    ins.readExecutionLogInterval[nick_name] = setInterval(() => {
-                      ins.readExecutionLog(nick_name)
-                    }, 2000)
-                    break
-                  }
-                }
-              })
+              // refresh jdusers
+              this.actionsOnStart()
             }
         }
+    },
+    actionsOnStart:function(){
+      this.checkTsExpireLevel()
+      this.getUserArrangement()
+      
+      for(var number=1;number<=10;number++){
+        this.skuNumbers.push(number)
+      }
     },
     syncJdUsers:function(jd_user_data, is_on_load_page){
       var userData = {};
@@ -696,6 +697,7 @@ export default {
       userData['mobile'] = jd_user_data.mobile
       userData['mobile_code'] = ''
       userData['mobile_code_running'] = false
+      userData['leading_time'] = jd_user_data.leading_time
 
       if(!isUserExisted){
         if(is_on_load_page){
@@ -738,6 +740,7 @@ export default {
             jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
+            jdUser['leading_time'] = userData['leading_time']
           }
         }
         this.$commons.showMessage(jd_user_data.nick_name+"已刷新登录，有效期24小时", this)
@@ -751,7 +754,6 @@ export default {
         jdUser['pc_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(pc_cookie_ts)]
         jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(mobile_cookie_ts)]
       }
-      store.default.commit("setJdUsers", this.jdUsers);
     },
     removeSkuFromArrangement:function(){
         var skuId = this.toRemoveSkuId;
@@ -780,7 +782,7 @@ export default {
         this.toRemovenick_name = '';
         //sort by startTimeMills
         this.sortUserArrangement();
-        store.default.commit("setUserArrangement", this.userArrangement);
+        this.saveUserArrangement()
     },
     showRemoveSkuDialog:function(skuId, skuName, startTime, nick_name){
       for(var i=0;i<this.jdUsers.length;i++){
@@ -826,14 +828,23 @@ export default {
     },
     onCloseSelectUserForSku:function(isConfirm){
       if(isConfirm){
+        if(this.selectedUserForSku.length==0){
+          this.selectedUserForSku = [];
+          this.addToArrangement = false;
+          this.selectedNumber = 1
+          return
+        }
         for(var i=0;i<this.selectedUserForSku.length;i++){
           var nick_name = this.selectedUserForSku[i];
           for(var j=0;j<this.jdUsers.length;j++){
               var jdUser = this.jdUsers[j]
               if(jdUser.nick_name == nick_name){
                 if(jdUser.allow_cancel_seckill){
-                  this.$commons.showError("用户" + nick_name + "只能在非运行状态下添加商品", this);
-                  break
+                  this.$commons.showError("只能在非运行状态下添加商品", this);
+                  this.selectedUserForSku = [];
+                  this.addToArrangement = false;
+                  this.selectedNumber = 1
+                  return
                 }
               }
           }
@@ -879,7 +890,7 @@ export default {
         }
         //sort by startTimeMills
         this.sortUserArrangement();
-        store.default.commit("setUserArrangement", this.userArrangement);
+        this.saveUserArrangement()
       }
 
       this.selectedUserForSku = [];
@@ -899,6 +910,12 @@ export default {
     checkSeckillLog:function(nick_name){
       this.selectedUserForLog = nick_name
       this.showOutputLog = true
+      if(!this.executionLog[nick_name] || !this.executionLog[nick_name]['logArray'] || this.executionLog[nick_name]['logArray'].length==0){
+          this.executionLog[nick_name] = {
+            'lastLogId': 0,
+            'logArray': new Array()
+          }
+      }
       setTimeout(() => {
         var ele = document.getElementById('logScrollContentContainer')
         if(ele){
@@ -913,8 +930,136 @@ export default {
       this.selectedUserForLog = ''
       this.showOutputLog = false
     },
-    startSeckill:function(nick_name){
+    removeOutDatedArrangement: function(is_outdate_only, param_nick_name){
+      var ins = this
+      var deleted = false
+      Object.keys(this.userArrangement).forEach(function(nick_name) {
+        if(param_nick_name){
+          if(param_nick_name==nick_name){
+            var userArrangementListEachUser = ins.userArrangement[nick_name]
+            var i = userArrangementListEachUser.length
+            // to avoid re-index of array
+            while(i--) {
+              if(is_outdate_only){
+                if(userArrangementListEachUser[i]['startTimeMills'] <= Number(new Date())){
+                  ins.userArrangement[nick_name].splice(i, 1);
+                  deleted = true
+                }
+              }else{
+                ins.userArrangement[nick_name].splice(i, 1);
+                deleted = true
+              }
+            }
+          }
+        }else{
+          var userArrangementListEachUser = ins.userArrangement[nick_name]
+          var i = userArrangementListEachUser.length
+          // to avoid re-index of array
+          while(i--) {
+            if(is_outdate_only){
+              if(userArrangementListEachUser[i]['startTimeMills'] <= Number(new Date())){
+                ins.userArrangement[nick_name].splice(i, 1);
+                deleted = true
+              }
+            }else{
+              ins.userArrangement[nick_name].splice(i, 1);
+              deleted = true
+            }
+          }
+        }
+      })
+      if(deleted){
+        this.userArrangement = Object.assign({}, this.userArrangement, this.userArrangement)
+        if(is_outdate_only){
+          this.$commons.showMessage('过期计划已清除', this);
+        }else{
+          this.$commons.showMessage('所有计划已清除', this);
+        }
+        this.saveUserArrangement()
+      }else{
+        if(is_outdate_only){
+          this.$commons.showMessage('没有过期计划', this);
+        }
+      }
+    },
+    batchStartSeckill: function(){
+      var ins = this
+      var isActionTaken = false
+      var is_batch_action = true
+
+      var is_outdate_only = true
+      this.removeOutDatedArrangement(is_outdate_only)
+
+      if(this.getArrangementStatusInterval){
+        clearInterval(this.getArrangementStatusInterval)
+        this.getArrangementStatusInterval = null
+      }
+      Object.keys(this.userArrangement).forEach(function(nick_name) {
+        var userArrangementListEachUser = ins.userArrangement[nick_name]
+        if(userArrangementListEachUser.length==0){
+          // return as break
+          return
+        }
+        var is_user_task_running = false
+        for(var i=0;i<userArrangementListEachUser.length;i++){
+          if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+            is_user_task_running = true
+            break
+          }
+        }
+        if(!is_user_task_running){
+          ins.targetBatchStartCounter++
+          ins.startSeckill(nick_name, is_batch_action)
+          isActionTaken = true
+        }
+
+        if(isActionTaken){
+          ins.isBatchStartArrangementInProgress = true
+        }
+      })
+
+      if(!isActionTaken){
+        ins.$commons.showMessage('没有找到符合的抢购计划', ins);
+      }
+    },
+    batchCancelSeckill:function(){
+      var ins = this
+      var isActionTaken = false
+      var is_batch_action = true
+      if(this.getArrangementStatusInterval){
+        clearInterval(this.getArrangementStatusInterval)
+        this.getArrangementStatusInterval = null
+      }
+      Object.keys(this.userArrangement).forEach(function(nick_name) {
+        var userArrangementListEachUser = ins.userArrangement[nick_name]
+        var is_user_task_running = false
+        for(var i=0;i<userArrangementListEachUser.length;i++){
+          if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+            is_user_task_running = true
+            break
+          }
+        }
+        if(is_user_task_running){
+          ins.targetBatchCancelCounter++
+          ins.cancelSeckill(nick_name, is_batch_action)
+          isActionTaken = true
+        }
+
+        if(isActionTaken){
+          ins.isBatchCancelArrangementInProgress = true
+        }else{
+          ins.$commons.showMessage('没有找到符合的抢购计划', ins);
+        }
+      })
+    },
+    startSeckill:function(nick_name, is_batch_action){
+      var ins = this
       var target_user = this.getTargetUser(nick_name)
+
+      if(!is_batch_action){
+        var is_outdate_only = true
+        this.removeOutDatedArrangement(is_outdate_only, nick_name)
+      }
 
       if(!this.userArrangement || !this.userArrangement[nick_name] || this.userArrangement[nick_name].length==0){
         this.$commons.showError('用户'+nick_name+'没有添加抢购商品', this);
@@ -935,18 +1080,23 @@ export default {
       requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
       requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
 
-      var ins = this
       var requestObj = {
           url: this.$constants.interface.backend.endpoint + "/site/jd/start-arrangement",
           headers:requestHeaders,
           postData: {
                       'arrangement_list': this.userArrangement[nick_name],
-                      'nick_name': nick_name
+                      'nick_name': nick_name,
+                      'leading_time': target_user['leading_time']
                     },
           successCallback: this.onSuccessStartArrangement,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           successCallbackParamObj:{
-            nick_name:nick_name
+            nick_name:nick_name,
+            is_batch_action:is_batch_action
+          },
+          failureCallbackParamObj:{
+            nick_name:nick_name,
+            is_batch_action:is_batch_action
           },
           ins: this,
           hideLoading: true
@@ -961,27 +1111,186 @@ export default {
             break
           }
       }
-      store.default.commit("setJdUsers", this.jdUsers);
 
       if(this.executionLog[nick_name]){
-          this.executionLog[nick_name] = new Array()
+          this.executionLog[nick_name] = {
+            'lastLogId': 0,
+            'logArray': new Array()
+          }
+      }
+
+      var userArrangementListEachUser = this.userArrangement[nick_name]
+      // give frontend temp status
+      if(userArrangementListEachUser.length>0 && userArrangementListEachUser[0]['status'] != this.$constants.service.arrangementStatus.running){
+        userArrangementListEachUser[0]['status'] = this.$constants.service.arrangementStatus.running
       }
     },
     onSuccessStartArrangement:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['executed']){
-            this.$commons.showMessage('用户' + callbackParam.nick_name + '抢购计划开始执行', this);
-
+            if(callbackParam.is_batch_action){
+              this.batchStartCounter++
+            }else{
+              this.$commons.showMessage('用户' + callbackParam.nick_name + '抢购计划开始执行', this);
+            }
             var ins = this
 
             if(this.readExecutionLogInterval[callbackParam.nick_name]){
               clearInterval(this.readExecutionLogInterval[callbackParam.nick_name])
+              this.readExecutionLogInterval[callbackParam.nick_name] = null
             }
-            this.readExecutionLogInterval[callbackParam.nick_name] = setInterval(() => {
-              ins.readExecutionLog(callbackParam.nick_name)
-            }, 2000)
+            if(!this.readExecutionLogInterval[callbackParam.nick_name]){
+              this.readExecutionLogInterval[callbackParam.nick_name] = setInterval(() => {
+                ins.readExecutionLog(callbackParam.nick_name)
+              }, 2000)
+            }
+
+            if(callbackParam.is_batch_action){
+              if(this.isBatchStartArrangementInProgress){
+                if(this.batchStartCounter == this.targetBatchStartCounter){
+                  this.isBatchStartArrangementInProgress = false
+                  this.batchStartCounter = 0
+                  this.targetBatchStartCounter = 0
+                  this.$commons.showMessage('已全部开始', this);
+                  if(!this.getArrangementStatusInterval){
+                    this.getArrangementStatusInterval = setInterval(() => {
+                      this.getSeckillStatus()
+                    }, 3000)
+                  }
+                }
+              }
+            }
           }
       }
+    },
+    onFailuredStartArrangement: function(error,callbackParam) {
+      if(callbackParam.is_batch_action){
+        this.batchStartCounter++
+        if(this.isBatchStartArrangementInProgress){
+          if(this.batchStartCounter == this.targetBatchStartCounter){
+            this.isBatchStartArrangementInProgress = false
+            this.batchStartCounter = 0
+            this.targetBatchStartCounter = 0
+            this.$commons.showMessage('已全部开始', this);
+            if(!this.getArrangementStatusInterval){
+              this.getArrangementStatusInterval = setInterval(() => {
+                this.getSeckillStatus()
+              }, 3000)
+            }
+          }
+        }
+      }
+        
+      this.$commons.defaultFailureCallback(error,this,callbackParam)
+    },
+    cancelSeckill:function(nick_name, is_batch_action){
+      if(this.userArrangement[nick_name].length==0){
+        this.$commons.showError('用户'+nick_name+'没有添加抢购商品', this);
+        return
+      }
+
+      var ins = this
+      var target_user = this.getTargetUser(nick_name)
+
+      var requestHeaders = {}
+      requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
+      requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
+
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-arrangement",
+          headers:requestHeaders,
+          postData: {
+                      'arrangement_list': this.userArrangement[nick_name],
+                      'nick_name': nick_name
+                    },
+          successCallback: this.onSuccessCancelArrangement,
+          failureCallback: this.onFailuredCancelArrangement,
+          successCallbackParamObj:{
+            nick_name:nick_name,
+            is_batch_action: is_batch_action
+          },
+          failureCallbackParamObj:{
+            nick_name:nick_name,
+            is_batch_action:is_batch_action
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+     
+      var isReadLogIntervalCancelInProgress = false
+      if(this.readExecutionLogInterval[nick_name] && !this.readExecutionLogIntervalClearInProgress[nick_name]){
+        isReadLogIntervalCancelInProgress = true
+        setTimeout(() => {
+            if(!ins.isUserArrangementRunning(nick_name)){
+              //read last time in case cancelled log not returned
+              setTimeout(() => {
+                ins.readExecutionLog(nick_name)
+              }, 15 * 1000)
+              clearInterval(ins.readExecutionLogInterval[nick_name])
+              ins.readExecutionLogInterval[nick_name] = null
+              ins.readExecutionLogIntervalClearInProgress[nick_name] = false
+            }
+        }, 15 * 1000)
+      }
+      if(isReadLogIntervalCancelInProgress){
+        this.readExecutionLogIntervalClearInProgress[nick_name] = true
+      }
+    },
+    onSuccessCancelArrangement:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            if(callbackParam.is_batch_action){
+              this.batchCancelCounter++
+            }else{
+              this.$commons.showMessage('用户' + callbackParam.nick_name + '抢购计划已取消', this);
+            }
+            for(var i=0;i<this.jdUsers.length;i++){
+                var jdUser = this.jdUsers[i]
+                if(jdUser.nick_name == callbackParam.nick_name){
+                  jdUser['allow_seckill'] = true
+                  jdUser['allow_cancel_seckill'] = false
+                  break
+                }
+            }
+
+            if(callbackParam.is_batch_action){
+              if(this.isBatchCancelArrangementInProgress){
+                if(this.batchCancelCounter == this.targetBatchCancelCounter){
+                  this.isBatchCancelArrangementInProgress = false
+                  this.batchCancelCounter = 0
+                  this.targetBatchCancelCounter = 0
+                  this.$commons.showMessage('已全部取消', this);
+                  if(!this.getArrangementStatusInterval){
+                    this.getArrangementStatusInterval = setInterval(() => {
+                      this.getSeckillStatus()
+                    }, 3000)
+                  }
+                }
+              }
+            }
+          }
+      }
+    },
+    onFailuredCancelArrangement: function(error,callbackParam) {
+      if(callbackParam.is_batch_action){
+        this.batchCancelCounter++
+        if(this.isBatchCancelArrangementInProgress){
+          if(this.batchCancelCounter == this.targetBatchCancelCounter){
+            this.isBatchCancelArrangementInProgress = false
+            this.batchCancelCounter = 0
+            this.targetBatchCancelCounter = 0
+            this.$commons.showMessage('已全部取消', this);
+            if(!this.getArrangementStatusInterval){
+              this.getArrangementStatusInterval = setInterval(() => {
+                this.getSeckillStatus()
+              }, 3000)
+            }
+          }
+        }
+      }
+        
+      this.$commons.defaultFailureCallback(error,this,callbackParam)
     },
     addOrRemoveArrangement:function(target_time, nick_name, is_add){
       var ins = this
@@ -1005,19 +1314,84 @@ export default {
     onSuccessaddOrRemoveArrangement:function(response,callbackParam){
       
     },
+    getUserArrangement:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/get-jd-user-arrangement",
+          successCallback: this.onSuccessGetUserArrangement,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessGetUserArrangement:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+              var ins = this
+              if(response.data.body['user_arrangement'] && response.data.body['user_arrangement']['seckill_arrangement']){
+                this.userArrangement = response.data.body['user_arrangement']['seckill_arrangement']
+                if(!this.getArrangementStatusInterval){
+                  this.getArrangementStatusInterval = setInterval(() => {
+                    this.getSeckillStatus()
+                  }, 3000)
+                }
+                
+                Object.keys(this.userArrangement).forEach(function(nick_name) {
+                  var userArrangementListEachUser = ins.userArrangement[nick_name]
+                  for(var i=0;i<userArrangementListEachUser.length;i++){
+                    if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+                      // if running, read as intervel
+                      ins.readExecutionLogInterval[nick_name] = setInterval(() => {
+                        ins.readExecutionLog(nick_name)
+                      }, 2000)
+                      break
+                    }else{
+                      // not running, read once
+                      ins.readExecutionLog(nick_name)
+                    }
+                  }
+                })
+              }
+            }
+        }
+    },
+    saveUserArrangement:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-arrangement",
+          postData: {
+                      'user_arrangement': {
+                        'seckill_arrangement': ins.userArrangement
+                      },
+                    },
+          successCallback: this.onSuccessSaveUserArrangement,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessSaveUserArrangement:function(response,callbackParam){
+      
+    },
     readExecutionLog:function(nick_name){
       var target_user = this.getTargetUser(nick_name)
 
       var requestHeaders = {}
       requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
       requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
-
+      var lastLogId = 0
+      if(this.executionLog[nick_name] && this.executionLog[nick_name]['lastLogId']){
+        lastLogId = this.executionLog[nick_name]['lastLogId']
+      }
       var ins = this
       var requestObj = {
           url: this.$constants.interface.backend.endpoint + "/site/jd/read-execution-log",
           headers:requestHeaders,
           postData: {
-                      'nick_name': nick_name
+                      'nick_name': nick_name,
+                      'last_id': lastLogId
                     },
           successCallback: this.onSuccessReadExecutionLog,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
@@ -1031,17 +1405,20 @@ export default {
     },
     onSuccessReadExecutionLog:function(response,callbackParam){
       if(response.data.body && response.data.body.length!=0){
-
-          if(!this.executionLog[callbackParam.nick_name] || this.executionLog[callbackParam.nick_name].length==0){
-            this.executionLog[callbackParam.nick_name] = new Array()
+          if(!this.executionLog[callbackParam.nick_name] || !this.executionLog[callbackParam.nick_name]['logArray'] || this.executionLog[callbackParam.nick_name]['logArray'].length==0){
+              this.executionLog[callbackParam.nick_name] = {
+                'lastLogId': 0,
+                'logArray': new Array()
+              }
           }
 
-          var currentLength = this.executionLog[callbackParam.nick_name].length
+          var currentLength = this.executionLog[callbackParam.nick_name]['logArray'].length
           for(var i=0;i<response.data.body.length;i++){
-            this.$set(this.executionLog[callbackParam.nick_name], currentLength + i, {'message':response.data.body[i]})
+            this.$set(this.executionLog[callbackParam.nick_name]['logArray'], currentLength + i, {'message':response.data.body[i]['content']})
+            this.executionLog[callbackParam.nick_name]['lastLogId'] = response.data.body[i]['id']
           }
+          
           this.executionLog = Object.assign({}, this.executionLog, this.executionLog)
-          store.default.commit("setExecutionLog", this.executionLog);
           setTimeout(() => {
             var ele = document.getElementById('logScrollContentContainer')
             if(ele){
@@ -1063,15 +1440,20 @@ export default {
     },
     onSuccessGetArrangementStatus:function(response,callbackParam){
       if(response.data.body && response.data.body.length!=0){
+          var ins = this
           var seckill_arangement = response.data.body
+          var isUpdated = false
+          var isCancelled = false
+          var isRunning = false
           for(var i=0;i<seckill_arangement.length;i++){
             var userArrangementStatusItem = seckill_arangement[i]
             var nick_name = userArrangementStatusItem['nick_name']
             var plannedArragementForUser = this.userArrangement[nick_name]
-            if(!plannedArragementForUser){
-              this.deleteArrangementTargetTime('', nick_name)
-              continue
-            }
+            // not in cache
+            // if(!plannedArragementForUser){
+            //   this.deleteArrangementTargetTime('', nick_name)
+            //   continue
+            // }
             var is_user_task_running = false
             for(var j=0;j<userArrangementStatusItem['seckill_arangement'].length;j++){ 
               var retTargetTime = userArrangementStatusItem['seckill_arangement'][j]['target_time']
@@ -1081,7 +1463,16 @@ export default {
               } 
               for(var k=0;k<plannedArragementForUser.length;k++){ 
                 if(retTargetTime == plannedArragementForUser[k]['startTime']){
-                    plannedArragementForUser[k]['status'] = this.$constants.service.arrangementStatus[retStatus]
+                    if(plannedArragementForUser[k]['status']!=this.$constants.service.arrangementStatus[retStatus]){
+                      plannedArragementForUser[k]['status'] = this.$constants.service.arrangementStatus[retStatus]
+                      isUpdated = true
+                    }
+                    if(this.$constants.service.arrangementStatus[retStatus] == this.$constants.service.arrangementStatus.cancelled){
+                      isCancelled = true
+                    }
+                    if(this.$constants.service.arrangementStatus[retStatus] == this.$constants.service.arrangementStatus.running){
+                      isRunning = true
+                    }
                 }
               }
           }
@@ -1095,13 +1486,43 @@ export default {
                   jdUser['allow_seckill'] = true
                   jdUser['allow_cancel_seckill'] = false
                 }
-                store.default.commit("setJdUsers", this.jdUsers);
                 break
               }
           }
         }
-        this.userArrangement = Object.assign({}, this.userArrangement, this.userArrangement)
-        store.default.commit("setUserArrangement", this.userArrangement);
+        if(isUpdated){
+          this.userArrangement = Object.assign({}, this.userArrangement, this.userArrangement)
+          this.saveUserArrangement()
+        }
+
+        if(isCancelled){
+          if(this.readExecutionLogInterval[nick_name] && !this.readExecutionLogIntervalClearInProgress[nick_name]){
+            this.readExecutionLogIntervalClearInProgress[nick_name] = true
+            setTimeout(() => {
+              if(!ins.isUserArrangementRunning(nick_name)){
+                //read last time in case cancelled log not returned
+                setTimeout(() => {
+                  ins.readExecutionLog(nick_name)
+                }, 15 * 1000)
+                clearInterval(ins.readExecutionLogInterval[nick_name])
+                ins.readExecutionLogInterval[nick_name] = null
+                ins.readExecutionLogIntervalClearInProgress[nick_name] = false
+              }
+            }, 15 * 1000)
+          }
+        }else if(isRunning){
+          if(!this.executionLog[nick_name] || !this.executionLog[nick_name]['logArray'] || this.executionLog[nick_name]['logArray'].length==0){
+            this.executionLog[nick_name] = {
+                'lastLogId': 0,
+                'logArray': new Array()
+            }
+          }
+          if(!this.readExecutionLogInterval[nick_name]){
+            this.readExecutionLogInterval[nick_name] = setInterval(() => {
+              ins.readExecutionLog(nick_name)
+            }, 2000)
+          }
+        }
       }
     },
     deleteArrangementTargetTime:function(targetTime, nick_name){
@@ -1120,58 +1541,6 @@ export default {
       this.$commons.sendGatewayPost(requestObj);
     },
     onSuccessDeleteArrangementTargetTime:function(response,callbackParam){
-    },
-    cancelSeckill:function(nick_name){
-      if(this.userArrangement[nick_name].length==0){
-        this.$commons.showError('用户'+nick_name+'没有添加抢购商品', this);
-        return
-      }
-
-      var target_user = this.getTargetUser(nick_name)
-
-      var requestHeaders = {}
-      requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
-      requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
-
-      var ins = this
-      var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-arrangement",
-          headers:requestHeaders,
-          postData: {
-                      'arrangement_list': this.userArrangement[nick_name],
-                      'nick_name': nick_name
-                    },
-          successCallback: this.onSuccessCancelArrangement,
-          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
-          successCallbackParamObj:{
-            nick_name:nick_name
-          },
-          ins: this,
-          hideLoading: true
-      };
-      this.$commons.sendGatewayPost(requestObj);
-     
-      setTimeout(() => {
-          if(this.readExecutionLogInterval[nick_name]){
-            clearInterval(this.readExecutionLogInterval[nick_name])
-          }
-        }, 60 * 1000)
-    },
-    onSuccessCancelArrangement:function(response,callbackParam){
-      if(response.data.body){
-          if(response.data.body['executed']){
-            this.$commons.showMessage('用户' + callbackParam.nick_name + '抢购计划已取消', this);
-            for(var i=0;i<this.jdUsers.length;i++){
-                var jdUser = this.jdUsers[i]
-                if(jdUser.nick_name == callbackParam.nick_name){
-                  jdUser['allow_seckill'] = true
-                  jdUser['allow_cancel_seckill'] = false
-                  break
-                }
-            }
-            store.default.commit("setJdUsers", this.jdUsers);
-          }
-      }
     },
     loadItemPage:function(sku){
       window.open('https://item.jd.com/'+sku+'.html')
@@ -1212,6 +1581,21 @@ export default {
             return jdUser
           }
       }
+    },
+    isUserArrangementRunning:function(nick_name){
+      var ins = this
+      Object.keys(this.userArrangement[nick_name]).forEach(function(nick_name) {
+        var userArrangementListEachUser = ins.userArrangement[nick_name]
+        if(!userArrangementListEachUser){
+          return false
+        }
+        for(var i=0;i<userArrangementListEachUser.length;i++){
+          if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+            return true
+          }
+        }
+      })
+      return false
     }
   }
 };
@@ -1246,5 +1630,16 @@ export default {
   .sku-selected-chip{
     margin-top: -5px;
     margin-bottom: 10px;
+  }
+  .card-outter {
+    position: relative;
+    padding-bottom: 50px;
+  }
+  .card-actions {
+    position: absolute;
+    bottom: 0;
+  }
+  .actions-margin-left{
+    margin-left:25px
   }
 </style>

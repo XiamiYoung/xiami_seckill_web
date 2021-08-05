@@ -8,8 +8,6 @@ const store = new Vuex.Store({
     userName: sessionStorage.getItem("userName"),
     token: sessionStorage.getItem("token"),
     jdUsers: sessionStorage.getItem("jdUsers"),
-    userArrangement: sessionStorage.getItem("userArrangement"),
-    executionLog: sessionStorage.getItem("executionLog")
   },
   mutations: {
     setUserName(state,userName) {
@@ -24,16 +22,6 @@ const store = new Vuex.Store({
         jdUsers = JSON.stringify(jdUsers)
         sessionStorage.setItem("jdUsers",jdUsers);
         state.jdUsers = jdUsers;
-    },
-    setUserArrangement(state,userArrangement) {
-        userArrangement = JSON.stringify(userArrangement)
-        sessionStorage.setItem("userArrangement",userArrangement);
-        state.userArrangement = userArrangement;
-    },
-    setExecutionLog(state,executionLog) {
-        executionLog = JSON.stringify(executionLog)
-        sessionStorage.setItem("executionLog",executionLog);
-        state.executionLog = executionLog;
     }
   }
 });

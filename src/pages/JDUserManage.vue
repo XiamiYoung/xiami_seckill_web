@@ -25,13 +25,13 @@
           mdi-star
         </v-icon>
       </v-chip>
-        <v-card v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="round-corner card-margin-bottom d-flex ">
+        <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard">
           <v-layout row wrap>
-            <v-flex xs4>
-              <v-card min-height="300" color="amber" class="round-corner">
+            <v-flex xs3>
+              <v-card min-height="350" color="amber" class="card-outter round-corner">
                   <v-card-text>
                     <v-layout row wrap>
-                      <v-flex xs4>
+                      <v-flex xs6>
                         <v-card-text>
                             <avatar class="avatar-svg"></avatar>
                         </v-card-text>
@@ -39,7 +39,7 @@
                             <strong v-html="jd_user.nick_name"></strong>
                         </v-card-text>
                       </v-flex>
-                      <v-flex xs4>
+                      <v-flex xs6>
                         <v-card-text>
                             <strong>收货信息</strong>
                         </v-card-text>
@@ -55,13 +55,36 @@
                       </v-flex>
                     </v-layout>
                   </v-card-text>
-                  <v-card-actions>
-                    <v-btn color="primary" class="card-action-margin round-corner" block @click="logoutSeckill(jd_user.nick_name)">退出登录</v-btn>
+                  <v-card-actions class="card-actions actions-margin-left">
+                      <v-btn color="primary" class="round-corner" block @click="logoutSeckill(jd_user.nick_name)">退出登录</v-btn>
                   </v-card-actions>
               </v-card>
             </v-flex>
-            <v-flex xs4>
-              <v-card min-height="300" color="amber" class="round-corner">
+            <v-flex xs3>
+              <v-card min-height="350" color="amber" class="card-outter round-corner">
+                  <v-card-text>
+                    <v-layout row wrap>
+                      <v-flex xs12>
+                        <v-card-text>
+                            <strong>参数设置</strong>
+                            <v-text-field 
+                              label="提前下单时间(毫秒)" 
+                              :color="colors.primary"
+                              v-model="jd_user.leading_time" 
+                              clearable 
+                              clear-icon="cancel"
+                            ></v-text-field>
+                        </v-card-text>
+                      </v-flex>
+                    </v-layout>
+                  </v-card-text>
+                  <v-card-actions class="card-actions actions-margin-left">
+                      <v-btn color="primary" class="round-corner" block @click="saveOptions(jd_user)">保存</v-btn>
+                  </v-card-actions>
+              </v-card>
+            </v-flex>
+            <v-flex xs3>
+              <v-card min-height="350" color="amber" class="card-outter round-corner">
                   <v-card-text>
                       <strong>PC端登录状态</strong>
                       <v-chip v-if="jd_user.pc_cookie_expire_level==1"
@@ -99,10 +122,10 @@
                         small
                       >
                         <v-layout pt-3>
-                          <v-flex xs3>
+                          <v-flex xs6>
                             <strong>{{jd_user.pc_cookie_ts_label}}</strong>
                           </v-flex>
-                          <v-flex>
+                          <v-flex xs6>
                             <strong>扫码登录</strong>
                           </v-flex>
                         </v-layout>
@@ -112,10 +135,10 @@
                         small
                       >
                         <v-layout pt-3>
-                          <v-flex xs3>
+                          <v-flex xs6>
                             <strong>{{jd_user.pc_cookie_expire_ts_label}}</strong>
                           </v-flex>
-                          <v-flex>
+                          <v-flex xs6>
                             <strong>到期</strong>
                           </v-flex>
                         </v-layout>
@@ -130,13 +153,13 @@
                           PC端未登录/已过期
                     </v-chip>
                   </v-card-text>
-                  <v-card-actions>
+                  <v-card-actions class="card-actions actions-margin-left">
                     <v-btn color="primary" class="round-corner" block @click="loadQRCode()">扫码登录/刷新</v-btn>
                   </v-card-actions>
               </v-card>
             </v-flex>
-            <v-flex xs4>
-              <v-card min-height="300" color="amber" class="round-corner">
+            <v-flex xs3>
+              <v-card min-height="350" color="amber" class="card-outter round-corner">
                   <v-card-text>
                       <strong>移动端登录状态</strong>
                       <v-chip v-if="jd_user.mobile_cookie_expire_level==1"
@@ -166,7 +189,7 @@
                   </v-card-text>
                   <v-card-text v-if="jd_user.mobile_cookie_status">
                     <v-layout row wrap>
-                      <v-flex xs6>
+                      <v-flex xs12>
                         <v-timeline
                             align-top
                             dense
@@ -179,7 +202,7 @@
                               <v-flex xs6>
                                 <strong>{{jd_user.mobile_cookie_ts_label}}</strong>
                               </v-flex>
-                              <v-flex>
+                              <v-flex xs6>
                                 <strong>验证码登录</strong>
                               </v-flex>
                             </v-layout>
@@ -192,24 +215,12 @@
                               <v-flex xs6>
                                 <strong>{{jd_user.mobile_cookie_expire_ts_label}}</strong>
                               </v-flex>
-                              <v-flex>
+                              <v-flex xs6>
                                 <strong>到期</strong>
                               </v-flex>
                             </v-layout>
                           </v-timeline-item>
                         </v-timeline>
-                      </v-flex>
-                      <v-flex xs6>
-                        <v-card-actions>
-                          <v-text-field 
-                              label="手机号码" 
-                              :color="colors.primary"
-                              v-model="jd_user.mobile" 
-                              clearable 
-                              clear-icon="cancel"
-                              :disabled="jd_user.mobile_code_running"
-                            ></v-text-field>
-                        </v-card-actions>
                       </v-flex>
                     </v-layout>
                   </v-card-text>
@@ -220,23 +231,23 @@
                           text-color="white">
                           移动端未登录/过期
                     </v-chip>
-                    <v-card-actions>
-                    <v-text-field 
-                          label="手机号码" 
-                          :color="colors.primary"
-                          v-model="jd_user.mobile" 
-                          clearable 
-                          clear-icon="cancel"
-                          class="mobile-num-input"
-                          :disabled="jd_user.mobile_code_running"
-                        ></v-text-field>
+                  </v-card-text>
+                   <v-text-field 
+                              label="手机号码" 
+                              :color="colors.primary"
+                              v-model="jd_user.mobile" 
+                              clearable 
+                              clear-icon="cancel"
+                              :disabled="jd_user.mobile_code_running"
+                              class="mobile-num-input"
+                            ></v-text-field>
+                    <v-card-actions class="card-actions actions-margin-left">
+                        <v-btn color="primary" class="round-corner mobile-login-btn" block @click="onSendMobileCode(jd_user)">手机登录/刷新</v-btn>
                     </v-card-actions>
-                    </v-card-text>
-                  <v-btn color="primary" class="round-corner" block @click="onSendMobileCode(jd_user)">验证码登录/刷新</v-btn>
               </v-card>
             </v-flex>
           </v-layout>
-        </v-card>
+        </div>
     <div>
       <v-dialog :value="qrCodeLoaded" v-if="qrCodeLoaded" persistent max-width="450">
           <v-card class="round-corner">
@@ -285,8 +296,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary"  text @click="onInputMobileCode(selectedUserForMobileCode.mobile_code)"><div style="color: white">确认</div></v-btn>
-            <v-btn color="primary"  text @click="onCloseMobileCodeDialog"><div style="color: white">关闭</div></v-btn>
+            <v-btn color="primary" text @click="onInputMobileCode(selectedUserForMobileCode.mobile_code)"><div style="color: white">确认</div></v-btn>
+            <v-btn color="primary" text @click="onCloseMobileCodeDialog"><div style="color: white">关闭</div></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -296,7 +307,7 @@
         persistent max-width="290">
         <v-card>
           <v-card-title class="headline">退出账号</v-card-title>
-          <v-card-text>确认退出账号{{this.toLogoutnick_name}}吗</v-card-text>
+          <v-card-text>确认退出账号{{this.toLogoutNickName}}吗</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" flat @click="onConfirmLogoutBtn(false)">否</v-btn>
@@ -309,7 +320,6 @@
 </template>
 
 <script>
-var store = require('@/store/store')
 
 export default {
   components: {},
@@ -322,8 +332,7 @@ export default {
       mobileCodeSent:false,
       removeUserDialog:false,
       selectedUserForMobileCode:'',
-      toRemovenick_name:'',
-      toLogoutnick_name:'',
+      toLogoutNickName:'',
       userArrangement:{},
       jdUsers:[],
       qrCodeContentUrl:"",
@@ -360,21 +369,17 @@ export default {
         jdUser['pc_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(pc_cookie_ts)]
         jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(mobile_cookie_ts)]
       }
-      store.default.commit("setJdUsers", this.jdUsers);
     },
     onConfirmLogoutBtn:function(isConfirm){
       if(isConfirm){
-        var userElement = this.$commons.findKeyInJsonArray('nick_name',this.toLogoutnick_name, this.jdUsers)
+        var userElement = this.$commons.findKeyInJsonArray('nick_name',this.toLogoutNickName, this.jdUsers)
         if(userElement){
           this.deleteJdUser()
-          this.$commons.deleteKeyInJsonArray('nick_name',this.toLogoutnick_name, this.jdUsers)
-          store.default.commit("setJdUsers", this.jdUsers);
+          this.$commons.deleteKeyInJsonArray('nick_name',this.toLogoutNickName, this.jdUsers)
         }
-        delete this.userArrangement[this.toLogoutnick_name]
-        store.default.commit("setUserArrangement", this.userArrangement);
       }
       this.removeUserDialog = false;
-      this.toLogoutnick_name = '';
+      this.toLogoutNickName = '';
     },
     deleteJdUser:function(){
       var ins = this
@@ -383,7 +388,7 @@ export default {
             successCallback: this.onSuccessDeleteJDUser,
             failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
             postData: {
-                        'nick_name': this.toLogoutnick_name,
+                        'nick_name': this.toLogoutNickName,
                       },
             ins: this,
             hideLoading: true
@@ -429,6 +434,7 @@ export default {
               if (this.mobileCodeCountDown === 0) {
                   this.mobileCodeSent = false
                   clearInterval(this.mobileCodeInterval)
+                  this.mobileCodeInterval = null
                 }
                 this.mobileCodeCountDown -= 1
               }, 1000)
@@ -467,6 +473,8 @@ export default {
       this.qrCodeContentUrl = ""
       clearInterval(this.qrCodeInterval)
       clearInterval(this.qrScanResultInterval)
+      this.qrCodeInterval = null
+      this.qrScanResultInterval = null
       this.cancelQRScanResult()
       this.qrCodeCountDown = 100
     },
@@ -475,16 +483,19 @@ export default {
       this.selectedUserForMobileCode['mobile_code'] = ''
       clearInterval(this.mobileCodeInterval)
       clearInterval(this.mobileCodeScanResultInterval)
+      this.mobileCodeInterval = null
+      this.mobileCodeScanResultInterval = null
       this.cancelMobileCodeScanResult()
       this.mobileCodeCountDown = 100
     },
     logoutSeckill:function(nick_name){
-      this.toLogoutnick_name = nick_name;
-      this.removeUserDialog = true;
+      var is_delete_jd_user = true
+      this.getSeckillStatus(nick_name, is_delete_jd_user)
     },
     loadQRCode:function(){
         if(this.qrScanResultInterval){
           clearInterval(this.qrScanResultInterval)
+          this.qrScanResultInterval = null
           this.cancelQRScanResult()
         }
         var ins = this
@@ -510,6 +521,7 @@ export default {
         if (this.qrCodeCountDown === 0) {
           this.qrCodeLoaded = false
           clearInterval(this.qrCodeInterval)
+          this.qrCodeInterval = null
         }
         this.qrCodeCountDown -= 1
       }, 1000)
@@ -584,13 +596,7 @@ export default {
               for(var i=0;i<response.data.body.jd_users.length;i++){
                 this.syncJdUsers(response.data.body.jd_users[i], true)
               }
-              if(store.default.state.userArrangement){
-                this.userArrangement = JSON.parse(store.default.state.userArrangement)
-              }
-              if(store.default.state.jdUsers){
-                this.jdUsers = JSON.parse(store.default.state.jdUsers)
-                this.checkTsExpireLevel()
-              }
+              this.checkTsExpireLevel()
             }
         }
     },
@@ -636,6 +642,7 @@ export default {
       this.qrScanResultInterval = setInterval(() => {
         if (qrCodeCheckResultCountDown === 0) {
           clearInterval(this.qrScanResultInterval)
+          this.qrScanResultInterval = null
         }
         ins.$commons.sendGatewayPost(requestObj);
         qrCodeCheckResultCountDown -= 1
@@ -645,8 +652,8 @@ export default {
       if(response.data.body){
           if(response.data.body['success']){
             this.syncJdUsers(response.data.body.jd_user_data)
-            store.default.commit("setJdUsers", this.jdUsers);
             clearInterval(this.qrScanResultInterval)
+            this.qrScanResultInterval = null
             this.qrCodeLoaded = false
           }
       }
@@ -654,6 +661,7 @@ export default {
     onFailureCheckScanQRResult:function(error,callbackParam){
       this.qrCodeLoaded = false
       clearInterval(this.qrScanResultInterval);
+      this.qrScanResultInterval = null
       this.cancelQRScanResult()
       this.$commons.defaultFailureCallback(error,this,callbackParam)
   },
@@ -687,6 +695,7 @@ export default {
       userData['mobile'] = jd_user_data.mobile
       userData['mobile_code'] = ''
       userData['mobile_code_running'] = false
+      userData['leading_time'] = jd_user_data.leading_time
 
       if(!isUserExisted){
         if(is_on_load_page){
@@ -703,10 +712,6 @@ export default {
           userData['mobile_cookie_ts_label'] = ''
           userData['mobile_cookie_expire_ts_label'] = this.tsExpireLevel['expired']
         }
-
-        userData['allow_seckill'] = true
-        userData['allow_cancel_seckill'] = false
-        userData['seckill_status'] = '未设置抢购'
 
         this.jdUsers.push(userData);
       }else{
@@ -729,6 +734,7 @@ export default {
             jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
+            jdUser['leading_time'] = userData['leading_time']
           }
         }
         this.$commons.showMessage(jd_user_data.nick_name+"已刷新登录，有效期24小时", this)
@@ -751,6 +757,7 @@ export default {
       this.mobileCodeScanResultInterval = setInterval(() => {
         if (mobileCodeCheckResultCountDown === 0) {
           clearInterval(this.mobileCodeScanResultInterval)
+          this.mobileCodeScanResultInterval = null
         }
         ins.$commons.sendGatewayPost(requestObj);
         mobileCodeCheckResultCountDown -= 1
@@ -769,12 +776,13 @@ export default {
             }
 
             this.$commons.showMessage(this.selectedUserForMobileCode['nick_name']+"已刷新登录，有效期30天", this)
-            store.default.commit("setJdUsers", this.jdUsers);
             clearInterval(this.mobileCodeScanResultInterval)
+            this.mobileCodeScanResultInterval = null
             this.mobileCodeSent = false
           }else{
             if(response.data.body['error']){
               clearInterval(this.mobileCodeScanResultInterval)
+              this.mobileCodeScanResultInterval = null
               this.mobileCodeSent = false
               this.$commons.showError(response.data.body['error'], this)
             }
@@ -785,9 +793,75 @@ export default {
       this.selectedUserForMobileCode['mobile_code'] = ''
       this.mobileCodeSent = false
       clearInterval(this.mobileCodeScanResultInterval)
+      this.mobileCodeScanResultInterval = null
       this.cancelMobileCodeScanResult()
       this.$commons.defaultFailureCallback(error,this,callbackParam)
-    }
+    },
+    getSeckillStatus:function(nick_name, is_delete_jd_user){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/get-arrangement-status",
+          successCallback: this.onSuccessGetArrangementStatus,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          successCallbackParamObj:{
+            nick_name: nick_name,
+            is_delete_jd_user: is_delete_jd_user
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessGetArrangementStatus:function(response, callbackParam){
+      if(response.data.body && response.data.body.length!=0){
+          var seckill_arangement = response.data.body
+          var is_user_task_running = false
+          for(var i=0;i<seckill_arangement.length;i++){
+            var userArrangementStatusItem = seckill_arangement[i]
+            var ret_nick_name = userArrangementStatusItem['nick_name']
+            if(ret_nick_name==callbackParam.nick_name){
+              for(var j=0;j<userArrangementStatusItem['seckill_arangement'].length;j++){ 
+                var retStatus = userArrangementStatusItem['seckill_arangement'][j]['status']
+                if(retStatus == 'running'){
+                  is_user_task_running = true
+                  break
+                } 
+              }
+            }
+        }
+
+        if(callbackParam.is_delete_jd_user && is_user_task_running){
+          this.$commons.showError('用户抢购计划正在执行，请先取消', this)
+        }else{
+          this.toLogoutNickName = callbackParam.nick_name;
+          this.removeUserDialog = true;
+        }
+      }
+    },
+    saveOptions:function(jd_user){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-options",
+          successCallback: this.onSuccessSaveUserOptions,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData:{
+            nick_name: jd_user['nick_name'],
+            user_options: {
+              'leading_time': jd_user['leading_time']
+            }
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessSaveUserOptions:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('参数已保存', this);
+          }
+      }
+    },
   }
 };
 </script>
@@ -819,6 +893,21 @@ export default {
     margin-top: 15px;
   }
   .mobile-num-input {
-    margin-bottom: 45px;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+  .card-outter {
+    position: relative;
+    padding-bottom: 50px;
+  }
+  .card-actions {
+    position: absolute;
+    bottom: 0;
+  }
+  .actions-margin-left{
+    margin-left: 43%;
+  }
+  .mobile-login-btn{
+    margin-top: 35px;
   }
 </style>

@@ -31,24 +31,24 @@
           >
             <template v-slot:items="props">
               <tr>
+                <td class="text-xs-left text-strong">
+                  <table style="width:100%">
+                  <tr v-for="item in props.item.item_info_array" :key="item.id">
+                      <td width="10%" class="text-xs-left text-strong">
+                        <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`"></v-img>
+                      </td>
+                      <td width="90%" class="text-xs-left text-strong">
+                        {{item.name}}(x{{item.quantity}})
+                      </td>
+                  </tr>
+                  </table>
+                </td>
                 <td class="text-xs-right text-strong">{{ props.item.nick_name}}</td>
                 <td class="text-xs-right text-strong">{{ props.item.order_id}}</td>
                 <td class="text-xs-right text-strong">{{ props.item.order_time }}</td>
                 <td class="text-xs-right text-strong">{{ props.item.sum_price }}</td>
                 <td class="text-xs-right text-strong">{{ props.item.addr_name }}</td>
                 <td class="text-xs-right text-strong">{{ props.item.addr }}</td>
-                <td class="text-xs-right text-strong">
-                  <table style="width:100%">
-                  <tr v-for="item in props.item.item_info_array" :key="item.id">
-                      <td width="95%" class="text-xs-right text-strong">
-                        {{item.name}}(x{{item.quantity}})
-                      </td>
-                      <td width="5%" class="text-xs-right text-strong">
-                        <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`"></v-img>
-                      </td>
-                  </tr>
-                  </table>
-                </td>
                 <td class="text-xs-right text-strong">
                   <v-btn color="primary" class="round-corner" @click="cancelJDOrder(props.item.nick_name, props.item.order_id)">取消订单</v-btn>
                 </td>
@@ -72,6 +72,7 @@ export default {
   components: {},
   created: function() {
     this.getJDOrders()
+    this.getAssociatedJdUsers()
     if(this.$route.params.nick_name){
       this.search = this.$route.params.nick_name
     }
@@ -79,6 +80,13 @@ export default {
   data() {
     return {
       headers: [
+        {
+          text: '商品详情',
+          align: 'center',
+          sortable: true,
+          value: 'item_info_array.name',
+          class: "primary--text title"
+        },
         {
           text: '用户',
           align: 'right',
@@ -122,13 +130,6 @@ export default {
           class: "primary--text title"
         },
         {
-          text: '商品详情',
-          align: 'right',
-          sortable: true,
-          value: 'item_info_array.name',
-          class: "primary--text title"
-        },
-        {
           text: '订单操作',
           align: 'right',
           sortable: true,
@@ -137,8 +138,15 @@ export default {
         }
       ],
       jd_order_list: [],
+      jdUsers:[],
       rowsPerPageItems: [10,50,100,{"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}], 
       search:'',
+      tsExpireLevel:{
+        normal: 1, // 24 - 6 hours
+        medium: 2, // < 6 hours
+        critical: 3, // < 2 hours
+        expired: 4 // expired
+      },
       colors:{
         red:'red',
         orange:'orange',
@@ -170,7 +178,122 @@ export default {
           }
       }
     },
+    getAssociatedJdUsers:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/get-associated-jd-users",
+          successCallback: this.onSuccessGetAssociatedJdUsers,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessGetAssociatedJdUsers:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+              for(var i=0;i<response.data.body.jd_users.length;i++){
+                this.syncJdUsers(response.data.body.jd_users[i], true)
+              }
+            }
+        }
+    },
+    syncJdUsers:function(jd_user_data, is_on_load_page){
+      var userData = {};
+      var isUserExisted = false;
+      for(var index=0;index<this.jdUsers.length;index++){
+        var user = this.jdUsers[index];
+        if(user['nick_name']==jd_user_data.nick_name){
+          isUserExisted = true
+          break;
+        }
+      }
+
+      userData['nick_name'] = jd_user_data.nick_name
+      userData['recipient_name'] = jd_user_data.recipient_name
+      userData['full_addr'] = jd_user_data.full_addr
+      userData['pc_cookie_status'] = jd_user_data.pc_cookie_status
+      userData['pc_cookie_ts'] = jd_user_data.pc_cookie_ts
+      userData['pc_cookie_expire_ts'] = jd_user_data.pc_cookie_expire_ts
+      userData['pc_cookie_ts_label'] = jd_user_data.pc_cookie_ts_label
+      userData['pc_cookie_expire_ts_label'] = jd_user_data.pc_cookie_expire_ts_label
+      userData['pc_cookie_expire_level'] = this.tsExpireLevel['normal']
+      userData['mobile_cookie_status'] = jd_user_data.mobile_cookie_status
+      userData['mobile_cookie_ts'] = jd_user_data.mobile_cookie_ts
+      userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
+      userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
+      userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
+      userData['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+      userData['mobile_code_running'] = false
+      userData['mobile'] = jd_user_data.mobile
+      userData['mobile_code'] = ''
+      userData['mobile_code_running'] = false
+      userData['leading_time'] = jd_user_data.leading_time
+
+      if(!isUserExisted){
+        if(is_on_load_page){
+          userData['mobile_cookie_status'] = jd_user_data.mobile_cookie_status
+          userData['mobile_cookie_ts'] = jd_user_data.mobile_cookie_ts
+          userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
+          userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
+          userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
+          userData['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+        }else{
+          userData['mobile_cookie_status'] = false
+          userData['mobile_cookie_ts'] = ''
+          userData['mobile_cookie_expire_ts'] = ''
+          userData['mobile_cookie_ts_label'] = ''
+          userData['mobile_cookie_expire_ts_label'] = this.tsExpireLevel['expired']
+        }
+
+        this.jdUsers.push(userData);
+      }else{
+        for (var i=0;i<this.jdUsers.length;i++){
+          var jdUser = this.jdUsers[i]
+          if(jdUser.nick_name == jd_user_data.nick_name){
+            jdUser['recipient_name'] = userData['recipient_name']
+            jdUser['full_addr'] = userData['full_addr']
+            jdUser['pc_cookie_status'] = userData['pc_cookie_status']
+            jdUser['pc_cookie_ts'] = userData['pc_cookie_ts']
+            jdUser['pc_cookie_ts_label'] = userData['pc_cookie_ts_label']
+            jdUser['pc_cookie_expire_ts'] = userData['pc_cookie_expire_ts']
+            jdUser['pc_cookie_expire_level'] = userData['pc_cookie_expire_level']
+            jdUser['pc_cookie_expire_ts_label'] = userData['pc_cookie_expire_ts_label']
+            jdUser['mobile_cookie_status'] = userData['mobile_cookie_status']
+            jdUser['mobile_cookie_ts'] = userData['mobile_cookie_ts']
+            jdUser['mobile_cookie_expire_ts'] = userData['mobile_cookie_expire_ts']
+            jdUser['mobile_cookie_ts_label'] = userData['mobile_cookie_ts_label']
+            jdUser['mobile_cookie_expire_ts_label'] = userData['mobile_cookie_expire_ts_label']
+            jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+            jdUser['mobile_code_running'] = false
+            jdUser['mobile'] = userData['mobile']
+            jdUser['leading_time'] = userData['leading_time']
+          }
+        }
+        this.$commons.showMessage(jd_user_data.nick_name+"已刷新登录，有效期24小时", this)
+      }
+    },
     cancelJDOrder:function(nick_name, order_id){
+      var targetUser = null
+      var isUserExisted = false
+      for(var index=0;index<this.jdUsers.length;index++){
+        targetUser  = this.jdUsers[index];
+        if(targetUser['nick_name']==nick_name){
+          isUserExisted = true
+          break;
+        }
+      }
+
+      if(isUserExisted){
+        if(targetUser['pc_cookie_expire_level'] == this.tsExpireLevel['expired']){
+          this.$commons.showMessage(nick_name+"登录信息已失效，请重新登录", this)
+          return
+        }
+      }else{
+        this.$commons.showMessage(nick_name+"已退出，请重新登录", this)
+        return
+      }
+
       var ins = this
       var requestObj = {
           url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-jd-order",
