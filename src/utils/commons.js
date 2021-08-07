@@ -3,6 +3,7 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import constants from "@/utils/constants.js";
 import lodash from 'lodash';
+import moment from 'moment';
 var store = require('@/store/store')
 
 Vue.use(VueAxios, axios);
@@ -263,11 +264,19 @@ var commonsJS = {
     }
     return window.btoa(binary);
   },
-  findKeyInJsonArray:function(key, value, jsonArray){
+  findKeyInJsonArray:function(key, value, jsonArray, keyInJsonArray){
     for(var i=0;i<jsonArray.length;i++){
       var obj = jsonArray[i];
-      if(obj[key] == value){
-        return obj
+      if(!keyInJsonArray){
+        if(obj[key] == value){
+          return obj
+        }
+      }else{
+        for(var j=0;j<obj[keyInJsonArray].length;j++){
+          if(obj[keyInJsonArray][j][key] == value){
+            return obj
+          }
+        }
       }
     }
     return null
@@ -313,6 +322,9 @@ var commonsJS = {
   getDateWithOffset: function (startDate, dayLevelOffset) {
     var dateOffset = new Date(startDate.getTime() + (dayLevelOffset * 24 * 60 * 60 * 1000));
     return dateOffset;
+  },
+  getTimestampFromStr:function(str){
+    return moment(str).toDate().getTime()
   },
   getExpireLevel:function(ts){
     // normal: 1, // 24 - 6 hours

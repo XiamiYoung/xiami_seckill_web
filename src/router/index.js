@@ -29,7 +29,7 @@ const router = new Router({
         allowAnonymous: false,
         selectedIndex: 1,
         breadcrumb: [
-          { name: '京东抢购' }
+          { name: '抢购' }
         ]
       }
     },
@@ -42,7 +42,7 @@ const router = new Router({
         allowAnonymous: false,
         selectedIndex: 2,
         breadcrumb: [
-          { name: '京东用户管理' }
+          { name: '用户管理' }
         ]
       }
     },
@@ -55,7 +55,7 @@ const router = new Router({
         allowAnonymous: false,
         selectedIndex: 3,
         breadcrumb: [
-          { name: '订单管理' }
+          { name: '管理' }
         ]
       }
     },

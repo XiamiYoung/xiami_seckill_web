@@ -4,18 +4,7 @@
         <v-btn block color="primary"  class="round-corner" @click="loadQRCode">登录账户</v-btn>
       </v-card>
       <v-chip
-        v-if="jdUsers.length!=0"
-        class="ma-2"
-        color="orange"
-        text-color="white"
-      >
-        已扫码账号
-        <v-icon right>
-          mdi-star
-        </v-icon>
-      </v-chip>
-      <v-chip
-        v-else
+        v-if="jdUsers.length==0"
         class="ma-2"
         color="orange"
         text-color="white"
@@ -25,225 +14,157 @@
           mdi-star
         </v-icon>
       </v-chip>
-        <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard">
+        <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
           <v-layout row wrap>
             <v-flex xs3>
-              <v-card min-height="350" color="amber" class="card-outter round-corner">
-                  <v-card-text>
-                    <v-layout row wrap>
-                      <v-flex xs6>
-                        <v-card-text>
-                            <avatar class="avatar-svg"></avatar>
-                        </v-card-text>
-                        <v-card-text>
-                            <strong v-html="jd_user.nick_name"></strong>
-                        </v-card-text>
-                      </v-flex>
-                      <v-flex xs6>
-                        <v-card-text>
-                            <strong>收货信息</strong>
-                        </v-card-text>
-                        <v-spacer></v-spacer>
-                        <v-card-text>
-                            <strong v-html="jd_user.recipient_name"></strong>
-                        </v-card-text>
-                        <v-card-text>
-                            <div class="text-wrap">
-                              <strong v-html="jd_user.full_addr"></strong>
-                            </div>
-                        </v-card-text>
-                      </v-flex>
-                    </v-layout>
-                  </v-card-text>
-                  <v-card-actions class="card-actions actions-margin-left">
-                      <v-btn color="primary" class="round-corner" block @click="logoutSeckill(jd_user.nick_name)">退出登录</v-btn>
-                  </v-card-actions>
+              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+                <v-layout row wrap class="justify-center">
+                  <div>
+                    <v-card-title class="justify-center">
+                      <v-chip
+                        class="ma-2"
+                        color="green"
+                        text-color="white"
+                      >
+                        {{jd_user.nick_name}}
+                      </v-chip>
+                    </v-card-title>
+                    <v-card-title class="justify-center">
+                      <avatar class="avatar-svg"></avatar>
+                    </v-card-title>
+                    <v-spacer></v-spacer>
+                    <v-card-actions class="justify-center">
+                      <v-layout row wrap>
+                        <v-btn color="primary" class="round-corner" block @click="logoutSeckill(jd_user.nick_name)">退出登录</v-btn>
+                      </v-layout>
+                    </v-card-actions>
+                  </div>
+                </v-layout>
               </v-card>
             </v-flex>
             <v-flex xs3>
-              <v-card min-height="350" color="amber" class="card-outter round-corner">
-                  <v-card-text>
-                    <v-layout row wrap>
-                      <v-flex xs12>
-                        <v-card-text>
-                            <strong>参数设置</strong>
-                            <v-text-field 
-                              label="提前下单时间(毫秒)" 
-                              :color="colors.primary"
-                              v-model="jd_user.leading_time" 
-                              clearable 
-                              clear-icon="cancel"
-                            ></v-text-field>
-                        </v-card-text>
-                      </v-flex>
-                    </v-layout>
-                  </v-card-text>
-                  <v-card-actions class="card-actions actions-margin-left">
-                      <v-btn color="primary" class="round-corner" block @click="saveOptions(jd_user)">保存</v-btn>
-                  </v-card-actions>
-              </v-card>
-            </v-flex>
-            <v-flex xs3>
-              <v-card min-height="350" color="amber" class="card-outter round-corner">
-                  <v-card-text>
-                      <strong>PC端登录状态</strong>
-                      <v-chip v-if="jd_user.pc_cookie_expire_level==1"
+              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+                <v-layout row wrap class="justify-center">
+                  <div>
+                    <v-card-title class="justify-center">
+                      <v-chip
                             class="ma-1 chips-small"
                             :color="colors.green"
                             text-color="white">
-                        有效时间大于6小时
+                          收货地址
                       </v-chip>
-                      <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
-                            class="ma-1 chips-small"
-                            :color="colors.purple"
-                            text-color="white">
-                        有效时间小于6小时
-                      </v-chip>
-                      <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
-                            class="ma-1 chips-small"
-                            :color="colors.red"
-                            text-color="white">
-                        有效时间小于2小时
-                      </v-chip>
-                      <v-chip v-else
-                            class="ma-1 chips-small"
-                            :color="colors.black"
-                            text-color="white">
-                        未登录/已过期
-                      </v-chip>
-                  </v-card-text>
-                  <v-card-text v-if="jd_user.pc_cookie_status">
-                      <v-timeline
-                        align-top
-                        dense
-                      >
-                      <v-timeline-item
-                        color="pink"
-                        small
-                      >
-                        <v-layout pt-3>
-                          <v-flex xs6>
-                            <strong>{{jd_user.pc_cookie_ts_label}}</strong>
-                          </v-flex>
-                          <v-flex xs6>
-                            <strong>扫码登录</strong>
-                          </v-flex>
+                      <v-card-text class="text-center">
+                        <v-layout row wrap class="justify-center">
+                          <div><strong v-html="jd_user.recipient_name"></strong></div>
                         </v-layout>
-                      </v-timeline-item>
-                      <v-timeline-item
-                        color="pink"
-                        small
-                      >
-                        <v-layout pt-3>
-                          <v-flex xs6>
-                            <strong>{{jd_user.pc_cookie_expire_ts_label}}</strong>
-                          </v-flex>
-                          <v-flex xs6>
-                            <strong>到期</strong>
-                          </v-flex>
+                      </v-card-text>
+                      <v-card-text class="text-center">
+                        <v-layout row wrap class="justify-center">
+                          <div><strong v-html="jd_user.full_addr"></strong></div>
                         </v-layout>
-                      </v-timeline-item>
-                    </v-timeline>
-                  </v-card-text>
-                  <v-card-text v-else>
-                      <v-chip 
-                          class="ma-1 chips-small"
-                          :color="colors.black"
-                          text-color="white">
-                          PC端未登录/已过期
-                    </v-chip>
-                  </v-card-text>
-                  <v-card-actions class="card-actions actions-margin-left">
-                    <v-btn color="primary" class="round-corner" block @click="loadQRCode()">扫码登录/刷新</v-btn>
-                  </v-card-actions>
+                      </v-card-text>
+                    </v-card-title>
+                    <v-card-title class="justify-center">
+                      <v-card-text>
+                      <v-text-field 
+                        label="提前时间(毫秒)"
+                        color="primary"
+                        v-model="jd_user.leading_time" 
+                        clearable 
+                        clear-icon="cancel"
+                      ></v-text-field>
+                      <v-btn color="primary" class="round-corner" block @click="saveOptions(jd_user)">保存</v-btn>
+                    </v-card-text>
+                    </v-card-title>
+                  </div>
+                </v-layout>
               </v-card>
             </v-flex>
             <v-flex xs3>
-              <v-card min-height="350" color="amber" class="card-outter round-corner">
-                  <v-card-text>
-                      <strong>移动端登录状态</strong>
+              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+                <v-layout row wrap class="align-center justify-center">
+                  <div>
+                    <v-card-title class="justify-center">
+                        <v-chip v-if="jd_user.pc_cookie_expire_level==1"
+                              class="ma-1 chips-small"
+                              :color="colors.green"
+                              text-color="white">
+                          PC端登录有效时间大于6小时
+                        </v-chip>
+                        <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
+                              class="ma-1 chips-small"
+                              :color="colors.purple"
+                              text-color="white">
+                          PC端登录有效时间小于6小时
+                        </v-chip>
+                        <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
+                              class="ma-1 chips-small"
+                              :color="colors.red"
+                              text-color="white">
+                          PC端登录有效时间小于2小时
+                        </v-chip>
+                        <v-chip v-else
+                              class="ma-1 chips-small"
+                              :color="colors.black"
+                              text-color="white">
+                          PC端登录未登录/已过期
+                        </v-chip>
+                    </v-card-title>
+                    <v-card-title class="justify-center" v-if="jd_user.pc_cookie_status">
+                      <strong>到期 {{jd_user.pc_cookie_expire_ts_label}}</strong>
+                    </v-card-title>
+                    <v-card-actions>
+                      <v-btn color="primary" class="round-corner" block @click="loadQRCode()">登录/刷新</v-btn>
+                    </v-card-actions>
+                  </div>
+                </v-layout>
+              </v-card>
+            </v-flex>
+            <v-flex xs3>
+              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+                <v-layout row wrap class="justify-center">
+                  <div>
+                    <v-card-title class="justify-center">
                       <v-chip v-if="jd_user.mobile_cookie_expire_level==1"
                             class="ma-1 chips-small"
                             :color="colors.green"
                             text-color="white">
-                        有效时间大于6小时
+                        移动端登录有效时间大于6小时
                       </v-chip>
                       <v-chip v-else-if="jd_user.mobile_cookie_expire_level==2"
                             class="ma-1 chips-small"
                             :color="colors.purple"
                             text-color="white">
-                        有效时间小于6小时
+                        移动端登录有效时间小于6小时
                       </v-chip>
                       <v-chip v-else-if="jd_user.mobile_cookie_expire_level==3"
                             class="ma-1 chips-small"
                             :color="colors.red"
                             text-color="white">
-                        有效时间小于2小时
+                        移动端登录有效时间小于2小时
                       </v-chip>
                       <v-chip v-else
                             class="ma-1 chips-small"
                             :color="colors.black"
                             text-color="white">
-                        未登录/已过期
+                        移动端登录未登录/已过期
                       </v-chip>
-                  </v-card-text>
-                  <v-card-text v-if="jd_user.mobile_cookie_status">
-                    <v-layout row wrap>
-                      <v-flex xs12>
-                        <v-timeline
-                            align-top
-                            dense
-                          >
-                          <v-timeline-item
-                            color="pink"
-                            small
-                          >
-                            <v-layout pt-3>
-                              <v-flex xs6>
-                                <strong>{{jd_user.mobile_cookie_ts_label}}</strong>
-                              </v-flex>
-                              <v-flex xs6>
-                                <strong>验证码登录</strong>
-                              </v-flex>
-                            </v-layout>
-                          </v-timeline-item>
-                          <v-timeline-item
-                            color="pink"
-                            small
-                          >
-                            <v-layout pt-3>
-                              <v-flex xs6>
-                                <strong>{{jd_user.mobile_cookie_expire_ts_label}}</strong>
-                              </v-flex>
-                              <v-flex xs6>
-                                <strong>到期</strong>
-                              </v-flex>
-                            </v-layout>
-                          </v-timeline-item>
-                        </v-timeline>
-                      </v-flex>
-                    </v-layout>
-                  </v-card-text>
-                  <v-card-text v-else>
-                    <v-chip 
-                          class="ma-1 chips-small"
-                          :color="colors.black"
-                          text-color="white">
-                          移动端未登录/过期
-                    </v-chip>
-                  </v-card-text>
-                   <v-text-field 
-                              label="手机号码" 
-                              :color="colors.primary"
-                              v-model="jd_user.mobile" 
-                              clearable 
-                              clear-icon="cancel"
-                              :disabled="jd_user.mobile_code_running"
-                              class="mobile-num-input"
-                            ></v-text-field>
-                    <v-card-actions class="card-actions actions-margin-left">
-                        <v-btn color="primary" class="round-corner mobile-login-btn" block @click="onSendMobileCode(jd_user)">手机登录/刷新</v-btn>
+                    </v-card-title>
+                    <v-card-title class="justify-center">
+                      <v-text-field 
+                        label="手机号码" 
+                        :color="colors.primary"
+                        v-model="jd_user.mobile" 
+                        clearable 
+                        clear-icon="cancel"
+                        :disabled="jd_user.mobile_code_running"
+                      ></v-text-field>
+                    </v-card-title>
+                    <v-card-actions>
+                        <v-btn color="primary" class="round-corner" block @click="onSendMobileCode(jd_user)">登录/刷新</v-btn>
                     </v-card-actions>
+                  </div>
+                </v-layout>
               </v-card>
             </v-flex>
           </v-layout>
@@ -883,31 +804,11 @@ export default {
     border-radius:10px;
   }
   .avatar-svg {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
   }
-  .card-margin-bottom {
-    margin-bottom: 15px;
-  }
-  .card-action-margin{
-    margin-top: 15px;
-  }
-  .mobile-num-input {
-    padding-left: 30px;
-    padding-right: 30px;
-  }
-  .card-outter {
-    position: relative;
-    padding-bottom: 50px;
-  }
-  .card-actions {
-    position: absolute;
-    bottom: 0;
-  }
-  .actions-margin-left{
-    margin-left: 43%;
-  }
-  .mobile-login-btn{
-    margin-top: 35px;
+  .users-card-row{
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 </style>

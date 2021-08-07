@@ -1,145 +1,363 @@
 <template>
   <v-container fluid grid-list-xl>
-    
-    <v-chip class="ma-2 chips"
+    <v-chip class="ma-2 chips-small"
           v-if="!seckillQuerySubmitted"
           color="green"
-          text-color="white">
+          text-color="white"
+          >
         正在获取秒杀信息
     </v-chip>
     <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="!seckillQuerySubmitted"></v-progress-linear>
-    <v-expansion-panel expand v-model="panelExpend" v-if="seckillQuerySubmitted">
-      <v-expansion-panel-content>
-        <template v-slot:actions>
-          <v-icon color="primary">$vuetify.icons.expand</v-icon>
-          <v-btn color="primary" class="round-corner" @click="submitQuerySeckillData(true)">强制刷新</v-btn>
-        </template>
-        <template v-slot:header>
-          <v-chip class="ma-2 chips"
-                color="green"
-                text-color="white">
-              秒杀详情
-          </v-chip>
-        </template>
-        <v-card class="d-flex mb-4 mx-auto animated flipInX flashcard round-corner" img="https://cdn.vuetifyjs.com/images/parallax/material.jpg">
-          <v-card
-                v-for="item in seckillData" :key="item.id"
-                class=""
-                color="rgb(255, 0, 0, 0)"
-              >
-                <v-card-title 
-                  primary-title 
-                  class="justify-center">
-                  <v-btn
-                    class="ma-2 title-btn round-corner"
-                    color="success"
-                    dark
-                    large
+    <v-card class="round-corner"> 
+      <v-expansion-panel expand v-model="seckillPanelExpend" v-if="seckillQuerySubmitted" class="round-corner">
+        <v-expansion-panel-content class="round-corner expansion-panel">
+          <template v-slot:actions>
+            <v-icon color="primary">$vuetify.icons.expand</v-icon>
+            <v-btn color="primary" class="round-corner" @click="submitQuerySeckillData(true)">强制刷新</v-btn>
+          </template>
+          <template v-slot:header>
+            <v-chip class="ma-2 chips-small"
+                  color="green"
+                  text-color="white"
                   >
-                    <v-icon
-                      dark
+                秒杀商品
+            </v-chip>
+          </template>
+          <v-card class="mb-4 mx-auto animated flipInX flashcard round-corner" img="https://cdn.vuetifyjs.com/images/parallax/material.jpg">
+            <v-layout row wrap>
+                <v-flex xs3 v-for="item in seckillData" :key="item.id">
+                <v-card
+                      color="rgb(255, 0, 0, 0)"
                     >
-                    </v-icon>{{ item.displayTime }}
-                  </v-btn>
-                </v-card-title>
-                <v-card-text>
-                    <v-timeline
-                      dense
-                    >
-                      <v-timeline-item
-                        v-for="seckill_item in item.seckill_items" :key="seckill_item.id" :color="seckill_item.tagText?colors.red:colors.primary"  small
-                      >
-                        <v-card min-height="370" width="650"  class="round-corner">
-                              <v-chip 
-                                    v-if="seckill_item.tagText"
-                                    class="ma-2 chips float:left"
-                                    color="red"
-                                    text-color="white">
-                                  {{seckill_item.tagText}}
-                              </v-chip>
-                              <div v-show="!seckill_item.tagText" class="ma-2 chips float:left">
-                              </div>
-                              <div class="d-flex flex-no-wrap justify-space-between">
-                                <v-avatar
-                                  class="ma-3"
-                                  size="300"
-                                  tile
-                                >
-                                  <v-img :src="`${seckill_item.imageurl}`"></v-img>
-                                </v-avatar>
-                                  <v-card-title
-                                    class="text-h5 justify-center"
-                                  ><v-card min-height="150" min-width="80" max-width="550" class="round-corner">
-                                    <v-card-text class="white justify-center">
-                                        {{seckill_item.shortWname}}
-                                    </v-card-text>
-                                    <v-chip class="ma-2 chips"
-                                        color="orange"
-                                        text-color="white"
-                                      >
-                                        ¥{{seckill_item.miaoShaPrice}}
-                                      </v-chip>
-                                      <v-chip class="ma-2 chips"
-                                        color="grey"
-                                        text-color="white"
-                                      >
-                                        <font style="text-decoration:line-through;">¥{{seckill_item.jdPrice}}</font>
-                                      </v-chip>
-                                      <v-chip class="ma-2 chips"
-                                          color="green"
-                                          text-color="white">
-                                          {{seckill_item.rate}}折
-                                    </v-chip>
+                      <v-card-title 
+                        primary-title 
+                        class="justify-center">
+                        <v-btn
+                          class="ma-2 title-btn round-corner"
+                          color="success"
+                          dark
+                          large
+                        >
+                          <v-icon
+                            dark
+                          >
+                          </v-icon>{{ item.displayTime }}
+                        </v-btn>
+                      </v-card-title>
+                      <v-card-text>
+                            <div
+                              v-for="seckill_item in item.seckill_items" :key="seckill_item.id" :color="seckill_item.tagText?colors.red:colors.primary"
+                            >
+                              <v-layout row wrap>
+                                <v-flex xs12>
+                                  <v-card class="round-corner">
                                     <v-chip 
-                                          v-if="seckill_item.specificationLabel"
-                                          class="ma-2 chips"
-                                          color="green"
-                                          text-color="white">
-                                        {{seckill_item.specificationLabel}}
-                                    </v-chip>
-                                    <v-chip 
-                                          v-if="seckill_item.iconList"
-                                          class="ma-2 chips"
-                                          color="green"
-                                          text-color="white">
-                                        自营
-                                    </v-chip>
-                                    <v-chip 
-                                          v-else
-                                          class="ma-2 chips"
-                                          color="green"
-                                          text-color="white">
-                                        非自营
-                                    </v-chip>
-                                    <v-chip 
-                                          v-if="seckill_item.isReserveProduct"
-                                          class="ma-2 chips"
-                                          color="orange"
-                                          text-color="white">
-                                        预约
-                                    </v-chip>
-                                    <v-chip 
-                                          v-if="seckill_item.isFreeDelivery"
-                                          class="ma-2 chips"
+                                          v-if="seckill_item.tagText"
+                                          class="ma-2 chips-small float:left"
                                           color="red"
                                           text-color="white">
-                                        包邮
+                                        {{seckill_item.tagText}}
                                     </v-chip>
-                                  </v-card></v-card-title>
-                              </div>
-                              <v-card-actions class="white justify-center">
-                                <v-btn color="primary" class="round-corner" @click="loadItemPage(seckill_item.wareId)">详情</v-btn>
-                                <v-btn color="primary" class="round-corner" @click="onAddToArrangement(seckill_item.wareId, seckill_item.shortWname, item.startTime, item.startTimeMills)">抢购</v-btn>
-                              </v-card-actions>
-                            </v-card>
-                      </v-timeline-item>
-                    </v-timeline>
+                                    <div v-show="!seckill_item.tagText" class="ma-2 chips float:left">
+                                    </div>
+                                    <div>
+                                        <v-card-title
+                                          class="text-h5 justify-center"
+                                        >
+                                          <v-avatar
+                                            class="ma-3"
+                                            size="150"
+                                            tile
+                                            contain
+                                          >
+                                            <v-img :src="`${seckill_item.imageurl}`"></v-img>
+                                          </v-avatar>
+                                        </v-card-title>
+                                        <v-card-title
+                                          class="text-h5 justify-center"
+                                        >
+                                        <v-card min-height="130" class="round-corner">
+                                          <v-card-text class="white justify-center">
+                                              {{seckill_item.shortWname}}
+                                          </v-card-text>
+                                          <v-chip class="ma-2 chips-small"
+                                              color="orange"
+                                              text-color="white"
+                                            >
+                                              ¥{{seckill_item.miaoShaPrice}}
+                                            </v-chip>
+                                            <v-chip class="ma-2 chips-small"
+                                              color="grey"
+                                              text-color="white"
+                                            >
+                                              <font style="text-decoration:line-through;">¥{{seckill_item.jdPrice}}</font>
+                                            </v-chip>
+                                            <v-chip class="ma-2 chips-small"
+                                                color="green"
+                                                text-color="white">
+                                                {{seckill_item.rate}}折
+                                          </v-chip>
+                                          <v-chip 
+                                                v-if="seckill_item.specificationLabel"
+                                                class="ma-2 chips-small"
+                                                color="green"
+                                                text-color="white">
+                                              {{seckill_item.specificationLabel}}
+                                          </v-chip>
+                                          <v-chip 
+                                                v-if="seckill_item.iconList"
+                                                class="ma-2 chips-small"
+                                                color="green"
+                                                text-color="white">
+                                              自营
+                                          </v-chip>
+                                          <v-chip 
+                                                v-else
+                                                class="ma-2 chips-small"
+                                                color="green"
+                                                text-color="white">
+                                              非自营
+                                          </v-chip>
+                                          <v-chip 
+                                                v-if="seckill_item.isReserveProduct"
+                                                class="ma-2 chips-small"
+                                                color="orange"
+                                                text-color="white">
+                                              预约
+                                          </v-chip>
+                                          <v-chip 
+                                                v-if="seckill_item.isFreeDelivery"
+                                                class="ma-2 chips-small"
+                                                color="red"
+                                                text-color="white">
+                                              包邮
+                                          </v-chip>
+                                        </v-card></v-card-title>
+                                    </div>
+                                    <v-card-actions class="white justify-center">
+                                      <v-btn color="primary" class="round-corner" @click="loadItemPage(seckill_item.wareId)">详情</v-btn>
+                                      <v-btn color="primary" class="round-corner" @click="onAddToArrangement(seckill_item.wareId, seckill_item.shortWname, item.startTime, item.startTimeMills, true)">抢购</v-btn>
+                                    </v-card-actions>
+                                  </v-card>
+                                </v-flex>
+                              </v-layout>
+                          </div>
+                      </v-card-text>
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-card>
+    <v-card class="round-corner sku-card-margin"> 
+      <v-expansion-panel expand v-model="skuPanelExpend" class="round-corner">
+        <v-expansion-panel-content class="round-corner expansion-panel">
+          <template v-slot:actions>
+            <v-icon color="primary">$vuetify.icons.expand</v-icon>
+          </template>
+          <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="skuQuerySubmitting"></v-progress-linear>
+          <template v-slot:header>
+            <v-chip class="ma-2 chips-small"
+                  color="green"
+                  text-color="white">
+                自选商品
+            </v-chip>
+          </template>
+          <v-card class="round-corner sku-query-card">
+            <v-card-text>
+              <v-layout row wrap>
+                <v-flex xs3>
+                  <v-text-field 
+                      label="商品编号" 
+                      :color="colors.primary"
+                      v-model="sku_query_id" 
+                      clearable 
+                      clear-icon="cancel"
+                    ></v-text-field>
+                </v-flex>
+                <v-flex xs3>
+                  <v-btn color="primary" class="round-corner" :disabled="skuQuerySubmitting" @click="submitQuerySkuData(sku_query_id)">查询</v-btn>
+                </v-flex>
+                <v-flex xs3>
+                  <v-menu
+                    ref="sku_date_menu"
+                    v-model="sku_date_menu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="sku_date"
+                    lazy
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="sku_date"
+                        label="选择日期"
+                        prepend-icon="event"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker v-model="sku_date" no-title scrollable>
+                      <v-spacer></v-spacer>
+                      <v-btn class="round-corner" color="primary" @click="sku_date_menu = false">取消</v-btn>
+                      <v-btn class="round-corner" color="primary" @click="$refs.sku_date_menu.save(sku_date)">确定</v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                </v-flex>
+                <v-flex xs3>
+                  <v-menu
+                    ref="sku_time_menu"
+                    v-model="sku_time_menu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="sku_time"
+                    lazy
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="sku_time"
+                        label="选择时间"
+                        prepend-icon="access_time"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="sku_time_menu"
+                      v-model="sku_time"
+                      full-width
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn class="round-corner" color="primary" @click="sku_time_menu = false">取消</v-btn>
+                      <v-btn class="round-corner" color="primary" @click="$refs.sku_time_menu.save(sku_time)">确定</v-btn>
+                    </v-time-picker>
+                  </v-menu>
+                </v-flex>
+              </v-layout>
+            </v-card-text>
+          </v-card>
+          <v-card class="mb-4 mx-auto animated flipInX flashcard round-corner" v-if="skuQuerySubmitted || skuData">
+            <v-card-text>
+              <v-card min-height="150" min-width="80" class="d-flex round-corner">
+                <v-card-title>
+                  <v-avatar
+                    class="ma-3"
+                    size="150"
+                    tile
+                  >
+                    <v-img :src="`${skuData.imageUrl}`" contain></v-img>
+                  </v-avatar>
+                </v-card-title>
+                <v-card-text>
+                  <v-card min-height="150" min-width="80" class="round-corner sku-info-card">
+                    <v-card-text class="white justify-center">
+                        {{skuData.sku_name}}
+                      </v-card-text>
+                    <v-chip class="ma-2 chips-small"
+                        color="orange"
+                        text-color="white"
+                      >
+                        {{skuData.stock_info}}
+                      </v-chip>
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="green"
+                            text-color="white">
+                          ¥{{skuData.current_price}}
+                      </v-chip>
+                      <v-chip 
+                            v-if="skuData.is_jd_delivery"
+                            class="ma-2 chips-small"
+                            color="green"
+                            text-color="white">
+                          京东配送
+                      </v-chip>
+                      <v-chip 
+                            v-else
+                            class="ma-2 chips-small"
+                            color="green"
+                            text-color="white">
+                          第三方配送
+                      </v-chip>
+                      <div v-if="skuData.is_reserve_product">
+                        <v-chip 
+                              class="ma-2 chips-small"
+                              color="primary"
+                              text-color="white">
+                            预约
+                        </v-chip>
+                        <v-chip 
+                              class="ma-2 chips-small"
+                              color="primary"
+                              text-color="white">
+                            预约人数 {{skuData.reserve_info.num}}
+                      </v-chip>
+                  </div>
+                  <div v-else-if="skuData.seckill_info">
+                    <v-chip 
+                          class="ma-2 chips-small"
+                          color="red"
+                          text-color="white">
+                        秒杀
+                    </v-chip>
+                    <v-chip 
+                          class="ma-2 chips-small"
+                          color="red"
+                          text-color="white">
+                        秒杀价{{skuData.seckill_info.promo_price}}
+                    </v-chip>
+                    <v-chip 
+                          class="ma-2 chips-small"
+                          color="red"
+                          text-color="white">
+                        {{skuData.seckill_info.seckill_discount}}
+                    </v-chip>
+                  </div>
+                  <div v-else-if="skuData.is_presale_product">
+                    <v-chip 
+                          class="ma-2 chips-small"
+                          color="orange"
+                          text-color="white">
+                        预售
+                    </v-chip>
+                    <v-chip 
+                          class="ma-2 chips-small"
+                          color="orange"
+                          text-color="white">
+                        预售价格 {{skuData.presale_info.yuShouPrice}}
+                    </v-chip>
+                  </div>
+                  <v-chip 
+                        v-if="skuData.isFreeDelivery"
+                        class="ma-2 chips-small"
+                        color="red"
+                        text-color="white">
+                      包邮
+                  </v-chip>
+                    </v-card>
                 </v-card-text>
+                <v-card-actions class="white justify-center">
+                  <v-btn color="primary" class="round-corner" @click="loadItemPage(skuData.sku_id)">详情</v-btn>
+                  <v-btn color="primary" class="round-corner" @click="onAddToArrangement(skuData.sku_id, skuData.sku_name, null, null, false)">抢购</v-btn>
+                </v-card-actions>
               </v-card>
-      </v-card>
-      </v-expansion-panel-content>
-    </v-expansion-panel>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-card>
     <template>
+      <v-layout row wrap>
+        <v-flex xs4>
       <v-chip
         v-if="jdUsers.length==0"
         class="ma-2"
@@ -155,315 +373,233 @@
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期计划</v-btn>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false)">清除所有计划</v-btn>
-    </template>
-    <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard">
-      <v-layout row wrap>
-        <v-flex xs2>
-          <v-card min-height="370" color="amber" class="card-outter round-corner">
-                <v-card-text>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-card-text>
-                          <avatar class="avatar-svg"></avatar>
-                      </v-card-text>
-                      <v-card-text>
-                          <strong v-html="jd_user.nick_name"></strong>
-                      </v-card-text>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-card-text>
-                          <strong>收货信息</strong>
-                      </v-card-text>
-                      <v-card-text>
-                          <strong v-html="jd_user.recipient_name"></strong>
-                      </v-card-text>
-                      <v-card-text>
-                            <strong v-html="jd_user.full_addr"></strong>
-                      </v-card-text>
-                    </v-flex>
-                  </v-layout>
-                </v-card-text>
-                <v-card-actions class="card-actions actions-margin-left">
-                  <v-layout row wrap>
-                    <v-flex xs3>
-                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_seckill" block @click="startSeckill(jd_user.nick_name, false)">开始抢购</v-btn>
-                    </v-flex>
-                    <v-flex xs3>
-                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkSeckillLog(jd_user.nick_name)">查看日志</v-btn>
-                    </v-flex>
-                    <v-flex xs3>
-                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkOrder(jd_user.nick_name)">查看订单</v-btn>
-                    </v-flex>
-                    <v-flex xs3>
-                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_cancel_seckill" block @click="cancelSeckill(jd_user.nick_name, false)">取消抢购</v-btn>
-                    </v-flex>
-                  </v-layout>
-                </v-card-actions>
-            </v-card>
         </v-flex>
-        <v-flex xs1>
-          <v-card min-height="370" color="amber" class="round-corner">
-            <v-card-text>
-              <v-text-field 
-                label="提前下单时间(毫秒)" 
-                :color="colors.primary"
-                v-model="jd_user.leading_time" 
-                clearable 
-                clear-icon="cancel"
-              ></v-text-field>
-            </v-card-text>
+      </v-layout>
+    </template>
+    <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
+      <v-layout row wrap>
+        <v-flex xs3>
+          <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+            <v-layout row wrap class="justify-center">
+              <div>
+                <v-card-title class="justify-center">
+                  <v-chip
+                    class="ma-2"
+                    color="green"
+                    text-color="white"
+                  >
+                    {{jd_user.nick_name}}
+                  </v-chip>
+                </v-card-title>
+                <v-card-title class="justify-center">
+                  <avatar class="avatar-svg"></avatar>
+                </v-card-title>
+                <v-card-actions>
+                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_seckill" block @click="startSeckill(jd_user.nick_name, false)">开始</v-btn>
+                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_cancel_seckill" block @click="cancelSeckill(jd_user.nick_name, false)">取消</v-btn>
+                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkSeckillLog(jd_user.nick_name)">日志</v-btn>
+                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkOrder(jd_user.nick_name)">订单</v-btn>
+                </v-card-actions>
+              </div>
+            </v-layout>
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="370" color="amber" class="round-corner">
-            <v-card-text>
-                <strong>PC端登录状态</strong>
-                <v-chip v-if="jd_user.pc_cookie_expire_level==1"
+          <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+            <v-layout row wrap class="justify-center">
+              <v-card-title class="justify-center">
+                <v-chip
                       class="ma-1 chips-small"
                       :color="colors.green"
                       text-color="white">
-                  有效时间大于6小时
+                    收货地址
                 </v-chip>
-                <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
-                      class="ma-1 chips-small"
-                      :color="colors.purple"
-                      text-color="white">
-                  有效时间小于6小时
-                </v-chip>
-                <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
-                      class="ma-1 chips-small"
-                      :color="colors.red"
-                      text-color="white">
-                  有效时间小于2小时
-                </v-chip>
-                <v-chip v-else
-                      class="ma-1 chips-small"
-                      :color="colors.black"
-                      text-color="white">
-                  未登录/已过期
-                </v-chip>
-            </v-card-text>
-            <v-card-text v-if="jd_user.pc_cookie_status">
-                <v-timeline
-                  align-top
-                  dense
-                >
-                <v-timeline-item
-                  color="pink"
-                  small
-                >
-                  <v-layout pt-3>
-                    <v-flex xs6>
-                      <strong>{{jd_user.pc_cookie_ts_label}}</strong>
-                    </v-flex>
-                    <v-flex>
-                      <strong>扫码登录</strong>
-                    </v-flex>
+                <v-card-text class="text-center">
+                  <v-layout row wrap class="justify-center">
+                    <div><strong v-html="jd_user.recipient_name"></strong></div>
                   </v-layout>
-                </v-timeline-item>
-                <v-timeline-item
-                  color="pink"
-                  small
-                >
-                  <v-layout pt-3>
-                    <v-flex xs6>
-                      <strong>{{jd_user.pc_cookie_expire_ts_label}}</strong>
-                    </v-flex>
-                    <v-flex>
-                      <strong>到期</strong>
-                    </v-flex>
+                </v-card-text>
+                <v-card-text class="text-center">
+                  <v-layout row wrap class="justify-center">
+                    <div><strong v-html="jd_user.full_addr"></strong></div>
                   </v-layout>
-                </v-timeline-item>
-              </v-timeline>
-            </v-card-text>
-            <v-card-text v-else>
-                <v-chip 
-                    class="ma-1 chips-small"
-                    :color="colors.black"
-                    text-color="white">
-                    PC端未登录/已过期
-              </v-chip>
-            </v-card-text>
+                </v-card-text>
+              </v-card-title>
+              <v-card-title class="justify-center">
+                <v-card-text>
+                <v-text-field 
+                  label="提前时间(毫秒)"
+                  color="primary"
+                  v-model="jd_user.leading_time" 
+                  clearable 
+                  clear-icon="cancel"
+                ></v-text-field>
+              </v-card-text>
+              </v-card-title>
+            </v-layout>
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="370" color="amber" class="round-corner">
-              <v-card-text>
-                  <strong>移动端登录状态</strong>
-                  <v-chip v-if="jd_user.mobile_cookie_expire_level==1"
-                        class="ma-1 chips-small"
-                        :color="colors.green"
-                        text-color="white">
-                    有效时间大于6小时
-                  </v-chip>
-                  <v-chip v-else-if="jd_user.mobile_cookie_expire_level==2"
-                        class="ma-1 chips-small"
-                        :color="colors.purple"
-                        text-color="white">
-                    有效时间小于6小时
-                  </v-chip>
-                  <v-chip v-else-if="jd_user.mobile_cookie_expire_level==3"
-                        class="ma-1 chips-small"
-                        :color="colors.red"
-                        text-color="white">
-                    有效时间小于2小时
-                  </v-chip>
-                  <v-chip v-else
-                        class="ma-1 chips-small"
-                        :color="colors.black"
-                        text-color="white">
-                    未登录/已过期
-                  </v-chip>
-              </v-card-text>
-              <v-card-text v-if="jd_user.mobile_cookie_status">
-                <v-timeline
-                    align-top
-                    dense
-                  >
-                  <v-timeline-item
-                    color="pink"
-                    small
-                  >
-                    <v-layout pt-3>
-                      <v-flex xs6>
-                        <strong>{{jd_user.mobile_cookie_ts_label}}</strong>
-                      </v-flex>
-                      <v-flex>
-                        <strong>验证码登录</strong>
-                      </v-flex>
-                    </v-layout>
-                  </v-timeline-item>
-                  <v-timeline-item
-                    color="pink"
-                    small
-                  >
-                    <v-layout pt-3>
-                      <v-flex xs6>
-                        <strong>{{jd_user.mobile_cookie_expire_ts_label}}</strong>
-                      </v-flex>
-                      <v-flex>
-                        <strong>到期</strong>
-                      </v-flex>
-                    </v-layout>
-                  </v-timeline-item>
-                </v-timeline>
-              </v-card-text>
-              <v-card-text v-else>
-                <v-chip 
-                      class="ma-1 chips-small"
-                      :color="colors.black"
-                      text-color="white">
-                      移动端未登录/已过期
-                </v-chip>
-              </v-card-text>
+          <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+            <v-layout row wrap class="justify-center">
+              <div>
+                <v-card-title class="justify-center">
+                    <v-chip v-if="jd_user.pc_cookie_expire_level==1"
+                          class="ma-1 chips-small"
+                          :color="colors.green"
+                          text-color="white">
+                      PC有效时间大于6小时
+                    </v-chip>
+                    <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
+                          class="ma-1 chips-small"
+                          :color="colors.purple"
+                          text-color="white">
+                      PC有效时间小于6小时
+                    </v-chip>
+                    <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
+                          class="ma-1 chips-small"
+                          :color="colors.red"
+                          text-color="white">
+                      PC有效时间小于2小时
+                    </v-chip>
+                    <v-chip v-else
+                          class="ma-1 chips-small"
+                          :color="colors.black"
+                          text-color="white">
+                      PC未登录/已过期
+                    </v-chip>
+                </v-card-title>
+                <v-card-title class="justify-center" v-if="jd_user.pc_cookie_status">
+                  <strong>到期 {{jd_user.pc_cookie_expire_ts_label}}</strong>
+                </v-card-title>
+                <v-card-title class="justify-center">
+                    <v-chip v-if="jd_user.mobile_cookie_expire_level==1"
+                          class="ma-1 chips-small"
+                          :color="colors.green"
+                          text-color="white">
+                      移动有效时间大于6小时
+                    </v-chip>
+                    <v-chip v-else-if="jd_user.mobile_cookie_expire_level==2"
+                          class="ma-1 chips-small"
+                          :color="colors.purple"
+                          text-color="white">
+                      移动有效时间小于6小时
+                    </v-chip>
+                    <v-chip v-else-if="jd_user.mobile_cookie_expire_level==3"
+                          class="ma-1 chips-small"
+                          :color="colors.red"
+                          text-color="white">
+                      移动有效时间小于2小时
+                    </v-chip>
+                    <v-chip v-else
+                          class="ma-1 chips-small"
+                          :color="colors.black"
+                          text-color="white">
+                      移动未登录/已过期
+                    </v-chip>
+                </v-card-title>
+                <v-card-title class="justify-center" v-if="jd_user.mobile_cookie_status">
+                  <strong>到期 {{jd_user.mobile_cookie_expire_ts_label}}</strong>
+                </v-card-title>
+              </div>
+            </v-layout>
           </v-card>
         </v-flex>
         <v-flex xs5>
-            <v-card min-height="370" color="amber" class="round-corner" >
-              <v-card-text>
-                <v-timeline
-                      align-top
-                      dense
-                    >
-                    <v-timeline-item 
-                      v-for="arrenge in userArrangement[jd_user.nick_name]" :key="arrenge.id"
-                      color="pink"
-                      small
-                    >
-                      <v-layout pt-3>
-                        <v-flex xs2>
-                          <v-chip
-                              v-if="arrenge.status=='未开始'"
-                              :v-model="arrenge.status!=null"
-                              color="pink"
-                              text-color="white"
-                              class="sku-selected-chip"
-                              >
-                            {{arrenge.status}}
-                            <v-icon v-if="arrenge.status=='未开始'" dark right>build</v-icon>
-                          </v-chip>
-                          <v-chip
-                              v-if="arrenge.status=='已取消'"
-                              :v-model="arrenge.status!=null"
-                              color="black"
-                              text-color="white"
-                              class="sku-selected-chip"
-                              >
-                            {{arrenge.status}}
-                            <v-icon v-if="arrenge.status=='已取消'" dark right>remove_circle</v-icon>
-                          </v-chip>
-                          <v-chip
-                              v-if="arrenge.status=='运行中'"
-                              :v-model="arrenge.status!=null"
-                              color="primary"
-                              text-color="white"
-                              class="sku-selected-chip"
-                              >
-                            {{arrenge.status}}
-                            <v-progress-circular
-                              v-if="arrenge.status=='运行中'"
-                              :v-model="arrenge.status!=null"
-                              indeterminate
-                              color="white"
-                              :width="3"
-                              :size="20"
-                            ></v-progress-circular>
-                          </v-chip>
-                          <v-chip
-                              v-if="arrenge.status=='已成功'"
-                              :v-model="arrenge.status!=null"
-                              color="green"
-                              text-color="white"
-                              class="sku-selected-chip"
-                              >
-                            {{arrenge.status}}
-                            <v-icon v-if="arrenge.status=='已成功'" dark right>check_circle</v-icon>
-                          </v-chip>
-                          <v-chip
-                              v-if="arrenge.status=='已失败'"
-                              :v-model="arrenge.status!=null"
-                              color="red"
-                              text-color="white"
-                              class="sku-selected-chip"
-                              >
-                            {{arrenge.status}}
-                            <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
-                          </v-chip>
-                          <v-chip
-                              v-if="arrenge.status=='系统错误'"
-                              :v-model="arrenge.status!=null"
-                              color="black"
-                              text-color="white"
-                              class="sku-selected-chip"
-                              >
-                            {{arrenge.status}}
-                            <v-icon v-if="arrenge.status=='系统错误'" dark right>block</v-icon>
-                          </v-chip>
-                        </v-flex>
-                        <v-flex xs8>
-                          <strong>{{arrenge.startTime}}</strong>
-                        </v-flex>
-                        <v-flex xs2>
-                            <v-chip  v-for="skuDetail in arrenge.skus" :key="skuDetail.id"
-                                color="teal"
+            <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-layout>
+                <v-card-text>
+                  <div v-for="arrenge in userArrangement[jd_user.nick_name]" :key="arrenge.id">
+                        <v-layout pt-3>
+                          <v-flex xs2>
+                            <v-chip
+                                v-if="arrenge.status=='未开始'"
+                                :v-model="arrenge.status!=null"
+                                color="pink"
                                 text-color="white"
                                 class="sku-selected-chip"
-                                :v-model="skuDetail.skuId!=null"
-                                @click="showRemoveSkuDialog(skuDetail.skuId, skuDetail.shortWname, arrenge.startTime, jd_user.nick_name)"
-                                close
                                 >
-                              {{skuDetail.shortWname}} x {{skuDetail.count}}
+                              {{arrenge.status}}
+                              <v-icon v-if="arrenge.status=='未开始'" dark right>build</v-icon>
                             </v-chip>
-                        </v-flex>
-                        <v-flex v-for="i in 4" :key="`2${i}`" xs2>
-                        <!-- <v-card dark color="orange"> -->
-                          <!-- <v-card-text class="px-0"></v-card-text> -->
-                        <!-- </v-card> -->
-                      </v-flex>
-                      </v-layout>
-                    </v-timeline-item>
-                  </v-timeline>
-              </v-card-text>
+                            <v-chip
+                                v-if="arrenge.status=='已取消'"
+                                :v-model="arrenge.status!=null"
+                                color="black"
+                                text-color="white"
+                                class="sku-selected-chip"
+                                >
+                              {{arrenge.status}}
+                              <v-icon v-if="arrenge.status=='已取消'" dark right>remove_circle</v-icon>
+                            </v-chip>
+                            <v-chip
+                                v-if="arrenge.status=='运行中'"
+                                :v-model="arrenge.status!=null"
+                                color="primary"
+                                text-color="white"
+                                class="sku-selected-chip"
+                                >
+                              {{arrenge.status}}
+                              <v-progress-circular
+                                v-if="arrenge.status=='运行中'"
+                                :v-model="arrenge.status!=null"
+                                indeterminate
+                                color="white"
+                                :width="3"
+                                :size="20"
+                              ></v-progress-circular>
+                            </v-chip>
+                            <v-chip
+                                v-if="arrenge.status=='已成功'"
+                                :v-model="arrenge.status!=null"
+                                color="green"
+                                text-color="white"
+                                class="sku-selected-chip"
+                                >
+                              {{arrenge.status}}
+                              <v-icon v-if="arrenge.status=='已成功'" dark right>check_circle</v-icon>
+                            </v-chip>
+                            <v-chip
+                                v-if="arrenge.status=='已失败'"
+                                :v-model="arrenge.status!=null"
+                                color="red"
+                                text-color="white"
+                                class="sku-selected-chip"
+                                >
+                              {{arrenge.status}}
+                              <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
+                            </v-chip>
+                            <v-chip
+                                v-if="arrenge.status=='系统错误'"
+                                :v-model="arrenge.status!=null"
+                                color="black"
+                                text-color="white"
+                                class="sku-selected-chip"
+                                >
+                              {{arrenge.status}}
+                              <v-icon v-if="arrenge.status=='系统错误'" dark right>block</v-icon>
+                            </v-chip>
+                          </v-flex>
+                          <v-flex xs4>
+                            <strong>{{arrenge.startTime}}</strong>
+                          </v-flex>
+                          <v-flex xs6>
+                              <v-chip  v-for="skuDetail in arrenge.skus" :key="skuDetail.id"
+                                  color="teal"
+                                  text-color="white"
+                                  class="sku-selected-chip"
+                                  :v-model="skuDetail.skuId!=null"
+                                  @click="showRemoveSkuDialog(skuDetail.skuId, skuDetail.shortWname, arrenge.startTime, jd_user.nick_name)"
+                                  close
+                                  small
+                                  >
+                                {{skuDetail.shortWname}} x {{skuDetail.count}}
+                              </v-chip>
+                          </v-flex>
+                        </v-layout>
+                  </div>
+                </v-card-text>
+              </v-layout>
             </v-card>
         </v-flex>
       </v-layout>
@@ -486,7 +622,8 @@
                 label="抢购数量"
               ></v-select>
               <v-btn
-                color="blue darken-1"
+                color="primary"
+                class="round-corner"
                 text
                 @click="onSelectAllJDUsersForArrangement()"
               >
@@ -501,20 +638,24 @@
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="onCloseSelectUserForSku(false)"
-              >
-                关闭
-              </v-btn>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="onCloseSelectUserForSku(true)"
-              >
-                确认
-              </v-btn>
+              <v-flex class="text-xs-right">
+                <v-btn
+                  color="primary"
+                  class="round-corner"
+                  text
+                  @click="onCloseSelectUserForSku(true)"
+                >
+                  确认
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  class="round-corner"
+                  text
+                  @click="onCloseSelectUserForSku(false)"
+                >
+                  关闭
+                </v-btn>
+              </v-flex>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -529,8 +670,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="green darken-1" flat @click="onConfirmRemoveSkuBtn(false)">否</v-btn>
-              <v-btn color="green darken-1" flat @click="onConfirmRemoveSkuBtn(true)">是</v-btn>
+              <v-btn color="primary" class="round-corner" @click="onConfirmRemoveSkuBtn(true)">确认</v-btn>
+              <v-btn color="primary" class="round-corner" @click="onConfirmRemoveSkuBtn(false)">关闭</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -556,7 +697,7 @@
               <v-divider></v-divider>
               <v-card-actions>
                 <v-flex class="text-xs-right">
-                  <v-btn color="green darken-1" flat @click="onCloseLogDialog()">关闭</v-btn>
+                  <v-btn color="primary" class="round-corner" @click="onCloseLogDialog()">关闭</v-btn>
                 </v-flex>
               </v-card-actions>
             </v-card>
@@ -572,6 +713,7 @@ export default {
   created: function() {
     this.getAssociatedJdUsers()
     this.submitQuerySeckillData(false)
+    this.getCustomSku()
   },
   beforeDestroy: function(){
     var ins = this
@@ -588,12 +730,22 @@ export default {
   },
   data() {
     return {
-      panelExpend:[true],
-      seckillData:{},
+      seckillPanelExpend:[true],
+      skuPanelExpend:[false],
+      seckillData:[],
+      skuData:null,
+      sku_query_id: '',
+      sku_date:'',
+      sku_time:'',
+      sku_date_menu: false,
+      sku_time_menu: false,
       seckillQuerySubmitted:false,
+      skuQuerySubmitted:false,
+      skuQuerySubmitting:false,
       addToArrangement:false,
       removeSkuDialog:false,
       removeUserDialog:false,
+      isSeckillMode:false,
       toRemoveSkuId:'',
       toRemoveSkuName:'',
       toRemoveStartTime:'',
@@ -808,13 +960,33 @@ export default {
       }
       this.removeSkuDialog = false;
     },
-    onAddToArrangement:function(wareId, shortWname, startTime, startTimeMills){
-      this.addToArrangement=true
+    onAddToArrangement:function(wareId, shortWname, startTime, startTimeMills, isSeckillMode){
+      if(this.jdUsers.length==0){
+        this.$commons.showError('请先登录京东用户', this)
+        return
+      }
+      
+      if(isSeckillMode){
+        this.skuArrangement['startTime'] = startTime +'.000'
+        this.skuArrangement['startTimeMills'] = startTimeMills
+        this.isSeckillMode = true
+      }else{
+        if(!this.sku_date || !this.sku_time){
+          this.$commons.showError('请选择抢购时间', this)
+          return
+        }
+        this.skuArrangement['startTime'] = this.sku_date + " " + this.sku_time +':00.000'
+        this.skuArrangement['startTimeMills'] = this.$commons.getTimestampFromStr(this.sku_date + " " + this.sku_time +':00.000')
+        this.isSeckillMode = false
+      }
+      this.addToArrangement = true
       this.skuArrangement['skuId'] = wareId
       this.skuArrangement['shortWname'] = shortWname
-      this.skuArrangement['startTime'] = startTime +'.000'
-      this.skuArrangement['startTimeMills'] = startTimeMills
       this.skuArrangement['status'] = this.$constants.service.arrangementStatus.planned
+
+      if(!isSeckillMode && this.skuArrangement['shortWname'].length>20){
+        this.skuArrangement['shortWname'] = this.skuArrangement['shortWname'].substring(0, 20) + '...'
+      }
     },
     onSelectAllJDUsersForArrangement:function(){
       if(this.selectedUserForSku.length == this.jdUsers.length){
@@ -834,7 +1006,9 @@ export default {
           this.selectedNumber = 1
           return
         }
+
         for(var i=0;i<this.selectedUserForSku.length;i++){
+          var shouldIgnore = false
           var nick_name = this.selectedUserForSku[i];
           for(var j=0;j<this.jdUsers.length;j++){
               var jdUser = this.jdUsers[j]
@@ -846,7 +1020,16 @@ export default {
                   this.selectedNumber = 1
                   return
                 }
+
+                var foundSkuForUser = this.$commons.findKeyInJsonArray('skuId',this.skuArrangement['skuId'], this.userArrangement[nick_name], 'skus')
+                if(this.userArrangement[nick_name].length>3 && !foundSkuForUser){
+                  this.$commons.showError("用户" + nick_name + "最多可以设置4个抢购计划", this);
+                  shouldIgnore = true
+                }
               }
+          }
+          if(shouldIgnore){
+            continue
           }
           var arrangementEachTime = {}
           arrangementEachTime['startTime'] = this.skuArrangement['startTime']
@@ -889,8 +1072,11 @@ export default {
           }
         }
         //sort by startTimeMills
-        this.sortUserArrangement();
+        this.sortUserArrangement()
         this.saveUserArrangement()
+        if(!this.isSeckillMode){
+          this.addCustomSku()
+        }
       }
 
       this.selectedUserForSku = [];
@@ -1356,6 +1542,44 @@ export default {
             }
         }
     },
+    addCustomSku:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/add-custom-sku",
+          postData: {
+                      'sku_data': this.skuData
+                    },
+          successCallback: this.onSuccessAddCustomSku,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessAddCustomSku:function(response,callbackParam){
+      
+    },
+    getCustomSku:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/get-custom-sku",
+          successCallback: this.onSuccessGetCustomSku,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessGetCustomSku:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+              this.skuData = response.data.body['sku_data']
+              this.fillInSkuDate()
+              this.sku_query_id = this.skuData['sku_id']
+              this.skuPanelExpend = [true]
+          }
+        }
+    },
     saveUserArrangement:function(){
       var ins = this
       var requestObj = {
@@ -1548,7 +1772,7 @@ export default {
     submitQuerySeckillData: function(isForceRefresh) {
         this.seckillQuerySubmitted = false;
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/batch_load_seckill",
+            url: this.$constants.interface.backend.endpoint + "/site/jd/batch_load_seckill",
             successCallback: this.onSuccessSubmitQuerySeckillData,
             failureCallback: this.onFailuredSubmitQuerySeckillData,
             postData: {
@@ -1562,6 +1786,7 @@ export default {
     onSuccessSubmitQuerySeckillData: function(response,callbackParam) {
         if(response.data.body){
           this.seckillData = response.data.body;
+
           // sorting by rate
           // for(var i=0;i<this.seckillData.length;i++){
           //   var seckillItems = this.seckillData[i]['seckill_items'];
@@ -1572,6 +1797,40 @@ export default {
     },
     onFailuredSubmitQuerySeckillData: function(error,callbackParam) {
         this.seckillQuerySubmitted = true; 
+        this.$commons.defaultFailureCallback(error,this,callbackParam)
+    },
+    submitQuerySkuData: function(sku_id) {
+        this.sku_date = ''
+        this.sku_time = ''
+        this.skuQuerySubmitted = false;
+        this.skuQuerySubmitting = true
+        var requestObj = {
+            url: this.$constants.interface.backend.endpoint + "/site/jd/get-sku-by-id",
+            successCallback: this.onSuccessSubmitQuerySkuData,
+            failureCallback: this.onFailuredSubmitQuerySkulData,
+            postData: {
+                      'sku_id': sku_id
+                    },
+            ins: this,
+            hideLoading: true
+        };
+        this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessSubmitQuerySkuData: function(response,callbackParam) {
+      this.skuQuerySubmitted = true;
+      this.skuQuerySubmitting = false
+      if(response.data.body){
+          if(response.data.body['success']){
+              this.skuData = response.data.body['sku_data'];
+              this.fillInSkuDate()
+            }else{
+              this.$commons.showError(response.data.body['error'], this);
+            }
+        }
+    },
+    onFailuredSubmitQuerySkulData: function(error,callbackParam) {
+        this.skuQuerySubmitted = true; 
+        this.skuQuerySubmitting = false
         this.$commons.defaultFailureCallback(error,this,callbackParam)
     },
     getTargetUser:function(nick_name){
@@ -1596,6 +1855,16 @@ export default {
         }
       })
       return false
+    },
+    fillInSkuDate:function(){
+      if(this.skuData['is_reserve_product']){
+          var buyTimeSplitted = this.skuData['reserve_info']['buy_time'].split('-')
+          this.sku_date = buyTimeSplitted[0] + "-" + buyTimeSplitted[1] + "-" + buyTimeSplitted[2].split(' ')[0]
+          this.sku_time = buyTimeSplitted[2].split(' ')[1]
+        }else if(this.skuData['seckill_info']){
+          this.sku_date = this.skuData['seckill_info']['seckill_start_time_str'].split(' ')[0]
+          this.sku_time = this.skuData['seckill_info']['seckill_start_time_str'].split(' ')[1]
+        }
     }
   }
 };
@@ -1618,8 +1887,8 @@ export default {
     border-radius:10px;
   }
   .avatar-svg {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
   }
   .card-margin-bottom {
     margin-bottom: 15px;
@@ -1641,5 +1910,24 @@ export default {
   }
   .actions-margin-left{
     margin-left:25px
+  }
+  .sku-info-card{
+    margin-top: 25px;
+    margin-right: 25px;
+  }
+  .sku-query-card{
+    margin-bottom: 20px;
+  }
+  .sku-card-margin{
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .expansion-panel{
+    background:#26c6da !important;
+    color:white;
+  }
+  .users-card-row{
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 </style>

@@ -1,5 +1,6 @@
 <template>
   <v-navigation-drawer
+    width="200"
     v-model="toggle"
     fixed app>
     <v-toolbar flat dark :color="$root.themeColor" class="toolbar">
@@ -20,19 +21,19 @@
           <v-list-tile-action>
             <v-icon :color="iconColor">flight_takeoff</v-icon>
           </v-list-tile-action>
-          <v-list-tile-title :class="[{'active': 'JDSeckill' === selectedRoute.route.name}, 'item-title' ]" >京东抢购</v-list-tile-title>
+          <v-list-tile-title :class="[{'active': 'JDSeckill' === selectedRoute.route.name}, 'item-title' ]" >抢购</v-list-tile-title>
         </v-list-tile>
         <v-list-tile @click="changeRoute('JDUserManage')">
           <v-list-tile-action>
             <v-icon :color="iconColor">sentiment_satisfied</v-icon>
           </v-list-tile-action>
-          <v-list-tile-title :class="[{'active': 'JDUserManage' === selectedRoute.route.name}, 'item-title' ]" >京东用户管理</v-list-tile-title>
+          <v-list-tile-title :class="[{'active': 'JDUserManage' === selectedRoute.route.name}, 'item-title' ]" >用户管理</v-list-tile-title>
         </v-list-tile>
         <v-list-tile @click="changeRoute('JDOrderManage')">
           <v-list-tile-action>
             <v-icon :color="iconColor">event_note</v-icon>
           </v-list-tile-action>
-          <v-list-tile-title :class="[{'active': 'JDOrderManage' === selectedRoute.route.name}, 'item-title' ]" >京东订单管理</v-list-tile-title>
+          <v-list-tile-title :class="[{'active': 'JDOrderManage' === selectedRoute.route.name}, 'item-title' ]" >订单管理</v-list-tile-title>
         </v-list-tile>
     </v-list-group>
     </v-list>
