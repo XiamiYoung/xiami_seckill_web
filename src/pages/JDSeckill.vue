@@ -58,8 +58,13 @@
                                           text-color="white">
                                         {{seckill_item.tagText}}
                                     </v-chip>
-                                    <div v-show="!seckill_item.tagText" class="ma-2 chips float:left">
-                                    </div>
+                                    <v-chip 
+                                          v-else
+                                          class="ma-2 chips-small float:left"
+                                          color="primary"
+                                          text-color="white">
+                                        秒杀
+                                    </v-chip>
                                     <div>
                                         <v-card-title
                                           class="text-h5 justify-center"
@@ -245,7 +250,7 @@
               </v-layout>
             </v-card-text>
           </v-card>
-          <v-card class="mb-4 mx-auto animated flipInX flashcard round-corner" v-if="skuQuerySubmitted || skuData">
+          <v-card class="mb-4 mx-auto animated flipInX flashcard round-corner" v-if="skuData">
             <v-card-text>
               <v-card min-height="150" min-width="80" class="d-flex round-corner">
                 <v-card-title>
@@ -348,6 +353,7 @@
                 <v-card-actions class="white justify-center">
                   <v-btn color="primary" class="round-corner" @click="loadItemPage(skuData.sku_id)">详情</v-btn>
                   <v-btn color="primary" class="round-corner" @click="onAddToArrangement(skuData.sku_id, skuData.sku_name, null, null, false)">抢购</v-btn>
+                  <v-btn color="primary" class="round-corner" @click="deleteCustomSku()">清空</v-btn>
                 </v-card-actions>
               </v-card>
             </v-card-text>
@@ -369,6 +375,10 @@
           mdi-star
         </v-icon>
       </v-chip>
+      <v-checkbox
+        v-model="isIgnoreOutDated"
+        label="自动删除过期计划"
+      ></v-checkbox>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期计划</v-btn>
@@ -501,6 +511,32 @@
                 <v-card-title class="justify-center" v-if="jd_user.mobile_cookie_status">
                   <strong>到期 {{jd_user.mobile_cookie_expire_ts_label}}</strong>
                 </v-card-title>
+                <v-card-title class="justify-center">
+                    <v-chip v-if="jd_user.jd_pwd"
+                          class="ma-1 chips-small"
+                          :color="colors.green"
+                          text-color="white">
+                      支付密码已配置
+                    </v-chip>
+                    <v-chip v-else
+                          class="ma-1 chips-small"
+                          :color="colors.black"
+                          text-color="white">
+                      支付密码未配置
+                    </v-chip>
+                    <v-chip v-if="jd_user.push_email && jd_user.push_token"
+                          class="ma-1 chips-small"
+                          :color="colors.green"
+                          text-color="white">
+                      邮件提醒已配置
+                    </v-chip>
+                    <v-chip v-else
+                          class="ma-1 chips-small"
+                          :color="colors.black"
+                          text-color="white">
+                      邮件提醒未配置
+                    </v-chip>
+                </v-card-title>
               </div>
             </v-layout>
           </v-card>
@@ -609,12 +645,13 @@
           :value="addToArrangement"
           v-if="addToArrangement" persistent 
           scrollable
-          max-width="300px"
+          max-width="1000px"
+          max-height="1000px"
         >
           <v-card>
             <v-card-title>选择抢购信息</v-card-title>
             <v-divider></v-divider>
-            <v-card-text style="height: 300px;">
+            <v-card-text>
               <v-select
                 :items="skuNumbers"
                 v-model="selectedNumber"
@@ -754,6 +791,7 @@ export default {
       skuArrangement:{},
       selectedUserForSku:[],
       userArrangement:{},
+      isIgnoreOutDated: true,
       jdUsers:[],
       skuNumbers:[],
       selectedNumber:1,
@@ -850,6 +888,9 @@ export default {
       userData['mobile_code'] = ''
       userData['mobile_code_running'] = false
       userData['leading_time'] = jd_user_data.leading_time
+      userData['jd_pwd'] = jd_user_data.jd_pwd
+      userData['push_token'] = jd_user_data.push_token
+      userData['push_email'] = jd_user_data.push_email
 
       if(!isUserExisted){
         if(is_on_load_page){
@@ -893,9 +934,11 @@ export default {
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
             jdUser['leading_time'] = userData['leading_time']
+            jdUser['jd_pwd'] = userData['jd_pwd']
+            jdUser['push_token'] = userData['push_token']
+            jdUser['push_email'] = userData['push_email']
           }
         }
-        this.$commons.showMessage(jd_user_data.nick_name+"已刷新登录，有效期24小时", this)
       }
     },
     checkTsExpireLevel:function(){
@@ -975,8 +1018,14 @@ export default {
           this.$commons.showError('请选择抢购时间', this)
           return
         }
-        this.skuArrangement['startTime'] = this.sku_date + " " + this.sku_time +':00.000'
-        this.skuArrangement['startTimeMills'] = this.$commons.getTimestampFromStr(this.sku_date + " " + this.sku_time +':00.000')
+        var sku_display_time = this.sku_time 
+        if(this.sku_time.length == 5){
+          sku_display_time = this.sku_time + ":00.000"
+        }else{
+          sku_display_time = this.sku_time + ".000"
+        }
+        this.skuArrangement['startTime'] = this.sku_date + " " + sku_display_time
+        this.skuArrangement['startTimeMills'] = this.$commons.getTimestampFromStr(this.sku_date + " " + sku_display_time)
         this.isSeckillMode = false
       }
       this.addToArrangement = true
@@ -1022,7 +1071,7 @@ export default {
                 }
 
                 var foundSkuForUser = this.$commons.findKeyInJsonArray('skuId',this.skuArrangement['skuId'], this.userArrangement[nick_name], 'skus')
-                if(this.userArrangement[nick_name].length>3 && !foundSkuForUser){
+                if(this.userArrangement[nick_name] && this.userArrangement[nick_name].length>3 && !foundSkuForUser){
                   this.$commons.showError("用户" + nick_name + "最多可以设置4个抢购计划", this);
                   shouldIgnore = true
                 }
@@ -1173,8 +1222,10 @@ export default {
       var isActionTaken = false
       var is_batch_action = true
 
-      var is_outdate_only = true
-      this.removeOutDatedArrangement(is_outdate_only)
+      if(this.isIgnoreOutDated){
+        var is_outdate_only = true
+        this.removeOutDatedArrangement(is_outdate_only)
+      }
 
       if(this.getArrangementStatusInterval){
         clearInterval(this.getArrangementStatusInterval)
@@ -1242,7 +1293,7 @@ export default {
       var ins = this
       var target_user = this.getTargetUser(nick_name)
 
-      if(!is_batch_action){
+      if(!is_batch_action && this.isIgnoreOutDated){
         var is_outdate_only = true
         this.removeOutDatedArrangement(is_outdate_only, nick_name)
       }
@@ -1252,12 +1303,12 @@ export default {
         return
       }
 
-      if(!target_user['pc_cookie_status']){
+      if(!target_user['pc_cookie_status'] || target_user['pc_cookie_expire_level']==this.tsExpireLevel['expired']){
         this.$commons.showError('用户'+nick_name+'PC端未登录/已过期', this);
         return
       }
 
-      if(!target_user['mobile_cookie_status']){
+      if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
         this.$commons.showError('用户'+nick_name+'移动端未登录/已过期', this);
         return
       }
@@ -1580,6 +1631,28 @@ export default {
           }
         }
     },
+    deleteCustomSku:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/delete-custom-sku",
+          successCallback: this.onSuccessDeleteCustomSku,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessDeleteCustomSku:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+              this.skuData = null
+              this.sku_date = ''
+              this.sku_time = ''
+              this.sku_query_id = ''
+              this.skuPanelExpend = [false]
+          }
+        }
+    },
     saveUserArrangement:function(){
       var ins = this
       var requestObj = {
@@ -1673,11 +1746,11 @@ export default {
             var userArrangementStatusItem = seckill_arangement[i]
             var nick_name = userArrangementStatusItem['nick_name']
             var plannedArragementForUser = this.userArrangement[nick_name]
-            // not in cache
-            // if(!plannedArragementForUser){
-            //   this.deleteArrangementTargetTime('', nick_name)
-            //   continue
-            // }
+            //cache response user is not found from local, delete cache item
+            if(!plannedArragementForUser){
+              this.deleteArrangementTargetTime('', nick_name)
+              continue
+            }
             var is_user_task_running = false
             for(var j=0;j<userArrangementStatusItem['seckill_arangement'].length;j++){ 
               var retTargetTime = userArrangementStatusItem['seckill_arangement'][j]['target_time']
@@ -1772,7 +1845,7 @@ export default {
     submitQuerySeckillData: function(isForceRefresh) {
         this.seckillQuerySubmitted = false;
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/batch_load_seckill",
+            url: this.$constants.interface.backend.endpoint + "/site/jd/batch-load-seckill",
             successCallback: this.onSuccessSubmitQuerySeckillData,
             failureCallback: this.onFailuredSubmitQuerySeckillData,
             postData: {

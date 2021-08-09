@@ -37,7 +37,10 @@
                       <td width="10%" class="text-xs-left text-strong">
                         <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`"></v-img>
                       </td>
-                      <td width="90%" class="text-xs-left text-strong">
+                      <td width="10%" class="text-xs-left text-strong">
+                        <v-btn color="primary" class="round-corner" @click="loadItemPage(item.sku_id)">详情</v-btn>
+                      </td>
+                      <td width="80%" class="text-xs-left text-strong">
                         {{item.name}}(x{{item.quantity}})
                       </td>
                   </tr>
@@ -317,6 +320,9 @@ export default {
             this.$commons.showError(response.data.body['msg'],this)
           }
       }
+    },
+    loadItemPage:function(sku_id){
+      window.open('https://item.jd.com/'+sku_id+'.html')
     },
     filterBySkuName:function(sku_array, search) {
       for(var i=0;i<sku_array.length;i++){

@@ -16,7 +16,7 @@
       </v-chip>
         <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
           <v-layout row wrap>
-            <v-flex xs3>
+            <v-flex xs2>
               <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
@@ -42,7 +42,7 @@
                 </v-layout>
               </v-card>
             </v-flex>
-            <v-flex xs3>
+            <v-flex xs2>
               <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
@@ -64,23 +64,75 @@
                         </v-layout>
                       </v-card-text>
                     </v-card-title>
+                  </div>
+                </v-layout>
+              </v-card>
+            </v-flex>
+            <v-flex xs2>
+              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+                <v-layout row wrap class="justify-center">
+                  <div>
                     <v-card-title class="justify-center">
                       <v-card-text>
-                      <v-text-field 
-                        label="提前时间(毫秒)"
-                        color="primary"
-                        v-model="jd_user.leading_time" 
-                        clearable 
-                        clear-icon="cancel"
-                      ></v-text-field>
-                      <v-btn color="primary" class="round-corner" block @click="saveOptions(jd_user)">保存</v-btn>
-                    </v-card-text>
+                        <v-text-field 
+                          label="京东支付密码"
+                          color="primary"
+                          v-model="jd_user.jd_pwd" 
+                          clearable 
+                          clear-icon="cancel"
+                        ></v-text-field>
+                        <v-btn color="primary" class="round-corner" block @click="saveOptionsPwd(jd_user)">保存</v-btn>
+                      </v-card-text>
+                    </v-card-title>
+                    <v-card-title class="justify-center">
+                      <v-card-text>
+                        <v-text-field 
+                          label="提前时间(毫秒)"
+                          color="primary"
+                          v-model="jd_user.leading_time" 
+                          clearable 
+                          clear-icon="cancel"
+                        ></v-text-field>
+                        <v-btn color="primary" class="round-corner" block @click="saveOptionsLeadingTime(jd_user)">保存</v-btn>
+                      </v-card-text>
                     </v-card-title>
                   </div>
                 </v-layout>
               </v-card>
             </v-flex>
-            <v-flex xs3>
+            <v-flex xs2>
+              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+                <v-layout row wrap class="justify-center">
+                  <div>
+                    <v-card-title class="justify-center">
+                      <v-card-text>
+                        <v-text-field 
+                          label="提醒邮箱(qq)"
+                          color="primary"
+                          v-model="jd_user.push_email" 
+                          clearable 
+                          clear-icon="cancel"
+                        ></v-text-field>
+                        <v-btn color="primary" class="round-corner" block @click="saveOptionsPushEmail(jd_user)">保存</v-btn>
+                      </v-card-text>
+                    </v-card-title>
+                    <v-card-title class="justify-center">
+                      <v-card-text>
+                        <v-text-field 
+                          label="邮箱授权码"
+                          color="primary"
+                          v-model="jd_user.push_token" 
+                          clearable 
+                          clear-icon="cancel"
+                        ></v-text-field>
+                        <v-btn color="primary" class="round-corner" block @click="saveOptionsPushToken(jd_user)">保存</v-btn>
+                      </v-card-text>
+                    </v-card-title>
+                  </div>
+                </v-layout>
+              </v-card>
+            </v-flex>
+            <v-flex xs2>
               <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="align-center justify-center">
                   <div>
@@ -120,7 +172,7 @@
                 </v-layout>
               </v-card>
             </v-flex>
-            <v-flex xs3>
+            <v-flex xs2>
               <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
@@ -617,6 +669,10 @@ export default {
       userData['mobile_code'] = ''
       userData['mobile_code_running'] = false
       userData['leading_time'] = jd_user_data.leading_time
+      userData['jd_pwd'] = jd_user_data.jd_pwd
+      userData['push_token'] = jd_user_data.push_token
+      userData['push_email'] = jd_user_data.push_email
+      
 
       if(!isUserExisted){
         if(is_on_load_page){
@@ -656,9 +712,11 @@ export default {
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
             jdUser['leading_time'] = userData['leading_time']
+            jdUser['jd_pwd'] = userData['jd_pwd']
+            jdUser['push_token'] = userData['push_token']
+            jdUser['push_email'] = userData['push_email']
           }
         }
-        this.$commons.showMessage(jd_user_data.nick_name+"已刷新登录，有效期24小时", this)
       }
   },
   checkMobileResult:function(){
@@ -759,30 +817,118 @@ export default {
         }
       }
     },
-    saveOptions:function(jd_user){
+    saveOptionsLeadingTime:function(jd_user){
       var ins = this
+      var userOptions = {
+        'leading_time': jd_user['leading_time']
+      }
+
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-options",
-          successCallback: this.onSuccessSaveUserOptions,
+          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-leading-time",
+          successCallback: this.onSuccessSaveUserLeadingTime,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData:{
             nick_name: jd_user['nick_name'],
-            user_options: {
-              'leading_time': jd_user['leading_time']
-            }
+            user_options: userOptions
           },
           ins: this,
           hideLoading: true
       };
       this.$commons.sendGatewayPost(requestObj);
+      
     },
-    onSuccessSaveUserOptions:function(response, callbackParam){
+    onSuccessSaveUserLeadingTime:function(response, callbackParam){
       if(response.data.body){
           if(response.data.body['executed']){
             this.$commons.showMessage('参数已保存', this);
+            this.getAssociatedJdUsers()
           }
       }
     },
+    saveOptionsPwd:function(jd_user){
+      var ins = this
+      var userOptions = {
+        'jd_pwd': jd_user['jd_pwd']
+      }
+
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-pwd",
+          successCallback: this.onSuccessSaveUserPwd,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData:{
+            nick_name: jd_user['nick_name'],
+            user_options: userOptions
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessSaveUserPwd:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('参数已保存', this);
+            this.getAssociatedJdUsers()
+          }
+      }
+    },
+    saveOptionsPushEmail:function(jd_user){
+      var ins = this
+      var userOptions = {
+        'push_email': jd_user['push_email']
+      }
+
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-push-email",
+          successCallback: this.onSuccessSaveUserPushEmail,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData:{
+            nick_name: jd_user['nick_name'],
+            user_options: userOptions
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessSaveUserPushEmail:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('参数已保存', this);
+            this.getAssociatedJdUsers()
+          }
+      }
+    },
+    saveOptionsPushToken:function(jd_user){
+      var ins = this
+      var userOptions = {
+        'push_token': jd_user['push_token']
+      }
+
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-push-token",
+          successCallback: this.onSuccessSaveUserPushToken,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData:{
+            nick_name: jd_user['nick_name'],
+            user_options: userOptions
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessSaveUserPushToken:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('参数已保存', this);
+            this.getAssociatedJdUsers()
+          }
+      }
+    }
   }
 };
 </script>

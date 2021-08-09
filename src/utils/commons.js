@@ -34,22 +34,16 @@ axios.interceptors.response.use(
     var httpCode = error.response.status;
     if (httpCode) {
       var errMsg = "Unexpected Error";
-      var reasonCode = "";
-      var springSecurityStatus = "";
-      var springSecurityError = "";
       if (error.response.data) {
         //custom error body -- session expired
         if(error.response.data.msg){
           errMsg = error.response.data.msg;
         }
-        reasonCode = error.response.data.reasonCode;
-        //default spring security access denied body
-        springSecurityStatus = error.response.data.status;
-        springSecurityError = error.response.data.error;
-        if (reasonCode === 'DSR2002'){
+        var reasonCode = error.response.data.reasonCode;
+        if (reasonCode === 'REST2002' || reasonCode === 'REST2003'){
           error.handled = true;
           commonsJS.handleSessionInvalid();
-        }else if(springSecurityStatus===403&&springSecurityError==="Forbidden"){
+        }else if( error.response.data.status===401){
           error.handled = true;
           commonsJS.handleSessionInvalid();
         }
@@ -239,7 +233,7 @@ var commonsJS = {
     //clear session if any, and return to login page
     store.default.commit("setUserName", '');
     store.default.commit("setToken", '');
-    window.location.href = "/";
+    window.location.href = "/site/login";
   },
   getUrlParam: function(parameter){
     var urlparameter = null;
@@ -265,6 +259,9 @@ var commonsJS = {
     return window.btoa(binary);
   },
   findKeyInJsonArray:function(key, value, jsonArray, keyInJsonArray){
+    if(!jsonArray){
+      return null
+    }
     for(var i=0;i<jsonArray.length;i++){
       var obj = jsonArray[i];
       if(!keyInJsonArray){
@@ -272,6 +269,9 @@ var commonsJS = {
           return obj
         }
       }else{
+        if(!obj[keyInJsonArray]){
+          return null
+        }
         for(var j=0;j<obj[keyInJsonArray].length;j++){
           if(obj[keyInJsonArray][j][key] == value){
             return obj
