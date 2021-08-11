@@ -20,14 +20,6 @@ module.exports = {
 			error:'系统错误'
 		}
 	},
-	registryForm: {
-		validator: {
-			registry_identity_length: 18
-		}
-	},
-	export:{
-		excelName:"报名信息表.xlsx"
-	},
 	exception:{
 		"REST3005":"非登录状态"
 	}
