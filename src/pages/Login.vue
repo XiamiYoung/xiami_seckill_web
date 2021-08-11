@@ -4,10 +4,11 @@
       <v-container fluid fill-height>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4 lg4>
-            <v-card class="elevation-1 pa-3">
+            <v-card class="elevation-1 pa-3 round-corner">
               <v-card-text>
                 <div class="layout column align-center">
                   <h1 class="flex my-4 primary--text">虾米抢购助手</h1>
+                  <v-icon size="300" color="blue darken-2">emoji_people</v-icon>
                 </div>
                 <v-form>
                   <v-text-field
@@ -30,9 +31,10 @@
                     @click:append="hidePassword = !hidePassword"/>
                 </v-form>
               </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn class="round-corner" block color="primary" @click="login" :loading="loading">登录</v-btn>
+              <v-card-actions class="justify-center">
+                <v-layout row wrap>
+                  <v-btn class="round-corner" block color="primary" @click="login" :loading="loading">登录</v-btn>
+                </v-layout>
               </v-card-actions>
             </v-card>
           </v-flex>

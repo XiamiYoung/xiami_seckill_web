@@ -25,7 +25,7 @@
         </v-list-tile>
         <v-list-tile @click="changeRoute('JDUserManage')">
           <v-list-tile-action>
-            <v-icon :color="iconColor">sentiment_satisfied</v-icon>
+            <v-icon :color="iconColor">person</v-icon>
           </v-list-tile-action>
           <v-list-tile-title :class="[{'active': 'JDUserManage' === selectedRoute.route.name}, 'item-title' ]" >用户管理</v-list-tile-title>
         </v-list-tile>
