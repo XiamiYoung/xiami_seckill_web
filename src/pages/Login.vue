@@ -32,7 +32,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn block color="primary" @click="login" :loading="loading">登录</v-btn>
+                <v-btn class="round-corner" block color="primary" @click="login" :loading="loading">登录</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -133,5 +133,8 @@ export default {
 
   .v-btn__content{
     color: white;
+  }
+  .round-corner {
+    border-radius:10px;
   }
 </style>

@@ -23,33 +23,39 @@
             clearable
           ></v-text-field>
         </v-card-title>
-        <v-card-text >
+        <v-card-text>
           <v-data-table
             :headers="headers"
             :items="jd_order_list"
             :search="search"
             :custom-filter="customFilter"
             :rows-per-page-items="rowsPerPageItems"
-            class="elevation-1"
+            class="elevation-1 order-data-table"
           >
             <template v-slot:items="props">
               <tr>
-                <td class="text-xs-left text-strong td-border">
-                  <table style="width:100%">
+                <td class="text-xs-center text-strong td-border" width="30%">
+                  <table>
                   <tr v-for="item in props.item.item_info_array" :key="item.id">
-                      <td width="10%" class="text-xs-left text-strong">
+                      <td width="10%" class="text-xs-center text-strong">
                         <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`"></v-img>
                       </td>
-                      <td width="10%" class="text-xs-left text-strong">
-                        <v-btn color="primary" class="round-corner" @click="loadItemPage(item.sku_id)">详情</v-btn>
-                      </td>
-                      <td width="80%" class="text-xs-left text-strong">
-                        {{item.name}}(x{{item.quantity}})
+                      <td width="90%" class="text-xs-center text-strong">
+                        <tr>
+                          <td class="text-xs-center text-strong">
+                            {{item.name}}(x{{item.quantity}})
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-xs-center text-strong">
+                            <v-btn color="primary" class="round-corner" @click="loadItemPage(item.sku_id)">详情</v-btn>
+                          </td>
+                        </tr>
                       </td>
                   </tr>
                   </table>
                 </td>
-                <td class="text-xs-right text-strong td-border">
+                <td class="text-xs-center text-strong td-border">
                     <v-chip
                         v-if="props.item.is_seckill"
                         class="ma-2"
@@ -59,7 +65,7 @@
                         {{ props.item.is_seckill}}
                     </v-chip>
                 </td>
-                <td class="text-xs-right text-strong td-border">
+                <td class="text-xs-center text-strong td-border">
                     <v-chip
                         v-if="props.item.is_reserve"
                         class="ma-2"
@@ -69,19 +75,20 @@
                         {{ props.item.is_reserve}}
                     </v-chip>
                 </td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.leading_time}}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.stock_count}}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.nick_name}}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.order_id}}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.order_time }}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.sum_price }}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.current_price }}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.original_price }}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.saved_price }}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.addr_name }}</td>
-                <td class="text-xs-right text-strong td-border">{{ props.item.addr }}</td>
-                <td class="text-xs-right text-strong td-border">
-                  <v-btn color="primary" class="round-corner" @click="cancelJDOrder(props.item.nick_name, props.item.order_id)">取消订单</v-btn>
+                <td class="text-xs-center text-strong td-border">{{ props.item.leading_time}}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.stock_count}}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.nick_name}}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.order_id}}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.order_time }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.sum_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.current_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.original_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.saved_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.addr_name }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.addr }}</td>
+                <td class="text-xs-center text-strong td-border">
+                        <v-btn color="primary" class="round-corner" @click="showDeleteOrderDialog(props.item.order_id)">删除订单</v-btn>
+                        <v-btn color="primary" class="round-corner" @click="showCancelOrderDialog(props.item.nick_name, props.item.order_id)">取消订单</v-btn>
                 </td>
               </tr>
             </template>
@@ -93,12 +100,38 @@
           </v-data-table>
         </v-card-text>
     </v-card>
+    <v-dialog 
+        :value="removeOrderDialog"
+        v-if="removeOrderDialog"  
+        persistent max-width="290">
+        <v-card>
+          <v-card-title class="headline">删除订单</v-card-title>
+          <v-card-text>确认删除订单吗</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" class="round-corner" @click="onConfirmDeleteOrder(false)">否</v-btn>
+            <v-btn color="primary" class="round-corner" @click="onConfirmDeleteOrder(true)">是</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog 
+        :value="cancelOrderDialog"
+        v-if="cancelOrderDialog"  
+        persistent max-width="290">
+        <v-card>
+          <v-card-title class="headline">取消订单</v-card-title>
+          <v-card-text>确认取消订单吗</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" class="round-corner" @click="onConfirmCancelOrder(false)">否</v-btn>
+            <v-btn color="primary" class="round-corner" @click="onConfirmCancelOrder(true)">是</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
   </v-container>
 </template>
 
 <script>
-var store = require('@/store/store')
-
 export default {
   components: {},
   created: function() {
@@ -220,6 +253,11 @@ export default {
       jd_order_list: [],
       jdUsers:[],
       saved_total:0,
+      removeOrderDialog: false,
+      cancelOrderDialog: false,
+      orderIdToDelete: '',
+      orderIdToCancel: '',
+      nickNameToCancel: '',
       rowsPerPageItems: [10,50,100,{"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}], 
       search:'',
       tsExpireLevel:{
@@ -261,6 +299,64 @@ export default {
               this.saved_total += this.jd_order_list[i]['saved_price']
             }
           }
+      }
+    },
+    showDeleteOrderDialog:function(order_id){
+      this.orderIdToDelete = order_id;
+      this.removeOrderDialog = true;
+    },
+    showCancelOrderDialog:function(nick_name, order_id){
+      this.orderIdToCancel = order_id;
+      this.nickNameToCancel = nick_name;
+      this.cancelOrderDialog = true;
+    },
+    onConfirmDeleteOrder: function(flag){
+      if(flag){
+        this.deleteJDOrder(this.orderIdToDelete)
+      }
+      this.removeOrderDialog = false
+      this.orderIdToDelete = '';
+    },
+    onConfirmCancelOrder: function(flag){
+      if(flag){
+        this.cancelJDOrder(this.nickNameToCancel, this.orderIdToCancel)
+      }
+      this.orderIdToCancel = '';
+      this.nickNameToCancel = '';
+      this.cancelOrderDialog = false;
+    },
+    deleteJDOrder:function(order_id){
+      var ins = this
+      var requestObj = {
+          url: this.$constants.interface.backend.endpoint + "/site/jd/delete-jd-order",
+          successCallback: this.onSuccessDeleteOrder,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData: {
+                    'order_id': order_id
+                  },
+          successCallbackParamObj:{
+            order_id:order_id
+          },
+          ins: this,
+          hideLoading: false
+      };
+
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessDeleteOrder:function(response,callbackParam){
+      if(response.data.body){
+        if(response.data.body['success']){
+          this.saved_total = 0
+
+          var i = this.jd_order_list.length
+          while(i--){
+            if(callbackParam.order_id == this.jd_order_list[i]['order_id']){
+                this.jd_order_list.splice(i, 1);
+                continue
+              }
+            this.saved_total += this.jd_order_list[i]['saved_price']
+          }
+        }
       }
     },
     getAssociatedJdUsers:function(){
@@ -441,5 +537,8 @@ export default {
   }
   .td-border {
      border: 1px solid black;
+  }
+  .order-data-table{
+    width: 99%;
   }
 </style>

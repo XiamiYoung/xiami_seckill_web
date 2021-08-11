@@ -1326,13 +1326,8 @@ export default {
         return
       }
 
-      var requestHeaders = {}
-      requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
-      requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
-
       var requestObj = {
           url: this.$constants.interface.backend.endpoint + "/site/jd/start-arrangement",
-          headers:requestHeaders,
           postData: {
                       'arrangement_list': this.userArrangement[nick_name],
                       'nick_name': nick_name,
@@ -1442,15 +1437,8 @@ export default {
       }
 
       var ins = this
-      var target_user = this.getTargetUser(nick_name)
-
-      var requestHeaders = {}
-      requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
-      requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
-
       var requestObj = {
           url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-arrangement",
-          headers:requestHeaders,
           postData: {
                       'arrangement_list': this.userArrangement[nick_name],
                       'nick_name': nick_name
@@ -1692,11 +1680,6 @@ export default {
       
     },
     readExecutionLog:function(nick_name){
-      var target_user = this.getTargetUser(nick_name)
-
-      var requestHeaders = {}
-      requestHeaders[this.$constants.service.jd.headerPCCookieName] = target_user['pc_cookie_str']
-      requestHeaders[this.$constants.service.jd.headerMobileCookieName] = target_user['mobile_cookie_str']
       var lastLogId = 0
       if(this.executionLog[nick_name] && this.executionLog[nick_name]['lastLogId']){
         lastLogId = this.executionLog[nick_name]['lastLogId']
@@ -1704,7 +1687,6 @@ export default {
       var ins = this
       var requestObj = {
           url: this.$constants.interface.backend.endpoint + "/site/jd/read-execution-log",
-          headers:requestHeaders,
           postData: {
                       'nick_name': nick_name,
                       'last_id': lastLogId

@@ -6,7 +6,7 @@
     <v-spacer></v-spacer>
     <v-menu offset-y origin="center center" :nudge-bottom="10" transition="scale-transition">
       <v-btn icon large flat slot="activator" :ripple="false">
-        <avatar class="avatar-svg"></avatar>
+          <avatar class="avatar-svg"></avatar>
       </v-btn>
       <v-list>
         <v-list-tile
@@ -35,11 +35,12 @@ export default {
   },
   data() {
     return {
+      iconTitle:'',
       items: [
         {
           icon: 'exit_to_app',
           href: '#',
-          title: '退出',
+          title: '退出' + this.$store.state.userName,
           click: () => {
             this.logoutAdmin();
           }
@@ -66,7 +67,7 @@ export default {
   font-weight: bold;
 }
 .avatar-svg {
-    width: 100px;
-    height: 100px;
-  }
+  width: 100px;
+  height: 100px;
+}
 </style>

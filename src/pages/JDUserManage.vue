@@ -377,8 +377,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="onInputMobileCode(selectedUserForMobileCode.mobile_code)"><div style="color: white">确认</div></v-btn>
-            <v-btn color="primary" text @click="onCloseMobileCodeDialog"><div style="color: white">关闭</div></v-btn>
+            <v-btn color="primary" class="round-corner" :disabled="verificationCodeDisabled" @click="onInputMobileCode(selectedUserForMobileCode.mobile_code)"><div style="color: white">确认</div></v-btn>
+            <v-btn color="primary" class="round-corner" @click="onCloseMobileCodeDialog"><div style="color: white">关闭</div></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -391,8 +391,8 @@
           <v-card-text>确认退出账号{{this.toLogoutNickName}}吗</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" flat @click="onConfirmLogoutBtn(false)">否</v-btn>
-            <v-btn color="green darken-1" flat @click="onConfirmLogoutBtn(true)">是</v-btn>
+            <v-btn  color="primary" class="round-corner"  @click="onConfirmLogoutBtn(false)">否</v-btn>
+            <v-btn  color="primary" class="round-corner"  @click="onConfirmLogoutBtn(true)">是</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -424,6 +424,7 @@ export default {
       mobileCodeInterval:'',
       mobileCodeScanResultInterval:'',
       cookieToken:'',
+      verificationCodeDisabled: false,
       colors:{
         red:'red',
         orange:'orange',
@@ -509,6 +510,7 @@ export default {
           if(response.data.body['executed']){
             this.$commons.showMessage('等待用户输入手机验证码', this);
             this.mobileCodeSent = true
+            this.verificationCodeDisabled = false
             // show dialog
             this.mobileCodeCountDown = 100
             this.mobileCodeInterval = setInterval(() => {
@@ -541,6 +543,8 @@ export default {
             hideLoading: true
         };
         this.$commons.sendGatewayPost(requestObj);
+
+        this.verificationCodeDisabled = true
     },
     onSuccessSubmitMobileCode:function(response,callbackParam){
       if(response.data.body){
@@ -923,6 +927,9 @@ export default {
           this.toLogoutNickName = callbackParam.nick_name;
           this.removeUserDialog = true;
         }
+      }else{
+        this.toLogoutNickName = callbackParam.nick_name;
+        this.removeUserDialog = true;
       }
     },
     saveOptionsLeadingTime:function(jd_user){
