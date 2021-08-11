@@ -3,7 +3,10 @@
     <v-card class="round-corner">
         <v-card-title>
           <v-chip color="primary" text-color="white">
-            京东订单(仅包含抢购助手成功下单的订单)
+            订单统计(仅包含抢购助手成功下单的订单)
+          </v-chip>
+          <v-chip color="green" text-color="white">
+            总计节省 {{saved_total}}元
           </v-chip>
           <v-spacer></v-spacer>
           <v-btn color="primary" class="round-corner" @click="getJDOrders()"><v-icon>cached</v-icon></v-btn>
@@ -31,7 +34,7 @@
           >
             <template v-slot:items="props">
               <tr>
-                <td class="text-xs-left text-strong">
+                <td class="text-xs-left text-strong td-border">
                   <table style="width:100%">
                   <tr v-for="item in props.item.item_info_array" :key="item.id">
                       <td width="10%" class="text-xs-left text-strong">
@@ -46,13 +49,38 @@
                   </tr>
                   </table>
                 </td>
-                <td class="text-xs-right text-strong">{{ props.item.nick_name}}</td>
-                <td class="text-xs-right text-strong">{{ props.item.order_id}}</td>
-                <td class="text-xs-right text-strong">{{ props.item.order_time }}</td>
-                <td class="text-xs-right text-strong">{{ props.item.sum_price }}</td>
-                <td class="text-xs-right text-strong">{{ props.item.addr_name }}</td>
-                <td class="text-xs-right text-strong">{{ props.item.addr }}</td>
-                <td class="text-xs-right text-strong">
+                <td class="text-xs-right text-strong td-border">
+                    <v-chip
+                        v-if="props.item.is_seckill"
+                        class="ma-2"
+                        color="red"
+                        text-color="white"
+                      >
+                        {{ props.item.is_seckill}}
+                    </v-chip>
+                </td>
+                <td class="text-xs-right text-strong td-border">
+                    <v-chip
+                        v-if="props.item.is_reserve"
+                        class="ma-2"
+                        color="green"
+                        text-color="white"
+                      >
+                        {{ props.item.is_reserve}}
+                    </v-chip>
+                </td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.leading_time}}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.stock_count}}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.nick_name}}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.order_id}}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.order_time }}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.sum_price }}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.current_price }}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.original_price }}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.saved_price }}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.addr_name }}</td>
+                <td class="text-xs-right text-strong td-border">{{ props.item.addr }}</td>
+                <td class="text-xs-right text-strong td-border">
                   <v-btn color="primary" class="round-corner" @click="cancelJDOrder(props.item.nick_name, props.item.order_id)">取消订单</v-btn>
                 </td>
               </tr>
@@ -91,6 +119,34 @@ export default {
           class: "primary--text title"
         },
         {
+          text: '秒杀',
+          align: 'right',
+          sortable: true,
+          value: 'is_seckill',
+          class: "primary--text title"
+        },
+        {
+          text: '预约',
+          align: 'right',
+          sortable: true,
+          value: 'is_reserve',
+          class: "primary--text title"
+        },
+        {
+          text: '提前时间',
+          align: 'right',
+          sortable: true,
+          value: 'leading_time',
+          class: "primary--text title"
+        },
+        {
+          text: '商品标签',
+          align: 'right',
+          sortable: true,
+          value: 'stock_count',
+          class: "primary--text title"
+        },
+        {
           text: '用户',
           align: 'right',
           sortable: true,
@@ -119,6 +175,27 @@ export default {
           class: "primary--text title"
         },
         {
+          text: '抢购价格',
+          align: 'right',
+          sortable: true,
+          value: 'current_price',
+          class: "primary--text title"
+        },
+        {
+          text: '商品原价',
+          align: 'right',
+          sortable: true,
+          value: 'original_price',
+          class: "primary--text title"
+        },
+        {
+          text: '节省金额',
+          align: 'right',
+          sortable: true,
+          value: 'saved_price',
+          class: "primary--text title"
+        },
+        {
           text: '收货人',
           align: 'right',
           sortable: true,
@@ -142,6 +219,7 @@ export default {
       ],
       jd_order_list: [],
       jdUsers:[],
+      saved_total:0,
       rowsPerPageItems: [10,50,100,{"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}], 
       search:'',
       tsExpireLevel:{
@@ -177,7 +255,11 @@ export default {
     onSuccessGetJDOrders:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['success']){
+            this.saved_total = 0
             this.jd_order_list = response.data.body['jd_order_list']
+            for(var i=0;i<this.jd_order_list.length;i++){
+              this.saved_total += this.jd_order_list[i]['saved_price']
+            }
           }
       }
     },
@@ -357,5 +439,7 @@ export default {
   .round-corner {
     border-radius:10px;
   }
-
+  .td-border {
+     border: 1px solid black;
+  }
 </style>

@@ -74,26 +74,68 @@
                   <div>
                     <v-card-title class="justify-center">
                       <v-card-text>
-                        <v-text-field 
-                          label="京东支付密码"
-                          color="primary"
-                          v-model="jd_user.jd_pwd" 
-                          clearable 
-                          clear-icon="cancel"
-                        ></v-text-field>
-                        <v-btn color="primary" class="round-corner" block @click="saveOptionsPwd(jd_user)">保存</v-btn>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-text-field 
+                              label="京东支付密码"
+                              color="primary"
+                              v-model="jd_user.jd_pwd" 
+                              clearable 
+                              clear-icon="cancel"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            可不填, 用于支付京东红包，如果有红包没有填写密码会下单失败
+                          </v-chip>
+                        </v-tooltip>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="saveOptionsPwd(jd_user)" v-on="on">保存</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            可不填, 用于支付京东红包，如果有红包没有填写密码会下单失败
+                          </v-chip>
+                        </v-tooltip>
                       </v-card-text>
                     </v-card-title>
                     <v-card-title class="justify-center">
                       <v-card-text>
-                        <v-text-field 
-                          label="提前时间(毫秒)"
-                          color="primary"
-                          v-model="jd_user.leading_time" 
-                          clearable 
-                          clear-icon="cancel"
-                        ></v-text-field>
-                        <v-btn color="primary" class="round-corner" block @click="saveOptionsLeadingTime(jd_user)">保存</v-btn>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-text-field 
+                              label="提前时间(毫秒)"
+                              color="primary"
+                              v-model="jd_user.leading_time" 
+                              clearable 
+                              clear-icon="cancel"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            必填，根据不同商品动态设置提前下单时间
+                          </v-chip>
+                        </v-tooltip>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="saveOptionsLeadingTime(jd_user)" v-on="on">保存</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            必填，根据不同商品动态设置提前下单时间
+                          </v-chip>
+                        </v-tooltip>
                       </v-card-text>
                     </v-card-title>
                   </div>
@@ -106,26 +148,68 @@
                   <div>
                     <v-card-title class="justify-center">
                       <v-card-text>
-                        <v-text-field 
-                          label="提醒邮箱(qq)"
-                          color="primary"
-                          v-model="jd_user.push_email" 
-                          clearable 
-                          clear-icon="cancel"
-                        ></v-text-field>
-                        <v-btn color="primary" class="round-corner" block @click="saveOptionsPushEmail(jd_user)">保存</v-btn>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-text-field 
+                              label="提醒邮箱(qq)"
+                              color="primary"
+                              v-model="jd_user.push_email" 
+                              clearable 
+                              clear-icon="cancel"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            可不填, 用于接收订单和cookie提醒，只能填写qq邮箱
+                          </v-chip>
+                        </v-tooltip>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="saveOptionsPushEmail(jd_user)" v-on="on">保存</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            可不填, 用于接收订单和cookie提醒，只能填写qq邮箱
+                          </v-chip>
+                        </v-tooltip>
                       </v-card-text>
                     </v-card-title>
                     <v-card-title class="justify-center">
                       <v-card-text>
-                        <v-text-field 
-                          label="邮箱授权码"
-                          color="primary"
-                          v-model="jd_user.push_token" 
-                          clearable 
-                          clear-icon="cancel"
-                        ></v-text-field>
-                        <v-btn color="primary" class="round-corner" block @click="saveOptionsPushToken(jd_user)">保存</v-btn>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-text-field 
+                              label="邮箱授权码"
+                              color="primary"
+                              v-model="jd_user.push_token" 
+                              clearable 
+                              clear-icon="cancel"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            可不填, 用于接收订单和cookie提醒，qq邮箱-设置-开启-账户-POP3/SMTP和IMAP/SMTP
+                          </v-chip>
+                        </v-tooltip>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="saveOptionsPushToken(jd_user)" v-on="on">保存</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            可不填, 用于接收订单和cookie提醒，qq邮箱-设置-开启-账户-POP3/SMTP和IMAP/SMTP
+                          </v-chip>
+                        </v-tooltip>
                       </v-card-text>
                     </v-card-title>
                   </div>
@@ -165,9 +249,21 @@
                     <v-card-title class="justify-center" v-if="jd_user.pc_cookie_status">
                       <strong>到期 {{jd_user.pc_cookie_expire_ts_label}}</strong>
                     </v-card-title>
-                    <v-card-actions>
-                      <v-btn color="primary" class="round-corner" block @click="loadQRCode()">登录/刷新</v-btn>
-                    </v-card-actions>
+                    <v-card-title class="justify-center">
+                      <v-card-text>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="loadQRCode()" v-on="on">登录/刷新</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            重新登录或刷新用户PC端登录信息
+                          </v-chip>
+                        </v-tooltip>
+                      </v-card-text>
+                    </v-card-title>
                   </div>
                 </v-layout>
               </v-card>
@@ -212,9 +308,21 @@
                         :disabled="jd_user.mobile_code_running"
                       ></v-text-field>
                     </v-card-title>
-                    <v-card-actions>
-                        <v-btn color="primary" class="round-corner" block @click="onSendMobileCode(jd_user)">登录/刷新</v-btn>
-                    </v-card-actions>
+                    <v-card-title class="justify-center">
+                      <v-card-text>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="onSendMobileCode(jd_user)" v-on="on">登录/刷新</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            重新登录或刷新用户移动端登录信息
+                          </v-chip>
+                        </v-tooltip>
+                      </v-card-text>
+                    </v-card-title>
                   </div>
                 </v-layout>
               </v-card>
@@ -657,13 +765,13 @@ export default {
       userData['pc_cookie_expire_ts'] = jd_user_data.pc_cookie_expire_ts
       userData['pc_cookie_ts_label'] = jd_user_data.pc_cookie_ts_label
       userData['pc_cookie_expire_ts_label'] = jd_user_data.pc_cookie_expire_ts_label
-      userData['pc_cookie_expire_level'] = this.tsExpireLevel['normal']
+      userData['pc_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.pc_cookie_expire_ts)]
       userData['mobile_cookie_status'] = jd_user_data.mobile_cookie_status
       userData['mobile_cookie_ts'] = jd_user_data.mobile_cookie_ts
       userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
       userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
       userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
-      userData['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+      userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
       userData['mobile_code_running'] = false
       userData['mobile'] = jd_user_data.mobile
       userData['mobile_code'] = ''
@@ -681,7 +789,7 @@ export default {
           userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
           userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
           userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
-          userData['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+          userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
         }else{
           userData['mobile_cookie_status'] = false
           userData['mobile_cookie_ts'] = ''
@@ -708,7 +816,7 @@ export default {
             jdUser['mobile_cookie_expire_ts'] = userData['mobile_cookie_expire_ts']
             jdUser['mobile_cookie_ts_label'] = userData['mobile_cookie_ts_label']
             jdUser['mobile_cookie_expire_ts_label'] = userData['mobile_cookie_expire_ts_label']
-            jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+            jdUser['mobile_cookie_expire_level'] = userData['mobile_cookie_expire_level']
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
             jdUser['leading_time'] = userData['leading_time']

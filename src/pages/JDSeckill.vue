@@ -377,7 +377,7 @@
       </v-chip>
       <v-checkbox
         v-model="isIgnoreOutDated"
-        label="自动删除过期计划"
+        label="开始时自动删除过期计划"
       ></v-checkbox>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
       <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
@@ -441,6 +441,7 @@
                   label="提前时间(毫秒)"
                   color="primary"
                   v-model="jd_user.leading_time" 
+                  :disabled="!jd_user.allow_seckill"
                   clearable 
                   clear-icon="cancel"
                 ></v-text-field>
@@ -595,15 +596,37 @@
                               {{arrenge.status}}
                               <v-icon v-if="arrenge.status=='已成功'" dark right>check_circle</v-icon>
                             </v-chip>
+                            <v-tooltip top v-if="arrenge.status=='已失败' && arrenge.failure_msg && arrenge.failure_msg!=''">
+                              <template v-slot:activator="{ on }">
+                                <v-chip
+                                  v-if="arrenge.status=='已失败'"
+                                  :v-model="arrenge.status!=null"
+                                  color="red"
+                                  text-color="white"
+                                  class="sku-selected-chip"
+                                  v-on="on"
+                                  >
+                                {{arrenge.status}}
+                                  <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
+                              </v-chip>
+                              </template>
+                                  <v-chip
+                                        class="ma-1 chips-small"
+                                        :color="colors.green"
+                                        text-color="white">
+                                    {{arrenge.failure_msg}}
+                                  </v-chip>
+                            </v-tooltip>
                             <v-chip
-                                v-if="arrenge.status=='已失败'"
-                                :v-model="arrenge.status!=null"
-                                color="red"
-                                text-color="white"
-                                class="sku-selected-chip"
-                                >
-                              {{arrenge.status}}
-                              <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
+                                  v-if="arrenge.status=='已失败' && (!arrenge.failure_msg || arrenge.failure_msg=='')"
+                                  :v-model="arrenge.status!=null"
+                                  color="red"
+                                  text-color="white"
+                                  class="sku-selected-chip"
+                                  v-on="on"
+                                  >
+                                {{arrenge.status}}
+                                <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
                             </v-chip>
                             <v-chip
                                 v-if="arrenge.status=='系统错误'"
@@ -876,13 +899,13 @@ export default {
       userData['pc_cookie_expire_ts'] = jd_user_data.pc_cookie_expire_ts
       userData['pc_cookie_ts_label'] = jd_user_data.pc_cookie_ts_label
       userData['pc_cookie_expire_ts_label'] = jd_user_data.pc_cookie_expire_ts_label
-      userData['pc_cookie_expire_level'] = this.tsExpireLevel['normal']
+      userData['pc_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.pc_cookie_expire_ts)]
       userData['mobile_cookie_status'] = jd_user_data.mobile_cookie_status
       userData['mobile_cookie_ts'] = jd_user_data.mobile_cookie_ts
       userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
       userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
       userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
-      userData['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+      userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
       userData['mobile_code_running'] = false
       userData['mobile'] = jd_user_data.mobile
       userData['mobile_code'] = ''
@@ -899,7 +922,7 @@ export default {
           userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
           userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
           userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
-          userData['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+          userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
         }else{
           userData['mobile_cookie_status'] = false
           userData['mobile_cookie_ts'] = ''
@@ -930,7 +953,7 @@ export default {
             jdUser['mobile_cookie_expire_ts'] = userData['mobile_cookie_expire_ts']
             jdUser['mobile_cookie_ts_label'] = userData['mobile_cookie_ts_label']
             jdUser['mobile_cookie_expire_ts_label'] = userData['mobile_cookie_expire_ts_label']
-            jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel['normal']
+            jdUser['mobile_cookie_expire_level'] = userData['mobile_cookie_expire_level']
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
             jdUser['leading_time'] = userData['leading_time']
@@ -1166,6 +1189,13 @@ export default {
       this.showOutputLog = false
     },
     removeOutDatedArrangement: function(is_outdate_only, param_nick_name){
+      for(var i=0;i<this.jdUsers.length;i++){
+          var jdUser = this.jdUsers[i]
+          if(jdUser.allow_cancel_seckill){
+            this.$commons.showError("只能在非运行状态下删除商品", this);
+            return
+          }
+      }
       var ins = this
       var deleted = false
       Object.keys(this.userArrangement).forEach(function(nick_name) {
@@ -1232,19 +1262,7 @@ export default {
         this.getArrangementStatusInterval = null
       }
       Object.keys(this.userArrangement).forEach(function(nick_name) {
-        var userArrangementListEachUser = ins.userArrangement[nick_name]
-        if(userArrangementListEachUser.length==0){
-          // return as break
-          return
-        }
-        var is_user_task_running = false
-        for(var i=0;i<userArrangementListEachUser.length;i++){
-          if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
-            is_user_task_running = true
-            break
-          }
-        }
-        if(!is_user_task_running){
+        if(!ins.isUserArrangementRunning(nick_name)){
           ins.targetBatchStartCounter++
           ins.startSeckill(nick_name, is_batch_action)
           isActionTaken = true
@@ -1263,20 +1281,14 @@ export default {
       var ins = this
       var isActionTaken = false
       var is_batch_action = true
+
       if(this.getArrangementStatusInterval){
         clearInterval(this.getArrangementStatusInterval)
         this.getArrangementStatusInterval = null
       }
+
       Object.keys(this.userArrangement).forEach(function(nick_name) {
-        var userArrangementListEachUser = ins.userArrangement[nick_name]
-        var is_user_task_running = false
-        for(var i=0;i<userArrangementListEachUser.length;i++){
-          if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
-            is_user_task_running = true
-            break
-          }
-        }
-        if(is_user_task_running){
+        if(ins.isUserArrangementRunning(nick_name)){
           ins.targetBatchCancelCounter++
           ins.cancelSeckill(nick_name, is_batch_action)
           isActionTaken = true
@@ -1284,6 +1296,7 @@ export default {
 
         if(isActionTaken){
           ins.isBatchCancelArrangementInProgress = true
+          ins.saveUserArrangement()
         }else{
           ins.$commons.showMessage('没有找到符合的抢购计划', ins);
         }
@@ -1382,6 +1395,12 @@ export default {
               }, 2000)
             }
 
+            if(!this.getArrangementStatusInterval){
+              this.getArrangementStatusInterval = setInterval(() => {
+                this.getSeckillStatus()
+              }, 3000)
+            }
+
             if(callbackParam.is_batch_action){
               if(this.isBatchStartArrangementInProgress){
                 if(this.batchStartCounter == this.targetBatchStartCounter){
@@ -1389,13 +1408,11 @@ export default {
                   this.batchStartCounter = 0
                   this.targetBatchStartCounter = 0
                   this.$commons.showMessage('已全部开始', this);
-                  if(!this.getArrangementStatusInterval){
-                    this.getArrangementStatusInterval = setInterval(() => {
-                      this.getSeckillStatus()
-                    }, 3000)
-                  }
+                  this.saveUserArrangement()
                 }
               }
+            }else{
+              this.saveUserArrangement()
             }
           }
       }
@@ -1409,13 +1426,11 @@ export default {
             this.batchStartCounter = 0
             this.targetBatchStartCounter = 0
             this.$commons.showMessage('已全部开始', this);
-            if(!this.getArrangementStatusInterval){
-              this.getArrangementStatusInterval = setInterval(() => {
-                this.getSeckillStatus()
-              }, 3000)
-            }
+            this.saveUserArrangement()
           }
         }
+      }else{
+        this.saveUserArrangement()
       }
         
       this.$commons.defaultFailureCallback(error,this,callbackParam)
@@ -1473,6 +1488,13 @@ export default {
       if(isReadLogIntervalCancelInProgress){
         this.readExecutionLogIntervalClearInProgress[nick_name] = true
       }
+
+      var userArrangementListEachUser = this.userArrangement[nick_name]
+      for(var i=0;i<userArrangementListEachUser.length;i++){
+        if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+          userArrangementListEachUser[i]['status'] = this.$constants.service.arrangementStatus.cancelled
+        }
+      }
     },
     onSuccessCancelArrangement:function(response,callbackParam){
       if(response.data.body){
@@ -1498,13 +1520,11 @@ export default {
                   this.batchCancelCounter = 0
                   this.targetBatchCancelCounter = 0
                   this.$commons.showMessage('已全部取消', this);
-                  if(!this.getArrangementStatusInterval){
-                    this.getArrangementStatusInterval = setInterval(() => {
-                      this.getSeckillStatus()
-                    }, 3000)
-                  }
+                  this.saveUserArrangement()
                 }
               }
+            }else{
+              this.saveUserArrangement()
             }
           }
       }
@@ -1518,13 +1538,11 @@ export default {
             this.batchCancelCounter = 0
             this.targetBatchCancelCounter = 0
             this.$commons.showMessage('已全部取消', this);
-            if(!this.getArrangementStatusInterval){
-              this.getArrangementStatusInterval = setInterval(() => {
-                this.getSeckillStatus()
-              }, 3000)
-            }
+            this.saveUserArrangement()
           }
         }
+      }else{
+        this.saveUserArrangement()
       }
         
       this.$commons.defaultFailureCallback(error,this,callbackParam)
@@ -1568,25 +1586,26 @@ export default {
               var ins = this
               if(response.data.body['user_arrangement'] && response.data.body['user_arrangement']['seckill_arrangement']){
                 this.userArrangement = response.data.body['user_arrangement']['seckill_arrangement']
-                if(!this.getArrangementStatusInterval){
-                  this.getArrangementStatusInterval = setInterval(() => {
-                    this.getSeckillStatus()
-                  }, 3000)
+
+                // if running task is found
+                if(this.isAnyArrangementRunning()){
+                  // start interval
+                  if(!this.getArrangementStatusInterval){
+                    this.getArrangementStatusInterval = setInterval(() => {
+                      this.getSeckillStatus()
+                    }, 3000)
+                  }
                 }
                 
                 Object.keys(this.userArrangement).forEach(function(nick_name) {
-                  var userArrangementListEachUser = ins.userArrangement[nick_name]
-                  for(var i=0;i<userArrangementListEachUser.length;i++){
-                    if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
-                      // if running, read as intervel
-                      ins.readExecutionLogInterval[nick_name] = setInterval(() => {
-                        ins.readExecutionLog(nick_name)
-                      }, 2000)
-                      break
-                    }else{
-                      // not running, read once
+                  if(ins.isUserArrangementRunning(nick_name)){
+                    // if running, read user log as intervel
+                    ins.readExecutionLogInterval[nick_name] = setInterval(() => {
                       ins.readExecutionLog(nick_name)
-                    }
+                    }, 2000)
+                  }else{
+                    // not running, read once
+                    ins.readExecutionLog(nick_name)
                   }
                 })
               }
@@ -1740,9 +1759,10 @@ export default {
           var ins = this
           var seckill_arangement = response.data.body
           var isUpdated = false
-          var isCancelled = false
           var isRunning = false
           for(var i=0;i<seckill_arangement.length;i++){
+            isUpdated = false
+            isRunning = false
             var userArrangementStatusItem = seckill_arangement[i]
             var nick_name = userArrangementStatusItem['nick_name']
             var plannedArragementForUser = this.userArrangement[nick_name]
@@ -1755,17 +1775,19 @@ export default {
             for(var j=0;j<userArrangementStatusItem['seckill_arangement'].length;j++){ 
               var retTargetTime = userArrangementStatusItem['seckill_arangement'][j]['target_time']
               var retStatus = userArrangementStatusItem['seckill_arangement'][j]['status']
+              var retFailureMsg = userArrangementStatusItem['seckill_arangement'][j]['failure_msg']
               if(retStatus == 'running'){
                  is_user_task_running = true
               } 
               for(var k=0;k<plannedArragementForUser.length;k++){ 
                 if(retTargetTime == plannedArragementForUser[k]['startTime']){
+                    if(plannedArragementForUser[k]['failure_msg']!=retFailureMsg){
+                      plannedArragementForUser[k]['failure_msg'] = retFailureMsg
+                      isUpdated = true
+                    }
                     if(plannedArragementForUser[k]['status']!=this.$constants.service.arrangementStatus[retStatus]){
                       plannedArragementForUser[k]['status'] = this.$constants.service.arrangementStatus[retStatus]
                       isUpdated = true
-                    }
-                    if(this.$constants.service.arrangementStatus[retStatus] == this.$constants.service.arrangementStatus.cancelled){
-                      isCancelled = true
                     }
                     if(this.$constants.service.arrangementStatus[retStatus] == this.$constants.service.arrangementStatus.running){
                       isRunning = true
@@ -1792,7 +1814,19 @@ export default {
           this.saveUserArrangement()
         }
 
-        if(isCancelled){
+        if(isRunning){
+          if(!this.executionLog[nick_name] || !this.executionLog[nick_name]['logArray'] || this.executionLog[nick_name]['logArray'].length==0){
+            this.executionLog[nick_name] = {
+                'lastLogId': 0,
+                'logArray': new Array()
+            }
+          }
+          if(!this.readExecutionLogInterval[nick_name]){
+            this.readExecutionLogInterval[nick_name] = setInterval(() => {
+              ins.readExecutionLog(nick_name)
+            }, 2000)
+          }
+        }else{
           if(this.readExecutionLogInterval[nick_name] && !this.readExecutionLogIntervalClearInProgress[nick_name]){
             this.readExecutionLogIntervalClearInProgress[nick_name] = true
             setTimeout(() => {
@@ -1807,17 +1841,13 @@ export default {
               }
             }, 15 * 1000)
           }
-        }else if(isRunning){
-          if(!this.executionLog[nick_name] || !this.executionLog[nick_name]['logArray'] || this.executionLog[nick_name]['logArray'].length==0){
-            this.executionLog[nick_name] = {
-                'lastLogId': 0,
-                'logArray': new Array()
-            }
-          }
-          if(!this.readExecutionLogInterval[nick_name]){
-            this.readExecutionLogInterval[nick_name] = setInterval(() => {
-              ins.readExecutionLog(nick_name)
-            }, 2000)
+        }
+
+        // if no running task, cancel check
+        if(!this.isAnyArrangementRunning()){
+          if(this.getArrangementStatusInterval){
+            clearInterval(this.getArrangementStatusInterval)
+            this.getArrangementStatusInterval = null
           }
         }
       }
@@ -1914,20 +1944,53 @@ export default {
           }
       }
     },
-    isUserArrangementRunning:function(nick_name){
+    isUserArrangementRunning:function(param_nick_name){
       var ins = this
-      Object.keys(this.userArrangement[nick_name]).forEach(function(nick_name) {
+      var is_task_running = false
+      Object.keys(this.userArrangement).forEach(function(nick_name) {
+        if(nick_name == param_nick_name){
+          var userArrangementListEachUser = ins.userArrangement[nick_name]
+          if(!userArrangementListEachUser){
+            return false
+          }
+          for(var i=0;i<userArrangementListEachUser.length;i++){
+            if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+              is_task_running = true
+              return true
+            }
+          }
+        }
+      })
+      if(is_task_running){
+        return true
+      }else{
+        return false
+      }
+    },
+    isAnyArrangementRunning:function(){
+      var ins = this
+      var is_task_running = false
+      if(!this.userArrangement){
+        return false
+      }
+
+      Object.keys(this.userArrangement).forEach(function(nick_name) {
         var userArrangementListEachUser = ins.userArrangement[nick_name]
         if(!userArrangementListEachUser){
           return false
         }
         for(var i=0;i<userArrangementListEachUser.length;i++){
           if(userArrangementListEachUser[i]['status'] == ins.$constants.service.arrangementStatus.running){
+            is_task_running = true
             return true
           }
         }
       })
-      return false
+      if(is_task_running){
+        return true
+      }else{
+        return false
+      }
     },
     fillInSkuDate:function(){
       if(this.skuData['is_reserve_product']){
