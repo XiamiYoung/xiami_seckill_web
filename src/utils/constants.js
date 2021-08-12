@@ -13,12 +13,12 @@ module.exports = {
 			headerMobileCookieName:"jd-mobile-cookies"
 		},
 		arrangementStatus:{
-			planned:'未开始',
-			running:'运行中',
-			cancelled:'已取消',
-			succeeded:'已成功',
-			failed:'已失败',
-			error:'系统错误'
+			planned:'计划',
+			running:'运行',
+			cancelled:'取消',
+			succeeded:'成功',
+			failed:'失败',
+			error:'错误'
 		}
 	},
 	exception:{

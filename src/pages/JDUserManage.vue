@@ -34,9 +34,7 @@
                     </v-card-title>
                     <v-spacer></v-spacer>
                     <v-card-actions class="justify-center">
-                      <v-layout row wrap>
-                        <v-btn color="primary" class="round-corner" block @click="logoutSeckill(jd_user.nick_name)">退出登录</v-btn>
-                      </v-layout>
+                      <v-btn color="primary" class="round-corner" @click="logoutSeckill(jd_user.nick_name)">退出</v-btn>
                     </v-card-actions>
                   </div>
                 </v-layout>
@@ -225,29 +223,31 @@
                               class="ma-1 chips-small"
                               :color="colors.green"
                               text-color="white">
-                          PC端登录有效时间大于6小时
+                          PC大于6h
                         </v-chip>
                         <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
                               class="ma-1 chips-small"
                               :color="colors.purple"
                               text-color="white">
-                          PC端登录有效时间小于6小时
+                          PC小于6h
                         </v-chip>
                         <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
                               class="ma-1 chips-small"
                               :color="colors.red"
                               text-color="white">
-                          PC端登录有效时间小于2小时
+                          PC小于2h
                         </v-chip>
                         <v-chip v-else
                               class="ma-1 chips-small"
                               :color="colors.black"
                               text-color="white">
-                          PC端登录未登录/已过期
+                          PC无效
                         </v-chip>
-                    </v-card-title>
-                    <v-card-title class="justify-center" v-if="jd_user.pc_cookie_status">
-                      <strong>到期 {{jd_user.pc_cookie_expire_ts_label}}</strong>
+                        <v-card-text class="text-center">
+                          <v-layout row wrap class="justify-center">
+                            <div style="max-width: 200px;"><strong v-html="jd_user.pc_cookie_expire_ts_label"></strong></div>
+                          </v-layout>
+                        </v-card-text>
                     </v-card-title>
                     <v-card-title class="justify-center">
                       <v-card-text>
@@ -259,7 +259,7 @@
                                 class="ma-1 chips-small"
                                 :color="colors.green"
                                 text-color="white">
-                            重新登录或刷新用户PC端登录信息
+                            重新登录或刷新用户PC信息
                           </v-chip>
                         </v-tooltip>
                       </v-card-text>
@@ -277,26 +277,31 @@
                             class="ma-1 chips-small"
                             :color="colors.green"
                             text-color="white">
-                        移动端登录有效时间大于6小时
+                        移动大于6h
                       </v-chip>
                       <v-chip v-else-if="jd_user.mobile_cookie_expire_level==2"
                             class="ma-1 chips-small"
                             :color="colors.purple"
                             text-color="white">
-                        移动端登录有效时间小于6小时
+                        移动小于6h
                       </v-chip>
                       <v-chip v-else-if="jd_user.mobile_cookie_expire_level==3"
                             class="ma-1 chips-small"
                             :color="colors.red"
                             text-color="white">
-                        移动端登录有效时间小于2小时
+                        移动小于2h
                       </v-chip>
                       <v-chip v-else
                             class="ma-1 chips-small"
                             :color="colors.black"
                             text-color="white">
-                        移动端登录未登录/已过期
+                        移动无效
                       </v-chip>
+                      <v-card-text class="text-center">
+                        <v-layout row wrap class="justify-center">
+                          <div style="max-width: 200px;"><strong v-html="jd_user.pc_cookie_expire_ts_label"></strong></div>
+                        </v-layout>
+                      </v-card-text>
                     </v-card-title>
                     <v-card-title class="justify-center">
                       <v-text-field 
@@ -318,7 +323,7 @@
                                 class="ma-1 chips-small"
                                 :color="colors.green"
                                 text-color="white">
-                            重新登录或刷新用户移动端登录信息
+                            重新登录或刷新用户移动信息
                           </v-chip>
                         </v-tooltip>
                       </v-card-text>
@@ -1065,8 +1070,8 @@ export default {
     border-radius:10px;
   }
   .avatar-svg {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
   }
   .users-card-row{
     margin-top: 20px;

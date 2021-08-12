@@ -33,7 +33,7 @@
                         primary-title 
                         class="justify-center">
                         <v-btn
-                          class="ma-2 title-btn round-corner"
+                          class="title-btn round-corner"
                           color="success"
                           dark
                           large
@@ -71,11 +71,11 @@
                                         >
                                           <v-avatar
                                             class="ma-3"
-                                            size="150"
+                                            size="100"
                                             tile
                                             contain
                                           >
-                                            <v-img :src="`${seckill_item.imageurl}`"></v-img>
+                                            <v-img :src="`${seckill_item.imageurl}`" @click="loadItemPage(seckill_item.wareId)"></v-img>
                                           </v-avatar>
                                         </v-card-title>
                                         <v-card-title
@@ -102,7 +102,7 @@
                                                 text-color="white">
                                                 {{seckill_item.rate}}折
                                           </v-chip>
-                                          <v-chip 
+                                          <v-chip style="max-width: 100px"
                                                 v-if="seckill_item.specificationLabel"
                                                 class="ma-2 chips-small"
                                                 color="green"
@@ -140,8 +140,7 @@
                                         </v-card></v-card-title>
                                     </div>
                                     <v-card-actions class="white justify-center">
-                                      <v-btn color="primary" class="round-corner" @click="loadItemPage(seckill_item.wareId)">详情</v-btn>
-                                      <v-btn color="primary" class="round-corner" @click="onAddToArrangement(seckill_item.wareId, seckill_item.shortWname, item.startTime, item.startTimeMills, true)">抢购</v-btn>
+                                      <v-btn color="primary" class="round-corner" @click="onAddToArrangement(seckill_item.wareId, seckill_item.shortWname, item.startTime, item.startTimeMills, true)">添加</v-btn>
                                     </v-card-actions>
                                   </v-card>
                                 </v-flex>
@@ -352,7 +351,7 @@
                 </v-card-text>
                 <v-card-actions class="white justify-center">
                   <v-btn color="primary" class="round-corner" @click="loadItemPage(skuData.sku_id)">详情</v-btn>
-                  <v-btn color="primary" class="round-corner" @click="onAddToArrangement(skuData.sku_id, skuData.sku_name, null, null, false)">抢购</v-btn>
+                  <v-btn color="primary" class="round-corner" @click="onAddToArrangement(skuData.sku_id, skuData.sku_name, null, null, false)">添加</v-btn>
                   <v-btn color="primary" class="round-corner" @click="deleteCustomSku()">清空</v-btn>
                 </v-card-actions>
               </v-card>
@@ -361,34 +360,36 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-card>
-    <template>
-      <v-layout row wrap>
-        <v-flex xs4>
-      <v-chip
-        v-if="jdUsers.length==0"
-        class="ma-2"
-        color="orange"
-        text-color="white"
-      >
-        还没有扫码登录京东账号
-        <v-icon right>
-          mdi-star
-        </v-icon>
-      </v-chip>
-      <v-checkbox
-        v-model="isIgnoreOutDated"
-        label="开始时自动删除过期计划"
-      ></v-checkbox>
-      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
-      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
-      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期计划</v-btn>
-      <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false)">清除所有计划</v-btn>
+     <v-card class="round-corner d-flex flex-column align-center justify-center">
+       <v-layout row wrap>
+        <v-flex xs7>
+          <v-chip
+            v-if="jdUsers.length==0"
+            class="ma-2"
+            color="orange"
+            text-color="white"
+          >
+            还没有扫码登录京东账号
+            <v-icon right>
+              mdi-star
+            </v-icon>
+          </v-chip>
+          <v-checkbox
+            v-model="isIgnoreOutDated"
+            label="开始时自动删除过期计划"
+          ></v-checkbox>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期</v-btn>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false)">全部清除</v-btn>
         </v-flex>
-      </v-layout>
-    </template>
+        <v-flex xs5>
+        </v-flex>
+       </v-layout>
+     </v-card>
     <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
       <v-layout row wrap>
-        <v-flex xs3>
+        <v-flex xs2>
           <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
@@ -404,12 +405,14 @@
                 <v-card-title class="justify-center">
                   <avatar class="avatar-svg"></avatar>
                 </v-card-title>
-                <v-card-actions>
-                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_seckill" block @click="startSeckill(jd_user.nick_name, false)">开始</v-btn>
-                      <v-btn color="primary" class="card-action-margin round-corner" :disabled="!jd_user.allow_cancel_seckill" block @click="cancelSeckill(jd_user.nick_name, false)">取消</v-btn>
-                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkSeckillLog(jd_user.nick_name)">日志</v-btn>
-                      <v-btn color="primary" class="card-action-margin round-corner"  block @click="checkOrder(jd_user.nick_name)">订单</v-btn>
-                </v-card-actions>
+                <v-card-title class="justify-center">
+                  <v-btn color="primary" small fab dark :disabled="!jd_user.allow_seckill" @click="startSeckill(jd_user.nick_name, false)">
+                    <v-icon>arrow_right</v-icon>
+                  </v-btn>
+                  <v-btn color="primary" small fab dark :disabled="!jd_user.allow_cancel_seckill" @click="cancelSeckill(jd_user.nick_name, false)">
+                    <v-icon>cancel</v-icon>
+                  </v-btn>
+                </v-card-title>
               </div>
             </v-layout>
           </v-card>
@@ -417,36 +420,46 @@
         <v-flex xs2>
           <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
-              <v-card-title class="justify-center">
-                <v-chip
-                      class="ma-1 chips-small"
-                      :color="colors.green"
-                      text-color="white">
-                    收货地址
-                </v-chip>
-                <v-card-text class="text-center">
-                  <v-layout row wrap class="justify-center">
-                    <div><strong v-html="jd_user.recipient_name"></strong></div>
-                  </v-layout>
-                </v-card-text>
-                <v-card-text class="text-center">
-                  <v-layout row wrap class="justify-center">
-                    <div><strong v-html="jd_user.full_addr"></strong></div>
-                  </v-layout>
-                </v-card-text>
-              </v-card-title>
-              <v-card-title class="justify-center">
-                <v-card-text>
-                <v-text-field 
-                  label="提前时间(毫秒)"
-                  color="primary"
-                  v-model="jd_user.leading_time" 
-                  :disabled="!jd_user.allow_seckill"
-                  clearable 
-                  clear-icon="cancel"
-                ></v-text-field>
-              </v-card-text>
-              </v-card-title>
+              <div>
+                <v-card-title class="justify-center">
+                  <v-chip
+                        class="ma-1 chips-small"
+                        :color="colors.green"
+                        text-color="white">
+                      收货地址
+                  </v-chip>
+                  <v-card-text class="text-center">
+                    <v-layout row wrap class="justify-center">
+                      <div><strong v-html="jd_user.recipient_name"></strong></div>
+                    </v-layout>
+                  </v-card-text>
+                  <v-card-text class="text-center">
+                    <v-layout row wrap class="justify-center">
+                      <div style="max-width: 200px;"><strong v-html="jd_user.full_addr"></strong></div>
+                    </v-layout>
+                  </v-card-text>
+                </v-card-title>
+                <v-card-title class="justify-center">
+                    <v-card-text>
+                      提前时间(毫秒)
+                    <v-text-field 
+                      color="primary"
+                      v-model="jd_user.leading_time" 
+                      :disabled="!jd_user.allow_seckill"
+                      clearable 
+                      clear-icon="cancel"
+                    ></v-text-field>
+                  </v-card-text>
+                </v-card-title>
+                <v-card-title class="justify-center">
+                    <v-btn color="primary" small fab dark @click="checkSeckillLog(jd_user.nick_name)">
+                      <v-icon>speaker_notes</v-icon>
+                    </v-btn>
+                    <v-btn color="primary" small fab dark @click="checkOrder(jd_user.nick_name)">
+                      <v-icon>content_paste</v-icon>
+                    </v-btn>
+               </v-card-title>
+              </div>
             </v-layout>
           </v-card>
         </v-flex>
@@ -459,118 +472,128 @@
                           class="ma-1 chips-small"
                           :color="colors.green"
                           text-color="white">
-                      PC有效时间大于6小时
+                      PC大于6h
                     </v-chip>
                     <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
                           class="ma-1 chips-small"
                           :color="colors.purple"
                           text-color="white">
-                      PC有效时间小于6小时
+                      PC小于6h
                     </v-chip>
                     <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
                           class="ma-1 chips-small"
                           :color="colors.red"
                           text-color="white">
-                      PC有效时间小于2小时
+                      PC小于2h
                     </v-chip>
                     <v-chip v-else
                           class="ma-1 chips-small"
                           :color="colors.black"
                           text-color="white">
-                      PC未登录/已过期
+                      PC无效
                     </v-chip>
-                </v-card-title>
-                <v-card-title class="justify-center" v-if="jd_user.pc_cookie_status">
-                  <strong>到期 {{jd_user.pc_cookie_expire_ts_label}}</strong>
+                    <v-card-text class="text-center">
+                      <v-layout row wrap class="justify-center">
+                        <div style="max-width: 200px;"><strong v-html="jd_user.pc_cookie_expire_ts_label"></strong></div>
+                      </v-layout>
+                    </v-card-text>
                 </v-card-title>
                 <v-card-title class="justify-center">
                     <v-chip v-if="jd_user.mobile_cookie_expire_level==1"
                           class="ma-1 chips-small"
                           :color="colors.green"
                           text-color="white">
-                      移动有效时间大于6小时
+                      移动大于6h
                     </v-chip>
                     <v-chip v-else-if="jd_user.mobile_cookie_expire_level==2"
                           class="ma-1 chips-small"
                           :color="colors.purple"
                           text-color="white">
-                      移动有效时间小于6小时
+                      移动小于6h
                     </v-chip>
                     <v-chip v-else-if="jd_user.mobile_cookie_expire_level==3"
                           class="ma-1 chips-small"
                           :color="colors.red"
                           text-color="white">
-                      移动有效时间小于2小时
+                      移动小于2h
                     </v-chip>
                     <v-chip v-else
                           class="ma-1 chips-small"
                           :color="colors.black"
                           text-color="white">
-                      移动未登录/已过期
+                      移动无效
                     </v-chip>
-                </v-card-title>
-                <v-card-title class="justify-center" v-if="jd_user.mobile_cookie_status">
-                  <strong>到期 {{jd_user.mobile_cookie_expire_ts_label}}</strong>
+                    <v-card-text class="text-center">
+                      <v-layout row wrap class="justify-center">
+                        <div style="max-width: 200px;"><strong v-html="jd_user.mobile_cookie_expire_ts_label"></strong></div>
+                      </v-layout>
+                    </v-card-text>
                 </v-card-title>
                 <v-card-title class="justify-center">
                     <v-chip v-if="jd_user.jd_pwd"
                           class="ma-1 chips-small"
                           :color="colors.green"
                           text-color="white">
-                      支付密码已配置
+                      密码
+                      <v-icon dark right>check_circle</v-icon>
                     </v-chip>
                     <v-chip v-else
                           class="ma-1 chips-small"
                           :color="colors.black"
                           text-color="white">
-                      支付密码未配置
+                      密码
+                      <v-icon dark right>block</v-icon>
                     </v-chip>
                     <v-chip v-if="jd_user.push_email && jd_user.push_token"
                           class="ma-1 chips-small"
                           :color="colors.green"
                           text-color="white">
-                      邮件提醒已配置
+                      邮件
+                      <v-icon dark right>check_circle</v-icon>
                     </v-chip>
                     <v-chip v-else
                           class="ma-1 chips-small"
                           :color="colors.black"
                           text-color="white">
-                      邮件提醒未配置
+                      邮件<v-icon dark right>block</v-icon>
                     </v-chip>
                 </v-card-title>
               </div>
             </v-layout>
           </v-card>
         </v-flex>
-        <v-flex xs5>
+        <v-flex xs6>
             <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
               <v-layout>
                 <v-card-text>
                   <div v-for="arrenge in userArrangement[jd_user.nick_name]" :key="arrenge.id">
                         <v-layout pt-3>
-                          <v-flex xs2>
+                          <v-flex xs4>
                             <v-chip
-                                v-if="arrenge.status=='未开始'"
+                                small
+                                v-if="arrenge.status==$constants.service.arrangementStatus.planned"
                                 :v-model="arrenge.status!=null"
                                 color="pink"
                                 text-color="white"
                                 class="sku-selected-chip"
                                 >
                               {{arrenge.status}}
-                              <v-icon v-if="arrenge.status=='未开始'" dark right>build</v-icon>
+                              <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.planned" dark right>build</v-icon>
                             </v-chip>
                             <v-chip
-                                v-if="arrenge.status=='已取消'"
+                                small
+                                v-if="arrenge.status==$constants.service.arrangementStatus.cancelled"
                                 :v-model="arrenge.status!=null"
                                 color="black"
                                 text-color="white"
                                 class="sku-selected-chip"
                                 >
                               {{arrenge.status}}
-                              <v-icon v-if="arrenge.status=='已取消'" dark right>remove_circle</v-icon>
+                              <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.cancelled" dark right>remove_circle</v-icon>
                             </v-chip>
                             <v-chip
-                                v-if="arrenge.status=='运行中'"
+                                small
+                                v-if="arrenge.status==$constants.service.arrangementStatus.running"
                                 :v-model="arrenge.status!=null"
                                 color="primary"
                                 text-color="white"
@@ -578,7 +601,7 @@
                                 >
                               {{arrenge.status}}
                               <v-progress-circular
-                                v-if="arrenge.status=='运行中'"
+                                v-if="arrenge.status==$constants.service.arrangementStatus.running"
                                 :v-model="arrenge.status!=null"
                                 indeterminate
                                 color="white"
@@ -587,19 +610,21 @@
                               ></v-progress-circular>
                             </v-chip>
                             <v-chip
-                                v-if="arrenge.status=='已成功'"
+                                small
+                                v-if="arrenge.status==$constants.service.arrangementStatus.succeeded"
                                 :v-model="arrenge.status!=null"
                                 color="green"
                                 text-color="white"
                                 class="sku-selected-chip"
                                 >
                               {{arrenge.status}}
-                              <v-icon v-if="arrenge.status=='已成功'" dark right>check_circle</v-icon>
+                              <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.succeeded" dark right>check_circle</v-icon>
                             </v-chip>
-                            <v-tooltip top v-if="arrenge.status=='已失败' && arrenge.failure_msg && arrenge.failure_msg!=''">
+                            <v-tooltip top v-if="arrenge.status==$constants.service.arrangementStatus.failed && arrenge.failure_msg && arrenge.failure_msg!=''">
                               <template v-slot:activator="{ on }">
                                 <v-chip
-                                  v-if="arrenge.status=='已失败'"
+                                  small
+                                  v-if="arrenge.status==$constants.service.arrangementStatus.failed"
                                   :v-model="arrenge.status!=null"
                                   color="red"
                                   text-color="white"
@@ -607,10 +632,11 @@
                                   v-on="on"
                                   >
                                 {{arrenge.status}}
-                                  <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
+                                  <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.failed" dark right>block</v-icon>
                               </v-chip>
                               </template>
                                   <v-chip
+                                        small
                                         class="ma-1 chips-small"
                                         :color="colors.green"
                                         text-color="white">
@@ -618,31 +644,36 @@
                                   </v-chip>
                             </v-tooltip>
                             <v-chip
-                                  v-if="arrenge.status=='已失败' && (!arrenge.failure_msg || arrenge.failure_msg=='')"
+                                  small
+                                  v-if="arrenge.status==$constants.service.arrangementStatus.failed && (!arrenge.failure_msg || arrenge.failure_msg=='')"
                                   :v-model="arrenge.status!=null"
                                   color="red"
                                   text-color="white"
                                   class="sku-selected-chip"
-                                  v-on="on"
                                   >
                                 {{arrenge.status}}
-                                <v-icon v-if="arrenge.status=='已失败'" dark right>block</v-icon>
+                                <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.failed" dark right>block</v-icon>
                             </v-chip>
                             <v-chip
-                                v-if="arrenge.status=='系统错误'"
+                                small
+                                v-if="arrenge.status==$constants.service.arrangementStatus.error"
                                 :v-model="arrenge.status!=null"
                                 color="black"
                                 text-color="white"
                                 class="sku-selected-chip"
                                 >
                               {{arrenge.status}}
-                              <v-icon v-if="arrenge.status=='系统错误'" dark right>block</v-icon>
+                              <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.error" dark right>block</v-icon>
                             </v-chip>
                           </v-flex>
-                          <v-flex xs4>
+                          <v-flex xs8>
                             <strong>{{arrenge.startTime}}</strong>
                           </v-flex>
-                          <v-flex xs6>
+                        </v-layout>
+                        <v-layout pt-3>
+                          <v-flex xs4>
+                          </v-flex>
+                          <v-flex xs8>
                               <v-chip  v-for="skuDetail in arrenge.skus" :key="skuDetail.id"
                                   color="teal"
                                   text-color="white"
@@ -668,11 +699,11 @@
           :value="addToArrangement"
           v-if="addToArrangement" persistent 
           scrollable
-          max-width="1000px"
-          max-height="1000px"
+          max-width="500px"
+          max-height="500px"
         >
           <v-card>
-            <v-card-title>选择抢购信息</v-card-title>
+            <v-card-title>添加到用户计划</v-card-title>
             <v-divider></v-divider>
             <v-card-text>
               <v-select
@@ -1094,8 +1125,8 @@ export default {
                 }
 
                 var foundSkuForUser = this.$commons.findKeyInJsonArray('skuId',this.skuArrangement['skuId'], this.userArrangement[nick_name], 'skus')
-                if(this.userArrangement[nick_name] && this.userArrangement[nick_name].length>3 && !foundSkuForUser){
-                  this.$commons.showError("用户" + nick_name + "最多可以设置4个抢购计划", this);
+                if(this.userArrangement[nick_name] && this.userArrangement[nick_name].length>2 && !foundSkuForUser){
+                  this.$commons.showError("用户" + nick_name + "最多可以设置3个抢购计划", this);
                   shouldIgnore = true
                 }
               }
@@ -1317,12 +1348,12 @@ export default {
       }
 
       if(!target_user['pc_cookie_status'] || target_user['pc_cookie_expire_level']==this.tsExpireLevel['expired']){
-        this.$commons.showError('用户'+nick_name+'PC端未登录/已过期', this);
+        this.$commons.showError('用户'+nick_name+'PC端无效', this);
         return
       }
 
       if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
-        this.$commons.showError('用户'+nick_name+'移动端未登录/已过期', this);
+        this.$commons.showError('用户'+nick_name+'移动端无效', this);
         return
       }
 
@@ -1461,17 +1492,7 @@ export default {
       var isReadLogIntervalCancelInProgress = false
       if(this.readExecutionLogInterval[nick_name] && !this.readExecutionLogIntervalClearInProgress[nick_name]){
         isReadLogIntervalCancelInProgress = true
-        setTimeout(() => {
-            if(!ins.isUserArrangementRunning(nick_name)){
-              //read last time in case cancelled log not returned
-              setTimeout(() => {
-                ins.readExecutionLog(nick_name)
-              }, 15 * 1000)
-              clearInterval(ins.readExecutionLogInterval[nick_name])
-              ins.readExecutionLogInterval[nick_name] = null
-              ins.readExecutionLogIntervalClearInProgress[nick_name] = false
-            }
-        }, 15 * 1000)
+        this.cancelReadLogInterval(nick_name)
       }
       if(isReadLogIntervalCancelInProgress){
         this.readExecutionLogIntervalClearInProgress[nick_name] = true
@@ -1743,24 +1764,26 @@ export default {
           var isUpdated = false
           var isRunning = false
           for(var i=0;i<seckill_arangement.length;i++){
-            isUpdated = false
-            isRunning = false
+            var isCurrentUserTaskRunning = false
             var userArrangementStatusItem = seckill_arangement[i]
             var nick_name = userArrangementStatusItem['nick_name']
             var plannedArragementForUser = this.userArrangement[nick_name]
-            //cache response user is not found from local, delete cache item
+            //cache response user is not found from local(db returned), delete cache item
             if(!plannedArragementForUser){
               this.deleteArrangementTargetTime('', nick_name)
               continue
             }
-            var is_user_task_running = false
+            // cache loop
             for(var j=0;j<userArrangementStatusItem['seckill_arangement'].length;j++){ 
               var retTargetTime = userArrangementStatusItem['seckill_arangement'][j]['target_time']
               var retStatus = userArrangementStatusItem['seckill_arangement'][j]['status']
               var retFailureMsg = userArrangementStatusItem['seckill_arangement'][j]['failure_msg']
               if(retStatus == 'running'){
-                 is_user_task_running = true
+                 isRunning = true
+                 isCurrentUserTaskRunning = true
               } 
+
+              //db loop
               for(var k=0;k<plannedArragementForUser.length;k++){ 
                 if(retTargetTime == plannedArragementForUser[k]['startTime']){
                     if(plannedArragementForUser[k]['failure_msg']!=retFailureMsg){
@@ -1771,66 +1794,54 @@ export default {
                       plannedArragementForUser[k]['status'] = this.$constants.service.arrangementStatus[retStatus]
                       isUpdated = true
                     }
-                    if(this.$constants.service.arrangementStatus[retStatus] == this.$constants.service.arrangementStatus.running){
-                      isRunning = true
-                    }
                 }
               }
           }
           for(var j=0;j<this.jdUsers.length;j++){
               var jdUser = this.jdUsers[j]
               if(jdUser.nick_name == nick_name){
-                if(is_user_task_running){
+                if(isCurrentUserTaskRunning){
                   jdUser['allow_seckill'] = false
                   jdUser['allow_cancel_seckill'] = true
+
+                  // start check log
+                  if(!this.executionLog[nick_name] || !this.executionLog[nick_name]['logArray'] || this.executionLog[nick_name]['logArray'].length==0){
+                    this.executionLog[nick_name] = {
+                        'lastLogId': 0,
+                        'logArray': new Array()
+                    }
+                  }
+                  if(!this.readExecutionLogInterval[nick_name]){
+                    this.readExecutionLogInterval[nick_name] = setInterval(() => {
+                      ins.readExecutionLog(nick_name)
+                    }, 2000)
+                  }
                 }else{
                   jdUser['allow_seckill'] = true
                   jdUser['allow_cancel_seckill'] = false
-                }
-                break
-              }
-          }
-        }
-        if(isUpdated){
-          this.userArrangement = Object.assign({}, this.userArrangement, this.userArrangement)
-          this.saveUserArrangement()
-        }
 
-        if(isRunning){
-          if(!this.executionLog[nick_name] || !this.executionLog[nick_name]['logArray'] || this.executionLog[nick_name]['logArray'].length==0){
-            this.executionLog[nick_name] = {
-                'lastLogId': 0,
-                'logArray': new Array()
-            }
-          }
-          if(!this.readExecutionLogInterval[nick_name]){
-            this.readExecutionLogInterval[nick_name] = setInterval(() => {
-              ins.readExecutionLog(nick_name)
-            }, 2000)
-          }
-        }else{
-          if(this.readExecutionLogInterval[nick_name] && !this.readExecutionLogIntervalClearInProgress[nick_name]){
-            this.readExecutionLogIntervalClearInProgress[nick_name] = true
-            setTimeout(() => {
-              if(!ins.isUserArrangementRunning(nick_name)){
-                //read last time in case cancelled log not returned
-                setTimeout(() => {
-                  ins.readExecutionLog(nick_name)
-                }, 15 * 1000)
-                clearInterval(ins.readExecutionLogInterval[nick_name])
-                ins.readExecutionLogInterval[nick_name] = null
-                ins.readExecutionLogIntervalClearInProgress[nick_name] = false
+                  // cancel log check -- if log check interval is started by db status
+                  if(this.readExecutionLogInterval[nick_name] && !this.readExecutionLogIntervalClearInProgress[nick_name]){
+                    this.readExecutionLogIntervalClearInProgress[nick_name] = true
+                    this.cancelReadLogInterval(nick_name)
+                  }
+                }
               }
-            }, 15 * 1000)
           }
         }
 
         // if no running task, cancel check
-        if(!this.isAnyArrangementRunning()){
+        if(!isRunning){
           if(this.getArrangementStatusInterval){
             clearInterval(this.getArrangementStatusInterval)
             this.getArrangementStatusInterval = null
           }
+        }
+
+        // if status not in sync, update local arrangement and db
+        if(isUpdated){
+          this.userArrangement = Object.assign({}, this.userArrangement, this.userArrangement)
+          this.saveUserArrangement()
         }
       }
     },
@@ -1974,6 +1985,18 @@ export default {
         return false
       }
     },
+    cancelReadLogInterval:function(nick_name){
+      var ins = this
+      setTimeout(() => {
+        //read last time in case cancelled log not returned
+        setTimeout(() => {
+          ins.readExecutionLog(nick_name)
+        }, 15 * 1000)
+        clearInterval(ins.readExecutionLogInterval[nick_name])
+        ins.readExecutionLogInterval[nick_name] = null
+        ins.readExecutionLogIntervalClearInProgress[nick_name] = false
+      }, 15 * 1000)
+    },
     fillInSkuDate:function(){
       if(this.skuData['is_reserve_product']){
           var buyTimeSplitted = this.skuData['reserve_info']['buy_time'].split('-')
@@ -1998,15 +2021,15 @@ export default {
     font-size: 10pt;
   }
   .title-btn {
-    height: 50px;
-    font-size: 25pt;
+    height: 20px;
+    font-size: 10pt;
   }
   .round-corner {
     border-radius:10px;
   }
   .avatar-svg {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
   }
   .card-margin-bottom {
     margin-bottom: 15px;

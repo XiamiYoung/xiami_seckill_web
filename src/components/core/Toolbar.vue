@@ -3,6 +3,9 @@
     dark
     app
     :color="$root.themeColor">
+    <v-toolbar-title>
+        <v-toolbar-side-icon @click="toggleNavigationBar"></v-toolbar-side-icon>
+      </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-menu offset-y origin="center center" :nudge-bottom="10" transition="scale-transition">
       <v-btn icon large flat slot="activator" :ripple="false">
@@ -50,6 +53,10 @@ export default {
   },
 
   methods: {
+    toggleNavigationBar: function() {
+      const vm = this;
+      vm.$emit("toggleNavigationBar");
+    },
     logoutAdmin:function(){
       this.$store.commit("setUserName", "");
       this.$store.commit("setToken", "");

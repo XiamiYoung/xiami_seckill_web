@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     width="200"
-    v-model="toggle"
+    v-model="localToggle"
     fixed app>
     <v-toolbar flat dark :color="$root.themeColor" class="toolbar">
       <router-link :to="{ name: 'JDSeckill' }">
@@ -50,6 +50,9 @@ export default {
     }
   },
   watch: {
+    toggle(){
+      this.localToggle = this.toggle
+    },
     '$route' (to, from) {
       this.getSelectedRoute(to.name);
     }
@@ -59,6 +62,7 @@ export default {
   },
   data() {
     return {
+      localToggle: true,
       selectedRoute: {},
       iconColor: "#457cb3"
     };
