@@ -196,6 +196,14 @@ var commonsJS = {
         }
       }
   },
+  getTargetHost: function () {
+    var hostName = window.location.href;
+    if (hostName.indexOf('localhost') != -1) {
+      return constants.interface.backend.localEndpoint;
+    }else{
+      return constants.interface.backend.cloudEndpoint;
+    }
+  },
   showLoading: function (ins) {
     var loader = ins.$loading.show({
       loader: 'spinner'

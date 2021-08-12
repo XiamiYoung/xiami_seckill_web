@@ -466,7 +466,7 @@ export default {
     deleteJdUser:function(){
       var ins = this
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/delete-jd-user",
+            url: this.$commons.getTargetHost() + "/site/jd/delete-jd-user",
             successCallback: this.onSuccessDeleteJDUser,
             failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
             postData: {
@@ -492,7 +492,7 @@ export default {
         
         var ins = this
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/send-mobile-code",
+            url: this.$commons.getTargetHost() + "/site/jd/send-mobile-code",
             successCallback: this.onSuccessSendMobileCode,
             failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
             postData: {
@@ -532,7 +532,7 @@ export default {
         return
       }
       var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/submit-mobile-code",
+            url: this.$commons.getTargetHost() + "/site/jd/submit-mobile-code",
             successCallback: this.onSuccessSubmitMobileCode,
             failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
             postData: {
@@ -585,7 +585,7 @@ export default {
         }
         var ins = this
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/load-qr-code",
+            url: this.$commons.getTargetHost() + "/site/jd/load-qr-code",
             successCallback: this.onSuccessLoadQRCode,
             failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
             ins: this,
@@ -615,7 +615,7 @@ export default {
       var requestHeaders = {}
       requestHeaders[this.$constants.service.jd.headerPCCookieName] = jd_pc_cookies
       var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/wait-user-scan-qr",
+            url: this.$commons.getTargetHost() + "/site/jd/wait-user-scan-qr",
             headers:requestHeaders,
             postData: {
                         'cookie-token': this.cookie_token
@@ -646,7 +646,7 @@ export default {
     cancelQRScanResult:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-qr-scan-result",
+          url: this.$commons.getTargetHost() + "/site/jd/cancel-qr-scan-result",
           successCallback: this.onSuccessCancelQRCodeScanResult,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData: {
@@ -667,7 +667,7 @@ export default {
     getAssociatedJdUsers:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-associated-jd-users",
+          url: this.$commons.getTargetHost() + "/site/jd/get-associated-jd-users",
           successCallback: this.onSuccessGetAssociatedJdUsers,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -688,7 +688,7 @@ export default {
     cancelMobileCodeScanResult:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-user-mobile-code-input",
+          url: this.$commons.getTargetHost() + "/site/jd/cancel-user-mobile-code-input",
           successCallback: this.onSuccessCancelMobileCodeInput,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData: {
@@ -713,7 +713,7 @@ export default {
       requestHeaders[this.$constants.service.jd.headerPCCookieName] = jd_pc_cookies
 
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/check-qr-scan-result",
+          url: this.$commons.getTargetHost() + "/site/jd/check-qr-scan-result",
           headers:requestHeaders,
           postData: {
                       'cookie-token': this.cookie_token
@@ -834,7 +834,7 @@ export default {
   checkMobileResult:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/check-mobile-code-result",
+          url: this.$commons.getTargetHost() + "/site/jd/check-mobile-code-result",
           postData: {
                       'nick_name': this.selectedUserForMobileCode['nick_name']
                     },
@@ -891,7 +891,7 @@ export default {
     getSeckillStatus:function(nick_name, is_delete_jd_user){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-arrangement-status",
+          url: this.$commons.getTargetHost() + "/site/jd/get-arrangement-status",
           successCallback: this.onSuccessGetArrangementStatus,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           successCallbackParamObj:{
@@ -939,7 +939,7 @@ export default {
       }
 
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-leading-time",
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-leading-time",
           successCallback: this.onSuccessSaveUserLeadingTime,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData:{
@@ -967,7 +967,7 @@ export default {
       }
 
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-pwd",
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-pwd",
           successCallback: this.onSuccessSaveUserPwd,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData:{
@@ -995,7 +995,7 @@ export default {
       }
 
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-push-email",
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-push-email",
           successCallback: this.onSuccessSaveUserPushEmail,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData:{
@@ -1023,7 +1023,7 @@ export default {
       }
 
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-push-token",
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-push-token",
           successCallback: this.onSuccessSaveUserPushToken,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData:{

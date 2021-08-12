@@ -852,7 +852,7 @@ export default {
     getAssociatedJdUsers:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-associated-jd-users",
+          url: this.$commons.getTargetHost() + "/site/jd/get-associated-jd-users",
           successCallback: this.onSuccessGetAssociatedJdUsers,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -1327,7 +1327,7 @@ export default {
       }
 
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/start-arrangement",
+          url: this.$commons.getTargetHost() + "/site/jd/start-arrangement",
           postData: {
                       'arrangement_list': this.userArrangement[nick_name],
                       'nick_name': nick_name,
@@ -1438,7 +1438,7 @@ export default {
 
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-arrangement",
+          url: this.$commons.getTargetHost() + "/site/jd/cancel-arrangement",
           postData: {
                       'arrangement_list': this.userArrangement[nick_name],
                       'nick_name': nick_name
@@ -1538,7 +1538,7 @@ export default {
     addOrRemoveArrangement:function(target_time, nick_name, is_add){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/add-or-remove-arrangement",
+          url: this.$commons.getTargetHost() + "/site/jd/add-or-remove-arrangement",
           postData: {
                       'target_time': target_time,
                       'nick_name': nick_name,
@@ -1560,7 +1560,7 @@ export default {
     getUserArrangement:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-jd-user-arrangement",
+          url: this.$commons.getTargetHost() + "/site/jd/get-jd-user-arrangement",
           successCallback: this.onSuccessGetUserArrangement,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -1603,7 +1603,7 @@ export default {
     addCustomSku:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/add-custom-sku",
+          url: this.$commons.getTargetHost() + "/site/jd/add-custom-sku",
           postData: {
                       'sku_data': this.skuData
                     },
@@ -1620,7 +1620,7 @@ export default {
     getCustomSku:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-custom-sku",
+          url: this.$commons.getTargetHost() + "/site/jd/get-custom-sku",
           successCallback: this.onSuccessGetCustomSku,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -1641,7 +1641,7 @@ export default {
     deleteCustomSku:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/delete-custom-sku",
+          url: this.$commons.getTargetHost() + "/site/jd/delete-custom-sku",
           successCallback: this.onSuccessDeleteCustomSku,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -1663,7 +1663,7 @@ export default {
     saveUserArrangement:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/save-jd-user-arrangement",
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-arrangement",
           postData: {
                       'user_arrangement': {
                         'seckill_arrangement': ins.userArrangement
@@ -1686,7 +1686,7 @@ export default {
       }
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/read-execution-log",
+          url: this.$commons.getTargetHost() + "/site/jd/read-execution-log",
           postData: {
                       'nick_name': nick_name,
                       'last_id': lastLogId
@@ -1728,7 +1728,7 @@ export default {
     getSeckillStatus:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-arrangement-status",
+          url: this.$commons.getTargetHost() + "/site/jd/get-arrangement-status",
           successCallback: this.onSuccessGetArrangementStatus,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -1837,7 +1837,7 @@ export default {
     deleteArrangementTargetTime:function(targetTime, nick_name){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/delete-arrangement-item",
+          url: this.$commons.getTargetHost() + "/site/jd/delete-arrangement-item",
           successCallback: this.onSuccessDeleteArrangementTargetTime,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData: {
@@ -1857,7 +1857,7 @@ export default {
     submitQuerySeckillData: function(isForceRefresh) {
         this.seckillQuerySubmitted = false;
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/batch-load-seckill",
+            url: this.$commons.getTargetHost() + "/site/jd/batch-load-seckill",
             successCallback: this.onSuccessSubmitQuerySeckillData,
             failureCallback: this.onFailuredSubmitQuerySeckillData,
             postData: {
@@ -1890,7 +1890,7 @@ export default {
         this.skuQuerySubmitted = false;
         this.skuQuerySubmitting = true
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/jd/get-sku-by-id",
+            url: this.$commons.getTargetHost() + "/site/jd/get-sku-by-id",
             successCallback: this.onSuccessSubmitQuerySkuData,
             failureCallback: this.onFailuredSubmitQuerySkulData,
             postData: {

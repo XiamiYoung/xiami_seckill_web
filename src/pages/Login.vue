@@ -88,7 +88,7 @@ export default {
     },
     submitLogin: function() {
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/site/login",
+            url: this.$commons.getTargetHost() + "/site/login",
             successCallback: this.onSuccessLogin,
             failureCallback: this.onFailuredLogin,
             postData:{

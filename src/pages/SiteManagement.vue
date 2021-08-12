@@ -64,7 +64,7 @@ export default {
     loadSwitch: function(){
       this.formQuerySubmitting = true;
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/admin/site/manage",
+          url: this.$commons.getTargetHost() + "/admin/site/manage",
           successCallback: this.onSuccessSubmitQueryForm,
           failureCallback: this.onFailuredSubmitQueryForm,
           ins: this,
@@ -104,7 +104,7 @@ export default {
     submitEdit: function() {
         this.formEditSubmitting = true;
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/admin/site/manage",
+            url: this.$commons.getTargetHost() + "/admin/site/manage",
             successCallback: this.onSuccessSubmitEditForm,
             failureCallback: this.onFailuredSubmitEditForm,
             postData:{
@@ -159,7 +159,7 @@ export default {
     submitDeleteToBackend: function() {
         this.siteClearSubmitting = true;
         var requestObj = {
-            url: this.$constants.interface.backend.endpoint + "/admin/site/clear",
+            url: this.$commons.getTargetHost() + "/admin/site/clear",
             successCallback: this.onSuccessSubmitDeleteForm,
             failureCallback: this.onFailuredSubmitDeleteForm,
             ins: this,

@@ -40,15 +40,13 @@
                       <td width="10%" class="text-xs-center text-strong">
                         <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`"></v-img>
                       </td>
+                      <td class="text-xs-center text-strong">
+                        <v-btn color="primary" class="round-corner" @click="loadItemPage(item.sku_id)">详情</v-btn>
+                      </td>
                       <td width="90%" class="text-xs-center text-strong">
                         <tr>
                           <td class="text-xs-center text-strong">
                             {{item.name}}(x{{item.quantity}})
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-xs-center text-strong">
-                            <v-btn color="primary" class="round-corner" @click="loadItemPage(item.sku_id)">详情</v-btn>
                           </td>
                         </tr>
                       </td>
@@ -81,7 +79,7 @@
                 <td class="text-xs-center text-strong td-border">{{ props.item.order_id}}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.order_time }}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.sum_price }}</td>
-                <td class="text-xs-center text-strong td-border">{{ props.item.current_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.target_price }}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.original_price }}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.saved_price }}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.addr_name }}</td>
@@ -109,8 +107,8 @@
           <v-card-text>确认删除订单吗</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="round-corner" @click="onConfirmDeleteOrder(false)">否</v-btn>
             <v-btn color="primary" class="round-corner" @click="onConfirmDeleteOrder(true)">是</v-btn>
+            <v-btn color="primary" class="round-corner" @click="onConfirmDeleteOrder(false)">否</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -123,8 +121,8 @@
           <v-card-text>确认取消订单吗</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="round-corner" @click="onConfirmCancelOrder(false)">否</v-btn>
             <v-btn color="primary" class="round-corner" @click="onConfirmCancelOrder(true)">是</v-btn>
+            <v-btn color="primary" class="round-corner" @click="onConfirmCancelOrder(false)">否</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -211,7 +209,7 @@ export default {
           text: '抢购价格',
           align: 'right',
           sortable: true,
-          value: 'current_price',
+          value: 'target_price',
           class: "primary--text title"
         },
         {
@@ -281,7 +279,7 @@ export default {
     getJDOrders:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-jd-orders",
+          url: this.$commons.getTargetHost() + "/site/jd/get-jd-orders",
           successCallback: this.onSuccessGetJDOrders,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -328,7 +326,7 @@ export default {
     deleteJDOrder:function(order_id){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/delete-jd-order",
+          url: this.$commons.getTargetHost() + "/site/jd/delete-jd-order",
           successCallback: this.onSuccessDeleteOrder,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData: {
@@ -362,7 +360,7 @@ export default {
     getAssociatedJdUsers:function(){
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/get-associated-jd-users",
+          url: this.$commons.getTargetHost() + "/site/jd/get-associated-jd-users",
           successCallback: this.onSuccessGetAssociatedJdUsers,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           ins: this,
@@ -477,7 +475,7 @@ export default {
 
       var ins = this
       var requestObj = {
-          url: this.$constants.interface.backend.endpoint + "/site/jd/cancel-jd-order",
+          url: this.$commons.getTargetHost() + "/site/jd/cancel-jd-order",
           successCallback: this.onSuccessCancelJDOrder,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData: {
