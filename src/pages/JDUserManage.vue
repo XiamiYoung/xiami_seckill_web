@@ -299,7 +299,7 @@
                       </v-chip>
                       <v-card-text class="text-center">
                         <v-layout row wrap class="justify-center">
-                          <div style="max-width: 200px;"><strong v-html="jd_user.pc_cookie_expire_ts_label"></strong></div>
+                          <div style="max-width: 200px;"><strong v-html="jd_user.mobile_cookie_expire_ts_label"></strong></div>
                         </v-layout>
                       </v-card-text>
                     </v-card-title>
@@ -449,6 +449,13 @@ export default {
     };
   },
   methods: {
+    startUserExpireInterval:function(){
+      var ins = this
+      setInterval(() => {
+          ins.checkTsExpireLevel()
+          // 10 mins
+        }, 10 * 60 * 1000)
+    },
     checkTsExpireLevel:function(){
       for(var index=0;index<this.jdUsers.length;index++){
         var jdUser = this.jdUsers[index]
@@ -687,7 +694,7 @@ export default {
               for(var i=0;i<response.data.body.jd_users.length;i++){
                 this.syncJdUsers(response.data.body.jd_users[i], true)
               }
-              this.checkTsExpireLevel()
+              this.startUserExpireInterval()
             }
         }
     },

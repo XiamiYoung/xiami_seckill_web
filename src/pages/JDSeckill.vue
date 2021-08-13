@@ -888,6 +888,13 @@ export default {
     };
   },
   methods: {
+    startUserExpireInterval:function(){
+      var ins = this
+      setInterval(() => {
+          ins.checkTsExpireLevel()
+          // 10 mins
+        }, 10 * 60 * 1000)
+    },
     getAssociatedJdUsers:function(){
       var ins = this
       var requestObj = {
@@ -914,6 +921,7 @@ export default {
     actionsOnStart:function(){
       this.checkTsExpireLevel()
       this.getUserArrangement()
+      this.startUserExpireInterval()
       
       for(var number=1;number<=10;number++){
         this.skuNumbers.push(number)
@@ -1297,25 +1305,18 @@ export default {
       var isActionTaken = false
       var is_batch_action = true
 
-      if(this.isIgnoreOutDated){
-        var is_outdate_only = true
-        this.removeOutDatedArrangement(is_outdate_only)
-      }
-
       if(this.getArrangementStatusInterval){
         clearInterval(this.getArrangementStatusInterval)
         this.getArrangementStatusInterval = null
       }
       Object.keys(this.userArrangement).forEach(function(nick_name) {
-        if(!ins.isUserArrangementRunning(nick_name)){
+        if(ins.userHasArrangement(nick_name) && !ins.isUserArrangementRunning(nick_name)){
           ins.startSeckill(nick_name, is_batch_action)
           isActionTaken = true
         }
       })
 
-      if(isActionTaken){
-          ins.isBatchStartArrangementInProgress = true
-      }else{
+      if(!isActionTaken){
         ins.$commons.showMessage('没有找到符合的抢购计划', ins);
       }
     },
@@ -1330,16 +1331,12 @@ export default {
       }
 
       Object.keys(this.userArrangement).forEach(function(nick_name) {
-        if(ins.isUserArrangementRunning(nick_name)){
-          ins.targetBatchCancelCounter++
+        if(ins.userHasArrangement(nick_name) && ins.isUserArrangementRunning(nick_name)){
           ins.cancelSeckill(nick_name, is_batch_action)
           isActionTaken = true
         }
 
-        if(isActionTaken){
-          ins.isBatchCancelArrangementInProgress = true
-          ins.saveUserArrangement()
-        }else{
+        if(!isActionTaken){
           ins.$commons.showMessage('没有找到符合的抢购计划', ins);
         }
       })
@@ -1347,7 +1344,7 @@ export default {
     startSeckill:function(nick_name, is_batch_action){
       var ins = this
       var target_user = this.getTargetUser(nick_name)
-      
+
       //check status
       this.checkTsExpireLevel()
 
@@ -1364,20 +1361,19 @@ export default {
       }
 
       if(!target_user['pc_cookie_status'] || target_user['pc_cookie_expire_level']==this.tsExpireLevel['expired']){
-        if(!is_batch_action){
-          this.$commons.showError('用户'+nick_name+'PC端无效', this);
-        }
+        this.$commons.showError('用户'+nick_name+'PC端无效', this);
         return
       }
 
       if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
-        if(!is_batch_action){
-          this.$commons.showError('用户'+nick_name+'移动端无效', this);
-        }
+        this.$commons.showError('用户'+nick_name+'移动端无效', this);
         return
       }
 
       if(is_batch_action){
+        if(!this.isBatchStartArrangementInProgress){
+          this.isBatchStartArrangementInProgress = true
+        }
         this.targetBatchStartCounter++
       }
 
@@ -1457,7 +1453,9 @@ export default {
                   this.isBatchStartArrangementInProgress = false
                   this.batchStartCounter = 0
                   this.targetBatchStartCounter = 0
-                  this.$commons.showMessage('已全部开始', this);
+                  setTimeout(() => {
+                    ins.$commons.showMessage('已全部开始', ins);
+                  }, 1000)
                   this.saveUserArrangement()
                 }
               }
@@ -1469,13 +1467,16 @@ export default {
     },
     onFailuredStartArrangement: function(error,callbackParam) {
       if(callbackParam.is_batch_action){
+        var ins = this
         this.batchStartCounter++
         if(this.isBatchStartArrangementInProgress){
           if(this.batchStartCounter == this.targetBatchStartCounter){
             this.isBatchStartArrangementInProgress = false
             this.batchStartCounter = 0
             this.targetBatchStartCounter = 0
-            this.$commons.showMessage('已全部开始', this);
+            setTimeout(() => {
+              ins.$commons.showMessage('已全部开始', ins);
+            }, 1000)
             this.saveUserArrangement()
           }
         }
@@ -1489,6 +1490,13 @@ export default {
       if(this.userArrangement[nick_name].length==0){
         this.$commons.showError('用户'+nick_name+'没有添加抢购商品', this);
         return
+      }
+
+      if(is_batch_action){
+        if(!this.isBatchCancelArrangementInProgress){
+          this.isBatchCancelArrangementInProgress = true
+        }
+        this.targetBatchCancelCounter++
       }
 
       var ins = this
@@ -1532,6 +1540,7 @@ export default {
     onSuccessCancelArrangement:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['executed']){
+            var ins = this
             if(callbackParam.is_batch_action){
               this.batchCancelCounter++
             }else{
@@ -1552,7 +1561,9 @@ export default {
                   this.isBatchCancelArrangementInProgress = false
                   this.batchCancelCounter = 0
                   this.targetBatchCancelCounter = 0
-                  this.$commons.showMessage('已全部取消', this);
+                  setTimeout(() => {
+                    ins.$commons.showMessage('已全部取消', ins);
+                  }, 1000)
                   this.saveUserArrangement()
                 }
               }
@@ -1563,6 +1574,7 @@ export default {
       }
     },
     onFailuredCancelArrangement: function(error,callbackParam) {
+      var ins = this
       if(callbackParam.is_batch_action){
         this.batchCancelCounter++
         if(this.isBatchCancelArrangementInProgress){
@@ -1570,7 +1582,9 @@ export default {
             this.isBatchCancelArrangementInProgress = false
             this.batchCancelCounter = 0
             this.targetBatchCancelCounter = 0
-            this.$commons.showMessage('已全部取消', this);
+            setTimeout(() => {
+              ins.$commons.showMessage('已全部取消', ins);
+            }, 1000)
             this.saveUserArrangement()
           }
         }
@@ -1960,6 +1974,12 @@ export default {
             return jdUser
           }
       }
+    },
+    userHasArrangement:function(param_nick_name){
+      if(this.userArrangement && this.userArrangement[param_nick_name] && this.userArrangement[param_nick_name].length>0){
+        return true
+      }
+      return false
     },
     isUserArrangementRunning:function(param_nick_name){
       var ins = this
