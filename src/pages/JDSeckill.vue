@@ -1070,6 +1070,9 @@ export default {
         this.$commons.showError('请先登录京东用户', this)
         return
       }
+
+      //check status
+      this.checkTsExpireLevel()
       
       if(isSeckillMode){
         this.skuArrangement['startTime'] = startTime +'.000'
@@ -1111,6 +1114,9 @@ export default {
     },
     onCloseSelectUserForSku:function(isConfirm){
       if(isConfirm){
+        //check status
+        this.checkTsExpireLevel()
+
         if(this.selectedUserForSku.length==0){
           this.selectedUserForSku = [];
           this.addToArrangement = false;
@@ -1341,6 +1347,9 @@ export default {
     startSeckill:function(nick_name, is_batch_action){
       var ins = this
       var target_user = this.getTargetUser(nick_name)
+      
+      //check status
+      this.checkTsExpireLevel()
 
       if(!is_batch_action && this.isIgnoreOutDated){
         var is_outdate_only = true
@@ -1348,17 +1357,23 @@ export default {
       }
 
       if(!this.userArrangement || !this.userArrangement[nick_name] || this.userArrangement[nick_name].length==0){
-        this.$commons.showError('用户'+nick_name+'没有添加抢购商品', this);
+        if(!is_batch_action){
+          this.$commons.showError('用户'+nick_name+'没有添加抢购商品', this);
+        }
         return
       }
 
       if(!target_user['pc_cookie_status'] || target_user['pc_cookie_expire_level']==this.tsExpireLevel['expired']){
-        this.$commons.showError('用户'+nick_name+'PC端无效', this);
+        if(!is_batch_action){
+          this.$commons.showError('用户'+nick_name+'PC端无效', this);
+        }
         return
       }
 
       if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
-        this.$commons.showError('用户'+nick_name+'移动端无效', this);
+        if(!is_batch_action){
+          this.$commons.showError('用户'+nick_name+'移动端无效', this);
+        }
         return
       }
 
