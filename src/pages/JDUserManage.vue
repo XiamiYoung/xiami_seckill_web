@@ -335,7 +335,7 @@
           </v-layout>
         </div>
     <div>
-      <v-dialog :value="qrCodeLoaded" v-if="qrCodeLoaded" persistent max-width="450">
+      <v-dialog :value="qrCodeLoaded" v-if="qrCodeLoaded" persistent max-width="250" max-height="250">
           <v-card class="round-corner">
             <v-card-title class="headline">扫描二维码登录</v-card-title>
             <v-card-text>
@@ -348,10 +348,11 @@
               >
                 {{ qrCodeCountDown }}
               </v-progress-circular>
-              <v-img :src="`data:image/png;base64,${qrCodeContentUrl}`" style="width:400px; height:400px;"></v-img> </v-card-text>
+              <v-img :src="`data:image/png;base64,${qrCodeContentUrl}`"  max-width="200" max-height="200" contain></v-img> 
+            </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary"  text @click="onCloseQRDialog"><div style="color: white">关闭</div></v-btn>
+              <v-btn color="primary" class="round-corner" @click="onCloseQRDialog">关闭</v-btn>
             </v-card-actions>
           </v-card>
       </v-dialog>

@@ -71,7 +71,7 @@
                                         >
                                           <v-avatar
                                             class="ma-3"
-                                            size="100"
+                                            size="130"
                                             tile
                                             contain
                                           >
@@ -390,7 +390,7 @@
     <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
       <v-layout row wrap>
         <v-flex xs2>
-          <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -418,7 +418,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -426,18 +426,26 @@
                         class="ma-1 chips-small"
                         :color="colors.green"
                         text-color="white">
-                      收货地址
+                      收货信息
                   </v-chip>
-                  <v-card-text class="text-center">
-                    <v-layout row wrap class="justify-center">
-                      <div><strong v-html="jd_user.recipient_name"></strong></div>
-                    </v-layout>
-                  </v-card-text>
-                  <v-card-text class="text-center">
-                    <v-layout row wrap class="justify-center">
-                      <div style="max-width: 200px;"><strong v-html="jd_user.full_addr"></strong></div>
-                    </v-layout>
-                  </v-card-text>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                      <v-chip
+                        class="ma-1 chips-small"
+                        :color="colors.green"
+                        text-color="white"
+                        v-on="on"
+                      >
+                      {{jd_user.recipient_name}}
+                    </v-chip>
+                    </template>
+                    <v-chip
+                          class="ma-1 chips-small"
+                          :color="colors.green"
+                          text-color="white">
+                      {{jd_user.full_addr}}
+                    </v-chip>
+                  </v-tooltip>
                 </v-card-title>
                 <v-card-title class="justify-center">
                     <v-card-text>
@@ -464,7 +472,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -563,7 +571,7 @@
           </v-card>
         </v-flex>
         <v-flex xs6>
-            <v-card min-height="370" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+            <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
               <v-layout>
                 <v-card-text>
                   <div v-for="arrenge in userArrangement[jd_user.nick_name]" :key="arrenge.id">
@@ -1294,17 +1302,14 @@ export default {
       }
       Object.keys(this.userArrangement).forEach(function(nick_name) {
         if(!ins.isUserArrangementRunning(nick_name)){
-          ins.targetBatchStartCounter++
           ins.startSeckill(nick_name, is_batch_action)
           isActionTaken = true
         }
-
-        if(isActionTaken){
-          ins.isBatchStartArrangementInProgress = true
-        }
       })
 
-      if(!isActionTaken){
+      if(isActionTaken){
+          ins.isBatchStartArrangementInProgress = true
+      }else{
         ins.$commons.showMessage('没有找到符合的抢购计划', ins);
       }
     },
@@ -1355,6 +1360,10 @@ export default {
       if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
         this.$commons.showError('用户'+nick_name+'移动端无效', this);
         return
+      }
+
+      if(is_batch_action){
+        this.targetBatchStartCounter++
       }
 
       var requestObj = {
@@ -2021,8 +2030,8 @@ export default {
     font-size: 10pt;
   }
   .title-btn {
-    height: 20px;
-    font-size: 10pt;
+    height: 30px;
+    font-size: 15pt;
   }
   .round-corner {
     border-radius:10px;
