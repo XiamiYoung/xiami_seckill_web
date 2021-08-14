@@ -7,7 +7,7 @@
       <router-link :to="{ name: 'JDSeckill' }">
       </router-link>
       <router-link :to="{ name: 'JDSeckill' }" class="text">
-         虾米抢购助手
+         虾米助手
       </router-link>
     </v-toolbar>
     <v-list>

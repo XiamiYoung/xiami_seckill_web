@@ -7,6 +7,7 @@
         <v-toolbar-side-icon @click="toggleNavigationBar"></v-toolbar-side-icon>
       </v-toolbar-title>
     <v-spacer></v-spacer>
+    {{$store.state.userName}}
     <v-menu offset-y origin="center center" :nudge-bottom="10" transition="scale-transition">
       <v-btn icon large flat slot="activator" :ripple="false">
           <avatar class="avatar-svg"></avatar>
@@ -43,7 +44,7 @@ export default {
         {
           icon: 'exit_to_app',
           href: '#',
-          title: '退出' + this.$store.state.userName,
+          title: '退出',
           click: () => {
             this.logoutAdmin();
           }

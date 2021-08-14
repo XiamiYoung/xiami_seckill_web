@@ -102,13 +102,24 @@
                                                 text-color="white">
                                                 {{seckill_item.rate}}折
                                           </v-chip>
-                                          <v-chip style="max-width: 100px"
-                                                v-if="seckill_item.specificationLabel"
-                                                class="ma-2 chips-small"
-                                                color="green"
-                                                text-color="white">
+                                          <v-tooltip top>
+                                          <template v-slot:activator="{ on }" v-if="seckill_item.specificationLabel">
+                                              <v-chip
+                                                class="ma-1 chips-small"
+                                                :color="colors.green"
+                                                text-color="white"
+                                                v-on="on"
+                                              >
                                               {{seckill_item.specificationLabel}}
-                                          </v-chip>
+                                            </v-chip>
+                                            </template>
+                                            <v-chip
+                                                  class="ma-2 chips-small"
+                                                  color="green"
+                                                  text-color="white">
+                                                {{seckill_item.specificationLabelToolTip}}
+                                            </v-chip>
+                                          </v-tooltip>
                                           <v-chip 
                                                 v-if="seckill_item.iconList"
                                                 class="ma-2 chips-small"
@@ -369,15 +380,18 @@
             color="orange"
             text-color="white"
           >
-            还没有扫码登录京东账号
+            没有登录的京东用户或未启用
             <v-icon right>
               mdi-star
             </v-icon>
           </v-chip>
-          <v-checkbox
+          <v-switch
+            v-if="jdUsers.length!=0"
+            color="primary"
             v-model="isIgnoreOutDated"
-            label="开始时自动删除过期计划"
-          ></v-checkbox>
+            label="自动清除过期计划"
+            style="margin-left:10px"
+          ></v-switch>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期</v-btn>
@@ -910,7 +924,10 @@ export default {
       if(response.data.body){
           if(response.data.body['success']){
               for(var i=0;i<response.data.body.jd_users.length;i++){
-                this.syncJdUsers(response.data.body.jd_users[i], true)
+                var jd_user = response.data.body.jd_users[i]
+                if(jd_user['enabled']){
+                  this.syncJdUsers(jd_user, true)
+                }
               }
               
               // refresh jdusers
@@ -1921,11 +1938,15 @@ export default {
         if(response.data.body){
           this.seckillData = response.data.body;
 
-          // sorting by rate
-          // for(var i=0;i<this.seckillData.length;i++){
-          //   var seckillItems = this.seckillData[i]['seckill_items'];
-          //   this.seckillData[i]['seckill_items'] = this.$commons.sortArrayByField(seckillItems, 'rate', false, parseFloat);
-          // }
+          for(var i=0;i<this.seckillData.length;i++){
+            var seckillItems = this.seckillData[i]['seckill_items'];
+            for(var j=0;j<seckillItems.length;j++){
+              seckillItems[j]['specificationLabelToolTip'] = seckillItems[j]['specificationLabel']
+              if(seckillItems[j]['specificationLabel'].length>6){
+                seckillItems[j]['specificationLabel'] = seckillItems[j]['specificationLabel'].substring(0, 6)
+              }
+            }
+          }
           this.seckillQuerySubmitted = true;
         }
     },

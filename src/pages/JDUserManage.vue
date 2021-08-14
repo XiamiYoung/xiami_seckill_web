@@ -61,6 +61,29 @@
                           <div><strong v-html="jd_user.full_addr"></strong></div>
                         </v-layout>
                       </v-card-text>
+                      <v-card-text class="text-center">
+                        <v-layout row wrap class="justify-center">
+                          <div>
+                            <v-tooltip top>
+                              <template v-slot:activator="{ on }">
+                                <v-switch
+                                  color="primary"
+                                  v-model="jd_user.enabled"
+                                  label="启用用户"
+                                  @change="switchUserEnabled(jd_user)"
+                                  v-on="on"
+                                ></v-switch>
+                              </template>
+                              <v-chip
+                                    class="ma-1 chips-small"
+                                    :color="colors.green"
+                                    text-color="white">
+                                启用的用户会在抢购页面显示
+                              </v-chip>
+                            </v-tooltip>
+                          </div>
+                        </v-layout>
+                      </v-card-text>
                     </v-card-title>
                   </div>
                 </v-layout>
@@ -797,6 +820,7 @@ export default {
       userData['jd_pwd'] = jd_user_data.jd_pwd
       userData['push_token'] = jd_user_data.push_token
       userData['push_email'] = jd_user_data.push_email
+      userData['enabled'] = jd_user_data.enabled
       
 
       if(!isUserExisted){
@@ -840,6 +864,7 @@ export default {
             jdUser['jd_pwd'] = userData['jd_pwd']
             jdUser['push_token'] = userData['push_token']
             jdUser['push_email'] = userData['push_email']
+            jdUser['enabled'] = userData['enabled']
           }
         }
       }
@@ -1054,6 +1079,30 @@ export default {
           if(response.data.body['executed']){
             this.$commons.showMessage('参数已保存', this);
             this.getAssociatedJdUsers()
+          }
+      }
+    },
+    switchUserEnabled:function(jd_user){
+      var ins = this
+
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-enabled",
+          successCallback: this.onSuccessSaveUserEnabled,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData:{
+            nick_name: jd_user['nick_name'],
+            enabled: jd_user['enabled']
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessSaveUserEnabled:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('参数已保存', this);
           }
       }
     }
