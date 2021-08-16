@@ -697,7 +697,7 @@ export default {
     onSuccessCancelQRCodeScanResult:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['success']){
-              this.$commons.showMessage("扫码已取消", this)
+              this.$commons.showMessage("扫码已终止", this)
             }
         }
     },
@@ -739,7 +739,7 @@ export default {
     onSuccessCancelMobileCodeInput:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['success']){
-              this.$commons.showMessage("手机验证码输入已取消", this)
+              this.$commons.showMessage("手机验证码输入已终止", this)
             }
         }
     },
@@ -965,7 +965,7 @@ export default {
 
         if(callbackParam.is_delete_jd_user){
           if(is_user_task_running){
-            this.$commons.showError('用户抢购计划正在执行，请先取消', this)
+            this.$commons.showError('用户抢购计划正在执行，请先终止', this)
           }else{
             this.toLogoutNickName = callbackParam.nick_name;
             this.removeUserDialog = true;
@@ -975,7 +975,7 @@ export default {
         if(callbackParam.is_enable_switch){
           if(is_user_task_running){
             targetUser.enabled = !targetUser.enabled
-            this.$commons.showError('用户抢购计划正在执行，请先取消', this)
+            this.$commons.showError('用户抢购计划正在执行，请先终止', this)
           }else{
             this.switchUserEnabled(targetUser)
           }

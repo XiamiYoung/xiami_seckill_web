@@ -15,7 +15,7 @@ module.exports = {
 		arrangementStatus:{
 			planned:'计划',
 			running:'运行',
-			cancelled:'取消',
+			cancelled:'终止',
 			succeeded:'成功',
 			failed:'失败',
 			error:'错误'

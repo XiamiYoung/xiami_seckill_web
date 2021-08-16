@@ -219,7 +219,7 @@
                     </template>
                     <v-date-picker v-model="sku_date" no-title scrollable>
                       <v-spacer></v-spacer>
-                      <v-btn class="round-corner" color="primary" @click="sku_date_menu = false">取消</v-btn>
+                      <v-btn class="round-corner" color="primary" @click="sku_date_menu = false">终止</v-btn>
                       <v-btn class="round-corner" color="primary" @click="$refs.sku_date_menu.save(sku_date)">确定</v-btn>
                     </v-date-picker>
                   </v-menu>
@@ -253,7 +253,7 @@
                       full-width
                     >
                       <v-spacer></v-spacer>
-                      <v-btn class="round-corner" color="primary" @click="sku_time_menu = false">取消</v-btn>
+                      <v-btn class="round-corner" color="primary" @click="sku_time_menu = false">终止</v-btn>
                       <v-btn class="round-corner" color="primary" @click="$refs.sku_time_menu.save(sku_time)">确定</v-btn>
                     </v-time-picker>
                   </v-menu>
@@ -394,7 +394,7 @@
             style="margin-left:10px"
           ></v-switch>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
-          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部终止</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true, false)">清除过期</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false, false)">全部清除</v-btn>
         </v-flex>
@@ -1576,7 +1576,7 @@ export default {
             if(callbackParam.is_batch_action){
               this.batchCancelCounter++
             }else{
-              this.$commons.showMessage('用户' + callbackParam.nick_name + '抢购计划已取消', this);
+              this.$commons.showMessage('用户' + callbackParam.nick_name + '抢购计划已终止', this);
             }
             for(var i=0;i<this.jdUsers.length;i++){
                 var jdUser = this.jdUsers[i]
@@ -1594,7 +1594,7 @@ export default {
                   this.batchCancelCounter = 0
                   this.targetBatchCancelCounter = 0
                   setTimeout(() => {
-                    ins.$commons.showMessage('已全部取消', ins);
+                    ins.$commons.showMessage('已全部终止', ins);
                   }, 1000)
                   this.saveUserArrangement()
                 }
@@ -1615,7 +1615,7 @@ export default {
             this.batchCancelCounter = 0
             this.targetBatchCancelCounter = 0
             setTimeout(() => {
-              ins.$commons.showMessage('已全部取消', ins);
+              ins.$commons.showMessage('已全部终止', ins);
             }, 1000)
             this.saveUserArrangement()
           }
