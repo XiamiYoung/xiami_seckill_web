@@ -70,7 +70,7 @@
                                   color="primary"
                                   v-model="jd_user.enabled"
                                   label="启用用户"
-                                  @change="switchUserEnabled(jd_user)"
+                                  @change="getSeckillStatus(jd_user.nick_name, false, true)"
                                   v-on="on"
                                 ></v-switch>
                               </template>
@@ -611,7 +611,8 @@ export default {
     },
     logoutSeckill:function(nick_name){
       var is_delete_jd_user = true
-      this.getSeckillStatus(nick_name, is_delete_jd_user)
+      var is_enable_switch = false
+      this.getSeckillStatus(nick_name, is_delete_jd_user, is_enable_switch)
     },
     loadQRCode:function(){
         if(this.qrScanResultInterval){
@@ -926,7 +927,7 @@ export default {
       this.cancelMobileCodeScanResult()
       this.$commons.defaultFailureCallback(error,this,callbackParam)
     },
-    getSeckillStatus:function(nick_name, is_delete_jd_user){
+    getSeckillStatus:function(nick_name, is_delete_jd_user, is_enable_switch){
       var ins = this
       var requestObj = {
           url: this.$commons.getTargetHost() + "/site/jd/get-arrangement-status",
@@ -934,7 +935,8 @@ export default {
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           successCallbackParamObj:{
             nick_name: nick_name,
-            is_delete_jd_user: is_delete_jd_user
+            is_delete_jd_user: is_delete_jd_user,
+            is_enable_switch: is_enable_switch
           },
           ins: this,
           hideLoading: true
@@ -959,15 +961,36 @@ export default {
             }
         }
 
-        if(callbackParam.is_delete_jd_user && is_user_task_running){
-          this.$commons.showError('用户抢购计划正在执行，请先取消', this)
-        }else{
+        var targetUser = this.getTargetUser(callbackParam.nick_name)
+
+        if(callbackParam.is_delete_jd_user){
+          if(is_user_task_running){
+            this.$commons.showError('用户抢购计划正在执行，请先取消', this)
+          }else{
+            this.toLogoutNickName = callbackParam.nick_name;
+            this.removeUserDialog = true;
+          }
+        }
+
+        if(callbackParam.is_enable_switch){
+          if(is_user_task_running){
+            targetUser.enabled = !targetUser.enabled
+            this.$commons.showError('用户抢购计划正在执行，请先取消', this)
+          }else{
+            this.switchUserEnabled(targetUser)
+          }
+        }
+        
+      }else{
+        if(callbackParam.is_delete_jd_user){
           this.toLogoutNickName = callbackParam.nick_name;
           this.removeUserDialog = true;
         }
-      }else{
-        this.toLogoutNickName = callbackParam.nick_name;
-        this.removeUserDialog = true;
+
+        if(callbackParam.is_enable_switch){
+          var targetUser = this.getTargetUser(callbackParam.nick_name)
+          this.switchUserEnabled(targetUser)
+        }
       }
     },
     saveOptionsLeadingTime:function(jd_user){
@@ -1105,7 +1128,15 @@ export default {
             this.$commons.showMessage('参数已保存', this);
           }
       }
-    }
+    },
+    getTargetUser:function(nick_name){
+      for(var i=0;i<this.jdUsers.length;i++){
+          var jdUser = this.jdUsers[i]
+          if(jdUser.nick_name == nick_name){
+            return jdUser
+          }
+      }
+    },
   }
 };
 </script>

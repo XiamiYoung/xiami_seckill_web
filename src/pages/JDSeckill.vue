@@ -13,6 +13,7 @@
         <v-expansion-panel-content class="round-corner expansion-panel">
           <template v-slot:actions>
             <v-icon color="primary">$vuetify.icons.expand</v-icon>
+            <v-btn color="primary" class="round-corner" @click="submitQuerySeckillData(false)">刷新</v-btn>
             <v-btn color="primary" class="round-corner" @click="submitQuerySeckillData(true)">强制刷新</v-btn>
           </template>
           <template v-slot:header>
@@ -394,8 +395,8 @@
           ></v-switch>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部取消</v-btn>
-          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true)">清除过期</v-btn>
-          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false)">全部清除</v-btn>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true, false)">清除过期</v-btn>
+          <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(false, false)">全部清除</v-btn>
         </v-flex>
         <v-flex xs5>
         </v-flex>
@@ -1152,6 +1153,7 @@ export default {
         for(var i=0;i<this.selectedUserForSku.length;i++){
           var shouldIgnore = false
           var nick_name = this.selectedUserForSku[i];
+          var leading_time_of_user = 0
           for(var j=0;j<this.jdUsers.length;j++){
               var jdUser = this.jdUsers[j]
               if(jdUser.nick_name == nick_name){
@@ -1163,6 +1165,7 @@ export default {
                   return
                 }
 
+                leading_time_of_user = this.getTargetUser(nick_name)['leading_time']
                 var foundSkuForUser = this.$commons.findKeyInJsonArray('skuId',this.skuArrangement['skuId'], this.userArrangement[nick_name], 'skus')
                 if(this.userArrangement[nick_name] && this.userArrangement[nick_name].length>2 && !foundSkuForUser){
                   this.$commons.showError("用户" + nick_name + "最多可以设置3个抢购计划", this);
@@ -1173,11 +1176,14 @@ export default {
           if(shouldIgnore){
             continue
           }
+          
           var arrangementEachTime = {}
           arrangementEachTime['startTime'] = this.skuArrangement['startTime']
           arrangementEachTime['startTimeMills'] = this.skuArrangement['startTimeMills']
           arrangementEachTime['status'] = this.skuArrangement['status']
+          arrangementEachTime['leading_time'] = leading_time_of_user
           arrangementEachTime['skus'] = []
+          
           var skuDetail = {
             'skuId':this.skuArrangement['skuId'],
             'count': this.selectedNumber,
@@ -1258,14 +1264,22 @@ export default {
       this.selectedUserForLog = ''
       this.showOutputLog = false
     },
-    removeOutDatedArrangement: function(is_outdate_only, param_nick_name){
-      for(var i=0;i<this.jdUsers.length;i++){
+    removeOutDatedArrangement: function(is_outdate_only, is_batch_action, param_nick_name){
+      if(!is_batch_action){
+        for(var i=0;i<this.jdUsers.length;i++){
           var jdUser = this.jdUsers[i]
           if(jdUser.allow_cancel_seckill){
-            this.$commons.showError("只能在非运行状态下删除商品", this);
+              this.$commons.showError("只能在非运行状态下删除商品", this);
             return
           }
+        }
+      }else{
+        var targetUser = this.getTargetUser(param_nick_name)
+        if(targetUser.allow_cancel_seckill){
+          return
+        }
       }
+      
       var ins = this
       var deleted = false
       Object.keys(this.userArrangement).forEach(function(nick_name) {
@@ -1352,11 +1366,11 @@ export default {
           ins.cancelSeckill(nick_name, is_batch_action)
           isActionTaken = true
         }
-
-        if(!isActionTaken){
-          ins.$commons.showMessage('没有找到符合的抢购计划', ins);
-        }
       })
+      
+      if(!isActionTaken){
+        ins.$commons.showMessage('没有找到符合的抢购计划', ins);
+      }
     },
     startSeckill:function(nick_name, is_batch_action){
       var ins = this
@@ -1365,10 +1379,6 @@ export default {
       //check status
       this.checkTsExpireLevel()
 
-      if(!is_batch_action && this.isIgnoreOutDated){
-        var is_outdate_only = true
-        this.removeOutDatedArrangement(is_outdate_only, nick_name)
-      }
 
       if(!this.userArrangement || !this.userArrangement[nick_name] || this.userArrangement[nick_name].length==0){
         if(!is_batch_action){
@@ -1385,6 +1395,11 @@ export default {
       if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
         this.$commons.showError('用户'+nick_name+'移动端无效', this);
         return
+      }
+
+      if(this.isIgnoreOutDated){
+        var is_outdate_only = true
+        this.removeOutDatedArrangement(is_outdate_only, is_batch_action, nick_name)
       }
 
       if(is_batch_action){
@@ -1613,9 +1628,15 @@ export default {
     },
     addOrRemoveArrangement:function(target_time, nick_name, is_add){
       var ins = this
+      var targetUser = this.getTargetUser(nick_name)
+      if(!targetUser['leading_time']){
+        this.showError('用户' + nick_name + '提前下单时间不能为空', this)
+        return
+      }
       var requestObj = {
           url: this.$commons.getTargetHost() + "/site/jd/add-or-remove-arrangement",
           postData: {
+                      'leading_time': targetUser['leading_time'],
                       'target_time': target_time,
                       'nick_name': nick_name,
                       'is_add':is_add
@@ -1651,6 +1672,8 @@ export default {
               if(response.data.body['user_arrangement'] && response.data.body['user_arrangement']['seckill_arrangement']){
                 this.userArrangement = response.data.body['user_arrangement']['seckill_arrangement']
 
+
+
                 // if running task is found
                 if(this.isAnyArrangementRunning()){
                   // start interval
@@ -1672,8 +1695,12 @@ export default {
                     ins.readExecutionLog(nick_name)
                   }
                 })
+
+                this.jdUsers = Object.assign([], this.jdUsers, this.jdUsers)
               }
             }
+
+            this.getSeckillStatus()
         }
     },
     addCustomSku:function(){
@@ -1822,7 +1849,15 @@ export default {
             var isCurrentUserTaskRunning = false
             var userArrangementStatusItem = seckill_arangement[i]
             var nick_name = userArrangementStatusItem['nick_name']
+            var retLeadingTime = userArrangementStatusItem['leading_time']
             var plannedArragementForUser = this.userArrangement[nick_name]
+            var targetUser = this.getTargetUser(nick_name)
+
+            // user not found from DB, either deleted or disabled
+            if(!targetUser){
+              continue
+            }
+
             //cache response user is not found from local(db returned), delete cache item
             if(!plannedArragementForUser){
               this.deleteArrangementTargetTime('', nick_name)
@@ -1841,6 +1876,10 @@ export default {
               //db loop
               for(var k=0;k<plannedArragementForUser.length;k++){ 
                 if(retTargetTime == plannedArragementForUser[k]['startTime']){
+                    if(retLeadingTime){
+                        var targetUser = this.getTargetUser(nick_name)
+                        targetUser['leading_time'] = retLeadingTime
+                    }
                     if(plannedArragementForUser[k]['failure_msg']!=retFailureMsg){
                       plannedArragementForUser[k]['failure_msg'] = retFailureMsg
                       isUpdated = true
@@ -1948,6 +1987,7 @@ export default {
             }
           }
           this.seckillQuerySubmitted = true;
+          this.seckillPanelExpend = [true]
         }
     },
     onFailuredSubmitQuerySeckillData: function(error,callbackParam) {
