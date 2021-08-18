@@ -219,8 +219,8 @@
                     </template>
                     <v-date-picker v-model="sku_date" no-title scrollable>
                       <v-spacer></v-spacer>
-                      <v-btn class="round-corner" color="primary" @click="sku_date_menu = false">终止</v-btn>
                       <v-btn class="round-corner" color="primary" @click="$refs.sku_date_menu.save(sku_date)">确定</v-btn>
+                      <v-btn class="round-corner" color="primary" @click="sku_date_menu = false">关闭</v-btn>
                     </v-date-picker>
                   </v-menu>
                 </v-flex>
@@ -253,8 +253,8 @@
                       full-width
                     >
                       <v-spacer></v-spacer>
-                      <v-btn class="round-corner" color="primary" @click="sku_time_menu = false">终止</v-btn>
                       <v-btn class="round-corner" color="primary" @click="$refs.sku_time_menu.save(sku_time)">确定</v-btn>
+                      <v-btn class="round-corner" color="primary" @click="sku_time_menu = false">关闭</v-btn>
                     </v-time-picker>
                   </v-menu>
                 </v-flex>
@@ -1700,7 +1700,8 @@ export default {
               }
             }
 
-            this.getSeckillStatus()
+            var isOnPageLoad = true
+            this.getSeckillStatus(isOnPageLoad)
         }
     },
     addCustomSku:function(){
@@ -1828,12 +1829,18 @@ export default {
           }, 100)
       }
     },
-    getSeckillStatus:function(){
+    getSeckillStatus:function(isOnPageLoad){
+      if(!isOnPageLoad){
+        isOnPageLoad = false
+      }
       var ins = this
       var requestObj = {
           url: this.$commons.getTargetHost() + "/site/jd/get-arrangement-status",
           successCallback: this.onSuccessGetArrangementStatus,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          successCallbackParamObj:{
+            isOnPageLoad:isOnPageLoad
+          },
           ins: this,
           hideLoading: true
       };
@@ -1876,7 +1883,7 @@ export default {
               //db loop
               for(var k=0;k<plannedArragementForUser.length;k++){ 
                 if(retTargetTime == plannedArragementForUser[k]['startTime']){
-                    if(retLeadingTime){
+                    if(retLeadingTime&&callbackParam.isOnPageLoad){
                         var targetUser = this.getTargetUser(nick_name)
                         targetUser['leading_time'] = retLeadingTime
                     }

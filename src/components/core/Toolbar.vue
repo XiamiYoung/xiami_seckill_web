@@ -7,7 +7,12 @@
         <v-toolbar-side-icon @click="toggleNavigationBar"></v-toolbar-side-icon>
       </v-toolbar-title>
     <v-spacer></v-spacer>
-    {{$store.state.userName}}
+    <v-chip class="ma-2"
+          color="primary"
+          text-color="white"
+          >
+        {{$store.state.userName}}
+    </v-chip>
     <v-menu offset-y origin="center center" :nudge-bottom="10" transition="scale-transition">
       <v-btn icon large flat slot="activator" :ripple="false">
           <avatar class="avatar-svg"></avatar>
