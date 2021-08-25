@@ -1988,7 +1988,7 @@ export default {
             var seckillItems = this.seckillData[i]['seckill_items'];
             for(var j=0;j<seckillItems.length;j++){
               seckillItems[j]['specificationLabelToolTip'] = seckillItems[j]['specificationLabel']
-              if(seckillItems[j]['specificationLabel'].length>6){
+              if(seckillItems[j]['specificationLabel'] && seckillItems[j]['specificationLabel'].length>6){
                 seckillItems[j]['specificationLabel'] = seckillItems[j]['specificationLabel'].substring(0, 6)
               }
             }
