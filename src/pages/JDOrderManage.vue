@@ -296,6 +296,7 @@ export default {
             for(var i=0;i<this.jd_order_list.length;i++){
               this.saved_total += this.jd_order_list[i]['saved_price']
             }
+            this.saved_total = this.saved_total.toFixed(2)
           }
       }
     },

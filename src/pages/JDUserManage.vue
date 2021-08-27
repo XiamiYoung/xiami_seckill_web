@@ -447,7 +447,7 @@ export default {
       jdUsers:[],
       qrCodeContentUrl:"",
       qrCodeCountDown:100,
-      mobileCodeCountDown:100,
+      mobileCodeCountDown:200,
       qrCodeInterval:'',
       qrScanResultInterval:'',
       mobileCodeInterval:'',
@@ -548,7 +548,7 @@ export default {
             this.mobileCodeSent = true
             this.verificationCodeDisabled = false
             // show dialog
-            this.mobileCodeCountDown = 100
+            this.mobileCodeCountDown = 200
             this.mobileCodeInterval = setInterval(() => {
               if (this.mobileCodeCountDown === 0) {
                   this.mobileCodeSent = false
@@ -607,7 +607,7 @@ export default {
       this.mobileCodeInterval = null
       this.mobileCodeScanResultInterval = null
       this.cancelMobileCodeScanResult()
-      this.mobileCodeCountDown = 100
+      this.mobileCodeCountDown = 200
     },
     logoutSeckill:function(nick_name){
       var is_delete_jd_user = true
@@ -883,7 +883,7 @@ export default {
           hideLoading: true
       };
 
-      var mobileCodeCheckResultCountDown = 60
+      var mobileCodeCheckResultCountDown = 200
       this.mobileCodeScanResultInterval = setInterval(() => {
         if (mobileCodeCheckResultCountDown === 0) {
           clearInterval(this.mobileCodeScanResultInterval)
