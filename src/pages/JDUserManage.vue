@@ -548,14 +548,18 @@ export default {
             this.mobileCodeSent = true
             this.verificationCodeDisabled = false
             // show dialog
+            var ins = this
             this.mobileCodeCountDown = 200
+            if(this.mobileCodeInterval){
+              clearInterval(this.mobileCodeInterval)
+            }
             this.mobileCodeInterval = setInterval(() => {
-              if (this.mobileCodeCountDown === 0) {
-                  this.mobileCodeSent = false
-                  clearInterval(this.mobileCodeInterval)
-                  this.mobileCodeInterval = null
+              if (ins.mobileCodeCountDown === 0) {
+                  ins.mobileCodeSent = false
+                  clearInterval(ins.mobileCodeInterval)
+                  ins.mobileCodeInterval = null
                 }
-                this.mobileCodeCountDown -= 1
+                ins.mobileCodeCountDown -= 1
               }, 1000)
             this.checkMobileResult()
           }
