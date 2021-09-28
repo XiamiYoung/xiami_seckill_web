@@ -3,8 +3,8 @@ var baseContext = {
 module.exports = {
 	interface:{
 		backend:{
-			cloudEndpoint:"http://123.57.212.54:8000",
-			localEndpoint:"http://localhost:8000"
+			cloudEndpoint:"http://123.57.212.54:7366",
+			localEndpoint:"http://localhost:7366"
 		}
 	},
 	service:{
