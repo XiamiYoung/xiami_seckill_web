@@ -241,7 +241,7 @@ var commonsJS = {
     //clear session if any, and return to login page
     store.default.commit("setUserName", '');
     store.default.commit("setToken", '');
-    window.location.href = "/site/login";
+    window.location.href = "/xiami/online";
   },
   getUrlParam: function(parameter){
     var urlparameter = null;
