@@ -405,7 +405,7 @@
     <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
       <v-layout row wrap>
         <v-flex xs2>
-          <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -433,7 +433,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -487,7 +487,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -586,7 +586,7 @@
           </v-card>
         </v-flex>
         <v-flex xs6>
-            <v-card min-height="380" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+            <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
               <v-layout>
                 <v-card-text>
                   <div v-for="arrenge in userArrangement[jd_user.nick_name]" :key="arrenge.id">

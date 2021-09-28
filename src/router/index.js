@@ -79,7 +79,7 @@ router.beforeEach((to, from, next) => {
     if (store.default.state.token&&store.default.state.userName) {
       next();
     } else {
-      window.location.href = "/";
+      window.location.href = "/xiami/online";
       // next({name: 'Login'});
     }
   }

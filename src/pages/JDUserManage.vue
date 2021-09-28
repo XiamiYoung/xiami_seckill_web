@@ -17,7 +17,7 @@
         <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
           <v-layout row wrap>
             <v-flex xs2>
-              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-card min-height="350" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
                     <v-card-title class="justify-center">
@@ -41,7 +41,7 @@
               </v-card>
             </v-flex>
             <v-flex xs2>
-              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-card min-height="350" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
                     <v-card-title class="justify-center">
@@ -90,7 +90,7 @@
               </v-card>
             </v-flex>
             <v-flex xs2>
-              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-card min-height="350" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
                     <v-card-title class="justify-center">
@@ -164,7 +164,7 @@
               </v-card>
             </v-flex>
             <v-flex xs2>
-              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-card min-height="350" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
                     <v-card-title class="justify-center">
@@ -238,7 +238,7 @@
               </v-card>
             </v-flex>
             <v-flex xs2>
-              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-card min-height="350" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="align-center justify-center">
                   <div>
                     <v-card-title class="justify-center">
@@ -292,7 +292,7 @@
               </v-card>
             </v-flex>
             <v-flex xs2>
-              <v-card min-height="350" color="amber" class="round-corner d-flex flex-column align-center justify-center">
+              <v-card min-height="350" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
                 <v-layout row wrap class="justify-center">
                   <div>
                     <v-card-title class="justify-center">
