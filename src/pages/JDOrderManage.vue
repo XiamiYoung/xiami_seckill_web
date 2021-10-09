@@ -6,6 +6,9 @@
             订单统计(仅包含抢购助手成功下单的订单)
           </v-chip>
           <v-chip color="green" text-color="white">
+            总计支出 {{sum_price_total}}元
+          </v-chip>
+          <v-chip color="green" text-color="white">
             总计节省 {{saved_total}}元
           </v-chip>
           <v-spacer></v-spacer>
@@ -251,6 +254,7 @@ export default {
       jd_order_list: [],
       jdUsers:[],
       saved_total:0,
+      sum_price_total:0,
       removeOrderDialog: false,
       cancelOrderDialog: false,
       orderIdToDelete: '',
@@ -292,11 +296,14 @@ export default {
       if(response.data.body){
           if(response.data.body['success']){
             this.saved_total = 0
+            this.sum_price_total = 0
             this.jd_order_list = response.data.body['jd_order_list']
             for(var i=0;i<this.jd_order_list.length;i++){
               this.saved_total += this.jd_order_list[i]['saved_price']
+              this.sum_price_total += parseFloat(this.jd_order_list[i]['sum_price'])
             }
             this.saved_total = this.saved_total.toFixed(2)
+            this.sum_price_total = this.sum_price_total.toFixed(2)
           }
       }
     },
@@ -346,6 +353,7 @@ export default {
       if(response.data.body){
         if(response.data.body['success']){
           this.saved_total = 0
+          this.sum_price_total = 0
 
           var i = this.jd_order_list.length
           while(i--){
@@ -354,7 +362,10 @@ export default {
                 continue
               }
             this.saved_total += this.jd_order_list[i]['saved_price']
+            this.sum_price_total += parseFloat(this.jd_order_list[i]['sum_price'])
           }
+          this.saved_total = this.saved_total.toFixed(2)
+          this.sum_price_total = this.sum_price_total.toFixed(2)
         }
       }
     },

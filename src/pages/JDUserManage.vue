@@ -643,6 +643,9 @@ export default {
       // show QR dialog
       this.qrCodeLoaded = true
       this.qrCodeCountDown = 100
+      if(this.qrCodeInterval){
+        clearInterval(this.qrCodeInterval)
+      }
       this.qrCodeInterval = setInterval(() => {
         if (this.qrCodeCountDown === 0) {
           this.qrCodeLoaded = false
@@ -780,7 +783,27 @@ export default {
             this.syncJdUsers(response.data.body.jd_user_data)
             clearInterval(this.qrScanResultInterval)
             this.qrScanResultInterval = null
+            clearInterval(this.qrCodeInterval)
+            this.qrCodeInterval = null
             this.qrCodeLoaded = false
+          }else{
+            if(!response.data.body['success'] && response.data.body['reasonCode']=='REST3002'){
+              // invalid QR
+              this.qrCodeLoaded = false
+              clearInterval(this.qrScanResultInterval);
+              this.qrScanResultInterval = null
+              clearInterval(this.qrCodeInterval)
+              this.qrCodeInterval = null
+              this.$commons.showMessage("扫码过于频繁，30秒后自动重试", this)
+              var loader = this.$commons.showLoading(this)
+              var ins = this
+              setTimeout(() => {
+                ins.cancelQRScanResult()
+                ins.$commons.closeLoading(loader)
+                // retry
+                ins.loadQRCode()
+              }, 1000 * 30)
+            }
           }
       }
     },
@@ -788,6 +811,8 @@ export default {
       this.qrCodeLoaded = false
       clearInterval(this.qrScanResultInterval);
       this.qrScanResultInterval = null
+      clearInterval(this.qrCodeInterval)
+      this.qrCodeInterval = null
       this.cancelQRScanResult()
       this.$commons.defaultFailureCallback(error,this,callbackParam)
   },

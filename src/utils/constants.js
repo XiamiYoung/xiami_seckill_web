@@ -22,6 +22,7 @@ module.exports = {
 		}
 	},
 	exception:{
+		"REST3002":"无效二维码",
 		"REST3005":"非登录状态"
 	}
 }
