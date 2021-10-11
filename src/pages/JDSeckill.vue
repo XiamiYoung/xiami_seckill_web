@@ -677,16 +677,39 @@
                                 {{arrenge.status}}
                                 <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.failed" dark right>block</v-icon>
                             </v-chip>
+                            <v-tooltip top v-if="arrenge.status==$constants.service.arrangementStatus.error && arrenge.failure_msg && arrenge.failure_msg!=''">
+                              <template v-slot:activator="{ on }">
+                                <v-chip
+                                  small
+                                  v-if="arrenge.status==$constants.service.arrangementStatus.error"
+                                  :v-model="arrenge.status!=null"
+                                  color="black"
+                                  text-color="white"
+                                  class="sku-selected-chip"
+                                  v-on="on"
+                                  >
+                                {{arrenge.status}}
+                                  <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.error" dark right>block</v-icon>
+                              </v-chip>
+                              </template>
+                                  <v-chip
+                                        small
+                                        class="ma-1 chips-small"
+                                        :color="colors.green"
+                                        text-color="white">
+                                    {{arrenge.failure_msg}}
+                                  </v-chip>
+                            </v-tooltip>
                             <v-chip
-                                small
-                                v-if="arrenge.status==$constants.service.arrangementStatus.error"
-                                :v-model="arrenge.status!=null"
-                                color="black"
-                                text-color="white"
-                                class="sku-selected-chip"
-                                >
-                              {{arrenge.status}}
-                              <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.error" dark right>block</v-icon>
+                                  small
+                                  v-if="arrenge.status==$constants.service.arrangementStatus.error && (!arrenge.failure_msg || arrenge.failure_msg=='')"
+                                  :v-model="arrenge.status!=null"
+                                  color="black"
+                                  text-color="white"
+                                  class="sku-selected-chip"
+                                  >
+                                {{arrenge.status}}
+                                <v-icon v-if="arrenge.status==$constants.service.arrangementStatus.error" dark right>block</v-icon>
                             </v-chip>
                           </v-flex>
                           <v-flex xs8>

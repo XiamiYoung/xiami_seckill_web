@@ -794,7 +794,7 @@ export default {
               this.qrScanResultInterval = null
               clearInterval(this.qrCodeInterval)
               this.qrCodeInterval = null
-              this.$commons.showMessage("扫码过于频繁，30秒后自动重试", this)
+              this.$commons.showMessage("二维码异常，30秒后自动重试", this)
               var loader = this.$commons.showLoading(this)
               var ins = this
               setTimeout(() => {
