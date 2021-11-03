@@ -58,7 +58,29 @@
                       </v-card-text>
                       <v-card-text class="text-center">
                         <v-layout row wrap class="justify-center">
-                          <div><strong v-html="jd_user.full_addr"></strong></div>
+                          <div>
+                            <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="!jd_user.jd_user_address_list"></v-progress-linear>
+                            <strong v-if="jd_user.jd_user_address_list && jd_user.jd_user_address_list.length==0" v-html="jd_user.full_addr"></strong>
+                            <v-select
+                              v-else
+                              v-model="jd_user.selected_default_address"
+                              :items="jd_user.jd_user_address_list"
+                              item-value="value"
+                              item-text="label"
+                              menu-props="auto"
+                              label="Select"
+                              hide-details
+                              single-line
+                              @change="onSelectAddress(jd_user)"
+                            ></v-select>
+                          </div>
+                        </v-layout>
+                      </v-card-text>
+                      <v-card-text class="text-center" v-if="jd_user.jd_user_address_list && jd_user.jd_user_address_list.length>0">
+                        <v-layout row wrap class="justify-center">
+                          <div>
+                              <v-btn color="primary" class="round-corner user-component-btn" block @click="saveDefaultAddress(jd_user)" >设置默认</v-btn>
+                          </div>
                         </v-layout>
                       </v-card-text>
                       <v-card-text class="text-center">
@@ -851,6 +873,12 @@ export default {
       userData['push_token'] = jd_user_data.push_token
       userData['push_email'] = jd_user_data.push_email
       userData['enabled'] = jd_user_data.enabled
+
+      if(userData['pc_cookie_expire_level']<4){
+        this.getUserAddress(jd_user_data)
+      }else{
+        userData['jd_user_address_list'] = []
+      }
       
 
       if(!isUserExisted){
@@ -1158,6 +1186,96 @@ export default {
           }
       }
     },
+    onSelectAddress:function(jd_user){
+      for(var index=0;index<jd_user['jd_user_address_list'].length;index++){
+        if(jd_user['selected_default_address'] == jd_user['jd_user_address_list'][index]['value']){
+          jd_user['recipient_name'] = jd_user['jd_user_address_list'][index]['recipient_name']
+        }
+      }
+    },
+    getUserAddress:function(jd_user){
+      var ins = this
+
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/get-user-address",
+          successCallback: this.onSuccessGetUserAddress,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          successCallbackParamObj: jd_user,
+          postData:{
+            nick_name: jd_user['nick_name']
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessGetUserAddress:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+            var jd_user_data = callbackParam
+            for(var index=0;index<this.jdUsers.length;index++){
+              var user = this.jdUsers[index];
+              if(user['nick_name']==jd_user_data.nick_name){
+                var res = response.data.body['jd_user_address_list']
+                var displayAddressList = []
+                for(var j=0;j<res.length;j++){
+                  displayAddressList.push({
+                    'value': res[j]['id'],
+                    'label': res[j]['fullAddress'],
+                    'recipient_name': res[j]['name']
+                  })
+                  if(res[j]['addressDefault']){
+                    user['selected_default_address'] = res[j]['id']
+                    user['recipient_name'] = res[j]['name']
+                  }
+                }
+                user['jd_user_address_list'] = displayAddressList
+                this.$set(this.jdUsers, index, user)
+              }
+            }
+          } 
+      }
+    },
+    saveDefaultAddress:function(jd_user){
+      var ins = this
+
+      var recipient_name = ""
+      var full_addr = ""
+
+      for(var index=0;index<jd_user['jd_user_address_list'].length;index++){
+        if(jd_user['selected_default_address'] == jd_user['jd_user_address_list'][index]['value']){
+          recipient_name = jd_user['jd_user_address_list'][index]['recipient_name']
+          full_addr = jd_user['jd_user_address_list'][index]['label']
+        }
+      }
+
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/save-user-address",
+          successCallback: this.onSuccessSaveUserAddress,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          successCallbackParamObj: jd_user,
+          postData:{
+            nick_name: jd_user['nick_name'],
+            address_id: jd_user['selected_default_address'],
+            recipient_name: recipient_name,
+            full_addr: full_addr
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessSaveUserAddress:function(response, callbackParam){
+      if(response.data.body){
+        if(response.data.body['success']){
+            this.$commons.showMessage("已更新默认地址", this)
+        }else{
+          this.$commons.showError("更新默认地址失败", this)
+        }
+      } 
+    },
     getTargetUser:function(nick_name){
       for(var i=0;i<this.jdUsers.length;i++){
           var jdUser = this.jdUsers[i]
@@ -1193,5 +1311,8 @@ export default {
   .users-card-row{
     margin-top: 20px;
     margin-bottom: 20px;
+  }
+  .user-component-btn{
+    width:100px;
   }
 </style>
