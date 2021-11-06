@@ -349,26 +349,29 @@
                       </v-card-text>
                     </v-card-title>
                     <v-card-title class="justify-center">
-                      <v-text-field 
-                        label="手机号码" 
-                        :color="colors.primary"
-                        v-model="jd_user.mobile" 
-                        clearable 
-                        clear-icon="cancel"
-                        :disabled="jd_user.mobile_code_running"
-                      ></v-text-field>
-                    </v-card-title>
-                    <v-card-title class="justify-center">
                       <v-card-text>
                         <v-tooltip top>
                           <template v-slot:activator="{ on }">
-                            <v-btn color="primary" class="round-corner" block @click="onSendMobileCode(jd_user)" v-on="on">登录/刷新</v-btn>
+                            <v-btn color="primary" class="round-corner" block @click="onRequestQQImage(jd_user)" v-on="on">登录/刷新</v-btn>
                           </template>
                           <v-chip
                                 class="ma-1 chips-small"
                                 :color="colors.green"
                                 text-color="white">
                             重新登录或刷新用户移动信息
+                          </v-chip>
+                        </v-tooltip>
+                      </v-card-text>
+                      <v-card-text>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="onBingdingQQ()" v-on="on">关联QQ</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            关联QQ
                           </v-chip>
                         </v-tooltip>
                       </v-card-text>
@@ -401,36 +404,53 @@
             </v-card-actions>
           </v-card>
       </v-dialog>
-      <v-dialog :value="mobileCodeSent" v-if="mobileCodeSent" persistent max-width="450">
+      <v-dialog :value="qqImageRequested" v-if="qqImageRequested" persistent max-width="300">
         <v-card class="round-corner">
-          <v-card-title class="headline">输入手机验证码</v-card-title>
-          <v-card-text>
-            <v-progress-circular
-              :rotate="-90"
-              :size="50"
-              :width="10"
-              :value="mobileCodeCountDown"
-              color="red"
-            >
-              {{ mobileCodeCountDown }}
-            </v-progress-circular>
-            <v-layout row wrap>
-                  <v-flex>
-                    <v-text-field 
-                      label="输入手机验证码" 
-                      :color="colors.primary"
-                      v-model="selectedUserForMobileCode.mobile_code" 
-                      clearable 
-                      clear-icon="cancel"
-                    ></v-text-field>
-                  </v-flex>
-                </v-layout>
+          <v-card-text v-if="!qqImageLoaded">
+            <v-card-title class="headline">正在拉取QQ二维码</v-card-title>
+            <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true"></v-progress-linear>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" class="round-corner" :disabled="verificationCodeDisabled" @click="onInputMobileCode(selectedUserForMobileCode.mobile_code)"><div style="color: white">确认</div></v-btn>
-            <v-btn color="primary" class="round-corner" @click="onCloseMobileCodeDialog"><div style="color: white">关闭</div></v-btn>
-          </v-card-actions>
+          <v-card-text v-else>
+            <v-card-title class="headline">使用QQ扫描二维码</v-card-title>
+            <v-card-text>
+              <v-progress-circular
+                :rotate="-90"
+                :size="50"
+                :width="10"
+                :value="mobileQRCountDown"
+                color="red"
+              >
+                {{ mobileQRCountDown }}
+              </v-progress-circular>
+              <v-layout row wrap>
+                <v-flex>
+                  <v-text-field 
+                    v-if="needJDPwdInput"
+                    label="输入京东登录密码" 
+                    :color="colors.primary"
+                    v-model="selectedUserForMobileQR.security_code" 
+                    clearable 
+                    clear-icon="cancel"
+                  ></v-text-field>
+                  <v-text-field 
+                    v-else-if="needMobileCode"
+                    label="输入手机验证码" 
+                    :color="colors.primary"
+                    v-model="selectedUserForMobileQR.security_code" 
+                    clearable 
+                    clear-icon="cancel"
+                  ></v-text-field>
+                  <v-img v-else :src="`data:image/png;base64,${qqImageUrl}`" max-width="200" max-height="200" contain></v-img> 
+                </v-flex>
+              </v-layout>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" class="round-corner" v-if="needJDPwdInput" :disabled="securityCodeDisabled" @click="onInputSecurityCode('JD_LOGIN_PWD',selectedUserForMobileQR.security_code)"><div style="color: white">确认</div></v-btn>
+              <v-btn color="primary" class="round-corner" v-if="needMobileCode" :disabled="securityCodeDisabled" @click="onInputSecurityCode('MOBILE_CODE',selectedUserForMobileQR.security_code)"><div style="color: white">确认</div></v-btn>
+              <v-btn color="primary" class="round-corner" @click="onCloseMobileQRDialog"><div style="color: white">关闭</div></v-btn>
+            </v-card-actions>
+          </v-card-text>
         </v-card>
       </v-dialog>
       <v-dialog 
@@ -461,21 +481,24 @@ export default {
   data() {
     return {
       qrCodeLoaded:false,
-      mobileCodeSent:false,
+      qqImageLoaded:false,
+      qqImageRequested:false,
       removeUserDialog:false,
-      selectedUserForMobileCode:'',
+      securityCodeDisabled:false,
+      needJDPwdInput:false,
+      needMobileCode:false,
+      selectedUserForMobileQR:'',
       toLogoutNickName:'',
       userArrangement:{},
       jdUsers:[],
       qrCodeContentUrl:"",
+      qqImageUrl:"",
       qrCodeCountDown:100,
-      mobileCodeCountDown:200,
+      mobileQRCountDown:100,
       qrCodeInterval:'',
       qrScanResultInterval:'',
-      mobileCodeInterval:'',
-      mobileCodeScanResultInterval:'',
+      qqImageInterval:'',
       cookieToken:'',
-      verificationCodeDisabled: false,
       colors:{
         red:'red',
         orange:'orange',
@@ -542,78 +565,116 @@ export default {
             }
         }
     },
-    onSendMobileCode:function(jd_user){
-      if(!jd_user['mobile']){
-        this.$commons.showError('请输入手机号码', this);
-      }else{
-        this.selectedUserForMobileCode = jd_user
-        
-        var ins = this
-        var requestObj = {
-            url: this.$commons.getTargetHost() + "/site/jd/send-mobile-code",
-            successCallback: this.onSuccessSendMobileCode,
-            failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
-            postData: {
-                        'nick_name': this.selectedUserForMobileCode['nick_name'],
-                        'mobile': this.selectedUserForMobileCode['mobile']
-                      },
-            ins: this,
-            hideLoading: true
-        };
-        this.$commons.sendGatewayPost(requestObj);
-      }
+    onRequestQQImage:function(jd_user){
+      this.selectedUserForMobileQR = jd_user
+      
+      var ins = this
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/get-qq-image",
+          successCallback: this.onSuccessRequestQQImage,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData: {
+                      'nick_name': this.selectedUserForMobileQR['nick_name']
+                    },
+          ins: this,
+          hideLoading: false
+      };
+      this.$commons.sendGatewayPost(requestObj);
     },
-    onSuccessSendMobileCode:function(response,callbackParam){
+    onSuccessRequestQQImage:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['executed']){
-            this.$commons.showMessage('等待用户输入手机验证码', this);
-            this.mobileCodeSent = true
-            this.verificationCodeDisabled = false
+            this.qqImageRequested = true
+
             // show dialog
             var ins = this
-            this.mobileCodeCountDown = 200
-            if(this.mobileCodeInterval){
-              clearInterval(this.mobileCodeInterval)
+            if(this.qqImageInterval){
+              clearInterval(this.qqImageInterval)
             }
-            this.mobileCodeInterval = setInterval(() => {
-              if (ins.mobileCodeCountDown === 0) {
-                  ins.mobileCodeSent = false
-                  clearInterval(ins.mobileCodeInterval)
-                  ins.mobileCodeInterval = null
-                }
-                ins.mobileCodeCountDown -= 1
-              }, 1000)
-            this.checkMobileResult()
+            this.qqImageInterval = setInterval(() => {
+              ins.checkQQImageUrlResult()
+            }, 1000)
           }
       }
     },
-    onInputMobileCode:function(mobileCode){
+    checkQQImageUrlResult:function(){
       var ins = this
-      if(!mobileCode){
-        this.$commons.showError('请输入验证码', this);
-        return
-      }
       var requestObj = {
-            url: this.$commons.getTargetHost() + "/site/jd/submit-mobile-code",
-            successCallback: this.onSuccessSubmitMobileCode,
-            failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
-            postData: {
-                        'nick_name': this.selectedUserForMobileCode['nick_name'],
-                        'mobile_code': mobileCode
-                      },
-            ins: this,
-            hideLoading: true
-        };
-        this.$commons.sendGatewayPost(requestObj);
+          url: this.$commons.getTargetHost() + "/site/jd/check-qq-qr-url-result",
+          postData: {
+                      'nick_name': this.selectedUserForMobileQR['nick_name']
+                    },
+          successCallback: this.onSuccessCheckQQImageUrlResult,
+          failureCallback: this.onFailureCheckQQImageUrlResult,
+          ins: this,
+          hideLoading: true
+      };
 
-        this.verificationCodeDisabled = true
+      this.$commons.sendGatewayPost(requestObj);
     },
-    onSuccessSubmitMobileCode:function(response,callbackParam){
+    onSuccessCheckQQImageUrlResult:function(response,callbackParam){
       if(response.data.body){
-          if(response.data.body['executed']){
-            this.$commons.showMessage('正在验证', this);
+          if(response.data.body['success']){
+            if(response.data.body['src']){
+
+              var ins = this
+              this.qqImageLoaded = true
+              this.qqImageUrl = response.data.body['src']
+              this.selectedUserForMobileQR['src'] = ''
+
+              //stop image interval
+              if(this.qqImageInterval){
+                clearInterval(this.qqImageInterval)
+              }
+              this.qqImageInterval = null
+
+              //start check qr scan
+              this.checkMobileResult()
+            }
+          }else{
+            if(response.data.body['error']){
+              this.selectedUserForMobileQR['src'] = ''
+              this.qqImageUrl = ''
+              this.qqImageLoaded = false
+              this.qqImageRequested = false
+              clearInterval(this.qqImageInterval)
+              this.qqImageInterval = null
+              this.cancelQQImageResult()
+              this.$commons.defaultFailureCallback(error,this,callbackParam)
+            }
           }
       }
+    },
+    onFailureCheckQQImageUrlResult:function(error,callbackParam){
+      this.qqImageUrl = ''
+      this.qqImageLoaded = false
+      this.qqImageRequested = false
+      this.selectedUserForMobileQR['src'] = ''
+      clearInterval(this.qqImageInterval)
+      this.qqImageInterval = null
+      this.cancelQQImageResult()
+      this.$commons.defaultFailureCallback(error,this,callbackParam)
+    },
+    cancelQQImageResult:function(){
+      var ins = this
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/cancel-qq-qr",
+          successCallback: this.onSuccessCancelQQQr,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData: {
+                      'nick_name': this.selectedUserForMobileQR['nick_name']
+                    },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+    },
+    onSuccessCancelQQQr:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+              this.$commons.showMessage("QQ扫码已终止", this)
+            }
+        }
     },
     onCloseQRDialog:function(){
       this.qrCodeLoaded = false
@@ -625,15 +686,26 @@ export default {
       this.cancelQRScanResult()
       this.qrCodeCountDown = 100
     },
-    onCloseMobileCodeDialog:function(){
-      this.mobileCodeSent = false
-      this.selectedUserForMobileCode['mobile_code'] = ''
-      clearInterval(this.mobileCodeInterval)
-      clearInterval(this.mobileCodeScanResultInterval)
-      this.mobileCodeInterval = null
-      this.mobileCodeScanResultInterval = null
-      this.cancelMobileCodeScanResult()
-      this.mobileCodeCountDown = 200
+    onBingdingQQ:function(){
+      window.open(this.$constants.interface.qq.loginEndpoint)
+    },
+    onCloseMobileQRDialog:function(){
+      this.qqImageLoaded = false
+      this.qqImageRequested = false
+      this.needJDPwdInput = false
+      this.needMobileCode = false
+      this.selectedUserForMobileQR['src'] = ''
+      if(this.qqImageInterval){
+        clearInterval(this.qqImageInterval)
+      }
+      if(this.mobileQRInterval){
+        clearInterval(this.mobileQRInterval)
+      }
+      this.mobileQRInterval = null
+      this.qqImageInterval = null
+      this.cancelMobileQRScanResult()
+      this.mobileQRCountDown = 100
+      this.selectedUserForMobileQR['security_code'] = ''
     },
     logoutSeckill:function(nick_name){
       var is_delete_jd_user = true
@@ -751,24 +823,24 @@ export default {
             }
         }
     },
-    cancelMobileCodeScanResult:function(){
+    cancelMobileQRScanResult:function(){
       var ins = this
       var requestObj = {
-          url: this.$commons.getTargetHost() + "/site/jd/cancel-user-mobile-code-input",
-          successCallback: this.onSuccessCancelMobileCodeInput,
+          url: this.$commons.getTargetHost() + "/site/jd/cancel-qq-qr",
+          successCallback: this.onSuccessCancelMobileQRScan,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
           postData: {
-                      'nick_name': this.selectedUserForMobileCode['nick_name']
+                      'nick_name': this.selectedUserForMobileQR['nick_name']
                     },
           ins: this,
           hideLoading: true
       };
       this.$commons.sendGatewayPost(requestObj);
     },
-    onSuccessCancelMobileCodeInput:function(response,callbackParam){
+    onSuccessCancelMobileQRScan:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['success']){
-              this.$commons.showMessage("手机验证码输入已终止", this)
+              this.$commons.showMessage("QQ扫码已终止", this)
             }
         }
     },
@@ -864,10 +936,6 @@ export default {
       userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
       userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
       userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
-      userData['mobile_code_running'] = false
-      userData['mobile'] = jd_user_data.mobile
-      userData['mobile_code'] = ''
-      userData['mobile_code_running'] = false
       userData['leading_time'] = jd_user_data.leading_time
       userData['jd_pwd'] = jd_user_data.jd_pwd
       userData['push_token'] = jd_user_data.push_token
@@ -916,8 +984,6 @@ export default {
             jdUser['mobile_cookie_ts_label'] = userData['mobile_cookie_ts_label']
             jdUser['mobile_cookie_expire_ts_label'] = userData['mobile_cookie_expire_ts_label']
             jdUser['mobile_cookie_expire_level'] = userData['mobile_cookie_expire_level']
-            jdUser['mobile_code_running'] = false
-            jdUser['mobile'] = userData['mobile']
             jdUser['leading_time'] = userData['leading_time']
             jdUser['jd_pwd'] = userData['jd_pwd']
             jdUser['push_token'] = userData['push_token']
@@ -930,59 +996,123 @@ export default {
   checkMobileResult:function(){
       var ins = this
       var requestObj = {
-          url: this.$commons.getTargetHost() + "/site/jd/check-mobile-code-result",
+          url: this.$commons.getTargetHost() + "/site/jd/check-mobile-qr-result",
           postData: {
-                      'nick_name': this.selectedUserForMobileCode['nick_name']
+                      'nick_name': this.selectedUserForMobileQR['nick_name']
                     },
-          successCallback: this.onSuccessCheckMobileCodeResult,
-          failureCallback: this.onFailureCheckkMobileCodeResult,
+          successCallback: this.onSuccessCheckMobileQRResult,
+          failureCallback: this.onFailureCheckkMobileQRResult,
           ins: this,
           hideLoading: true
       };
 
-      var mobileCodeCheckResultCountDown = 200
-      this.mobileCodeScanResultInterval = setInterval(() => {
-        if (mobileCodeCheckResultCountDown === 0) {
-          clearInterval(this.mobileCodeScanResultInterval)
-          this.mobileCodeScanResultInterval = null
-        }
-        ins.$commons.sendGatewayPost(requestObj);
-        mobileCodeCheckResultCountDown -= 1
-      }, 1000)
+      //stop QR scan intercal
+      if(this.mobileQRInterval){
+        clearInterval(this.mobileQRInterval)
+      }
+
+      this.needJDPwdInput = false
+      this.needMobileCode = false
+
+      this.mobileQRCountDown = 100
+      this.mobileQRInterval = setInterval(() => {
+          if (ins.mobileQRCountDown === 0) {
+            ins.onCloseMobileQRDialog()
+            clearInterval(ins.mobileQRInterval)
+            ins.mobileQRInterval = null
+          }else{
+            ins.$commons.sendGatewayPost(requestObj);
+            ins.mobileQRCountDown -= 1
+          }
+        }, 1000)
     },
-    onSuccessCheckMobileCodeResult:function(response,callbackParam){
+    onSuccessCheckMobileQRResult:function(response,callbackParam){
       if(response.data.body){
           if(response.data.body['success']){
-            this.selectedUserForMobileCode['mobile_code'] = ''
+            this.selectedUserForMobileQR['src'] = ''
             for (var i=0;i<this.jdUsers.length;i++){
                 var jdUser = this.jdUsers[i]
-                if(jdUser.nick_name == this.selectedUserForMobileCode.nick_name){
+                if(jdUser.nick_name == response.data.body.jd_user_data.nick_name){
                   this.syncJdUsers(response.data.body.jd_user_data)
                   break
                 }
             }
 
-            this.$commons.showMessage(this.selectedUserForMobileCode['nick_name']+"已刷新登录，有效期30天", this)
-            clearInterval(this.mobileCodeScanResultInterval)
-            this.mobileCodeScanResultInterval = null
-            this.mobileCodeSent = false
+            this.$commons.showMessage(this.selectedUserForMobileQR['nick_name']+"已刷新登录，有效期30天", this)
+            if(this.mobileQRInterval){
+              clearInterval(this.mobileQRInterval)
+            }
+            this.mobileQRInterval = null
+            this.qqImageLoaded = false
+            this.qqImageRequested = false
+            this.needJDPwdInput = false
+            this.needMobileCode = false
+            this.selectedUserForMobileQR['security_code'] = ''
           }else{
             if(response.data.body['error']){
-              clearInterval(this.mobileCodeScanResultInterval)
-              this.mobileCodeScanResultInterval = null
-              this.mobileCodeSent = false
-              this.$commons.showError(response.data.body['error'], this)
+              if('NEED_SECURITY_CODE_PWD' === response.data.body['error']){
+                this.needJDPwdInput = true
+              }else if('NEED_SECURITY_CODE_MOBILE' === response.data.body['error']){
+                this.needMobileCode = true
+              }else if('SECURITY_CODE_INCORRECT' === response.data.body['error']){
+                this.selectedUserForMobileQR['security_code'] = ''
+                this.securityCodeDisabled = false
+              }else{
+                if(this.mobileQRInterval){
+                  clearInterval(this.mobileQRInterval)
+                }
+                this.mobileQRInterval = null
+                this.qqImageLoaded = false
+                this.qqImageRequested = false
+                this.$commons.showError(response.data.body['error'], this)
+              }
             }
           }
       }
     },
-    onFailureCheckkMobileCodeResult:function(error,callbackParam){
-      this.selectedUserForMobileCode['mobile_code'] = ''
-      this.mobileCodeSent = false
-      clearInterval(this.mobileCodeScanResultInterval)
-      this.mobileCodeScanResultInterval = null
-      this.cancelMobileCodeScanResult()
+    onFailureCheckkMobileQRResult:function(error,callbackParam){
+      this.selectedUserForMobileQR['src'] = ''
+      this.qqImageLoaded = false
+      this.qqImageRequested = false
+      this.needJDPwdInput = false
+      this.needMobileCode = false
+      if(this.mobileQRInterval){
+        clearInterval(this.mobileQRInterval)
+      }
+      this.mobileQRInterval = null
+      this.cancelMobileQRScanResult()
       this.$commons.defaultFailureCallback(error,this,callbackParam)
+    },
+    onInputSecurityCode:function(type, securityCode){
+      var ins = this
+      if(!securityCode){
+        if(type=="JD_LOGIN_PWD"){
+          this.$commons.showError('请输入京东登录密码', this);
+        }else if(type=="MOBILE_CODE"){
+          this.$commons.showError('请输入手机验证码', this);
+        }
+        return
+      }
+      var requestObj = {
+            url: this.$commons.getTargetHost() + "/site/jd/submit-security-code",
+            successCallback: this.onSuccessSubmitSecurityCode,
+            failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+            postData: {
+                        'nick_name': this.selectedUserForMobileQR['nick_name'],
+                        'security_code': securityCode
+                      },
+            ins: this,
+            hideLoading: true
+        };
+        this.$commons.sendGatewayPost(requestObj);
+        this.securityCodeDisabled = true
+    },
+    onSuccessSubmitSecurityCode:function(response,callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('正在验证', this);
+          }
+      }
     },
     getSeckillStatus:function(nick_name, is_delete_jd_user, is_enable_switch){
       var ins = this

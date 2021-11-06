@@ -5,6 +5,9 @@ module.exports = {
 		backend:{
 			cloudEndpoint:"http://182.92.111.136:7366",
 			localEndpoint:"http://localhost:7366"
+		},
+		qq:{
+			loginEndpoint:'https://graph.qq.com/oauth2.0/show?which=Login&display=pc&response_type=code&client_id=100273020&redirect_uri=https%3A%2F%2Fplogin.m.jd.com%2Fcgi-bin%2Fml%2Fqqcallback%3Flsid%3Dglqwpjc1rlxhu3m0z6ingsl8zd6rvz7blx7agjc85apzdb0d&state=ij0ybm7b'
 		}
 	},
 	service:{
