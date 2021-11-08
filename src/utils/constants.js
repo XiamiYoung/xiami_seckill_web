@@ -7,7 +7,7 @@ module.exports = {
 			localEndpoint:"http://localhost:7366"
 		},
 		qq:{
-			loginEndpoint:'https://graph.qq.com/oauth2.0/show?which=Login&display=pc&response_type=code&client_id=100273020&redirect_uri=https%3A%2F%2Fplogin.m.jd.com%2Fcgi-bin%2Fml%2Fqqcallback%3Flsid%3Dglqwpjc1rlxhu3m0z6ingsl8zd6rvz7blx7agjc85apzdb0d&state=ij0ybm7b'
+			loginEndpoint:'https://plogin.m.jd.com/login/login?appid=300&returnurl=https%3A%2F%2Fwq.jd.com%2Fpassport%2FLoginRedirect%3Fstate%3D1101471000236%26returnurl%3Dhttps%253A%252F%252Fhome.m.jd.com%252FmyJd%252Fnewhome.action%253Fsceneval%253D2%2526ufc%253D%2526&source=wq_passport'
 		}
 	},
 	service:{

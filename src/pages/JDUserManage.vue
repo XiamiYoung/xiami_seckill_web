@@ -308,6 +308,37 @@
                           </v-chip>
                         </v-tooltip>
                       </v-card-text>
+                      <v-card-text>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-text-field 
+                              label="电话号码"
+                              color="primary"
+                              v-model="jd_user.mobile" 
+                              clearable 
+                              clear-icon="cancel"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            非必填
+                          </v-chip>
+                        </v-tooltip>
+                        <v-tooltip top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn color="primary" class="round-corner" block @click="saveMobile(jd_user)" v-on="on">保存</v-btn>
+                          </template>
+                          <v-chip
+                                class="ma-1 chips-small"
+                                :color="colors.green"
+                                text-color="white">
+                            非必填
+                          </v-chip>
+                        </v-tooltip>
+                      </v-card-text>
                     </v-card-title>
                   </div>
                 </v-layout>
@@ -371,7 +402,7 @@
                                 class="ma-1 chips-small"
                                 :color="colors.green"
                                 text-color="white">
-                            关联QQ
+                            打开链接点选下方QQ图标然后扫码关联QQ
                           </v-chip>
                         </v-tooltip>
                       </v-card-text>
@@ -937,6 +968,7 @@ export default {
       userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
       userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
       userData['leading_time'] = jd_user_data.leading_time
+      userData['mobile'] = jd_user_data.mobile
       userData['jd_pwd'] = jd_user_data.jd_pwd
       userData['push_token'] = jd_user_data.push_token
       userData['push_email'] = jd_user_data.push_email
@@ -1076,6 +1108,7 @@ export default {
       this.qqImageRequested = false
       this.needJDPwdInput = false
       this.needMobileCode = false
+      this.securityCodeDisabled = false
       if(this.mobileQRInterval){
         clearInterval(this.mobileQRInterval)
       }
@@ -1178,6 +1211,35 @@ export default {
           var targetUser = this.getTargetUser(callbackParam.nick_name)
           this.switchUserEnabled(targetUser)
         }
+      }
+    },
+    saveMobile:function(jd_user){
+      var ins = this
+      if(!jd_user['mobile']){
+        this.$commons.showError('请输入手机电话号码', this)
+        return false
+      }
+
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/save-jd-user-mobile",
+          successCallback: this.onSuccessSaveUserMobile,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          postData:{
+            nick_name: jd_user['nick_name'],
+            mobile: jd_user['mobile']
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessSaveUserMobile:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['executed']){
+            this.$commons.showMessage('参数已保存', this);
+            this.getAssociatedJdUsers()
+          }
       }
     },
     saveOptionsLeadingTime:function(jd_user){
@@ -1352,7 +1414,7 @@ export default {
                 for(var j=0;j<res.length;j++){
                   displayAddressList.push({
                     'value': res[j]['id'],
-                    'label': res[j]['fullAddress'],
+                    'label': res[j]['fullAddress'] + ' ' + res[j]['mobile'],
                     'recipient_name': res[j]['name']
                   })
                   if(res[j]['addressDefault']){
