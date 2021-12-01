@@ -7,7 +7,7 @@
       <router-link :to="{ name: 'JDSeckill' }">
       </router-link>
       <router-link :to="{ name: 'JDSeckill' }" class="text">
-         虾米助手
+         羊毛加工部
       </router-link>
     </v-toolbar>
     <v-list>

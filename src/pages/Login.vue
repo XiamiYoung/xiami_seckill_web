@@ -7,7 +7,7 @@
             <v-card class="elevation-1 pa-3 round-corner">
               <v-card-text>
                 <div class="layout column align-center">
-                  <h1 class="flex my-4 primary--text">虾米助手</h1>
+                  <h1 class="flex my-4 primary--text">羊毛加工部</h1>
                   <v-icon size="300" color="blue darken-2">emoji_people</v-icon>
                 </div>
                 <v-form>
