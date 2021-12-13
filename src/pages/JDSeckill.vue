@@ -218,13 +218,13 @@
                               color="orange"
                               text-color="white"
                             >
-                              {{predict_item.promo_price}}
+                              ¥{{predict_item.promo_price}}
                             </v-chip>
                             <v-chip class="ma-2 chips-small"
                               color="grey"
                               text-color="white"
                             >
-                              <font style="text-decoration:line-through;">¥{{predict_item.current_price}}</font>
+                              <font style="text-decoration:line-through;">{{predict_item.current_price}}</font>
                             </v-chip>
                             <v-chip class="ma-2 chips-small"
                                 color="green"
