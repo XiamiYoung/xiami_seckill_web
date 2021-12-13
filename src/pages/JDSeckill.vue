@@ -104,7 +104,7 @@
                                                 {{seckill_item.rate}}折
                                           </v-chip>
                                           <v-tooltip top>
-                                          <template v-slot:activator="{ on }" v-if="seckill_item.specificationLabel">
+                                            <template v-slot:activator="{ on }" v-if="seckill_item.specificationLabel">
                                               <v-chip
                                                 class="ma-1 chips-small"
                                                 :color="colors.green"
@@ -163,6 +163,112 @@
                 </v-flex>
             </v-layout>
         </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-card>
+    <v-card class="round-corner sku-card-margin"> 
+      <v-expansion-panel expand v-model="predictExpend" v-if="seckillQuerySubmitted" class="round-corner">
+        <v-expansion-panel-content class="round-corner expansion-panel">
+          <template v-slot:actions>
+            <v-icon color="primary">$vuetify.icons.expand</v-icon>
+          </template>
+          <template v-slot:header>
+            <v-chip class="ma-2 chips-small"
+                  color="green"
+                  text-color="white">
+                秒杀线报
+            </v-chip>
+          </template>
+          <v-card class="animated flipInX flashcard round-corner sku-query-card" img="https://cdn.vuetifyjs.com/images/parallax/material.jpg">
+            <v-card-text>
+              <v-layout row wrap>
+                <v-flex xs3 v-for="predict_item in predictSeckillData" :key="predict_item.sku_id">
+                  <v-card class="round-corner">
+                    <div>
+                        <v-card-title
+                          class="text-h5 justify-center"
+                        >
+                          <v-chip class="ma-2"
+                            color="success"
+                            text-color="white"
+                          >
+                            {{predict_item.seckill_info.seckill_start_time_str}}
+                          </v-chip>
+                        </v-card-title>
+                        <v-card-title
+                          class="text-h5 justify-center"
+                        >
+                          <v-avatar
+                            class="ma-3"
+                            size="130"
+                            tile
+                            contain
+                          >
+                            <v-img :src="`${predict_item.imageUrl}`" @click="loadItemPage(predict_item.sku_id)"></v-img>
+                          </v-avatar>
+                        </v-card-title>
+                        <v-card-title
+                          class="text-h5 justify-center"
+                        >
+                        <v-card min-height="130" class="round-corner">
+                          <v-card-text class="white justify-center">
+                              {{predict_item.sku_name}}
+                          </v-card-text>
+                          <v-chip class="ma-2 chips-small"
+                              color="orange"
+                              text-color="white"
+                            >
+                              ¥{{predict_item.seckill_info.promo_price}}
+                            </v-chip>
+                            <v-chip class="ma-2 chips-small"
+                              color="grey"
+                              text-color="white"
+                            >
+                              <font style="text-decoration:line-through;">¥{{predict_item.current_price}}</font>
+                            </v-chip>
+                            <v-chip class="ma-2 chips-small"
+                                color="green"
+                                text-color="white">
+                                {{predict_item.seckill_info.seckill_discount}}
+                          </v-chip>
+                          <v-chip 
+                                v-if="predict_item.is_jd_delivery"
+                                class="ma-2 chips-small"
+                                color="green"
+                                text-color="white">
+                              京东配送
+                          </v-chip>
+                          <v-chip 
+                                v-else
+                                class="ma-2 chips-small"
+                                color="green"
+                                text-color="white">
+                              第三方配送
+                          </v-chip>
+                          <v-chip 
+                                v-if="predict_item.reserve_info"
+                                class="ma-2 chips-small"
+                                color="orange"
+                                text-color="white">
+                              预约
+                          </v-chip>
+                          <v-chip 
+                                v-if="predict_item.isFreeDelivery"
+                                class="ma-2 chips-small"
+                                color="red"
+                                text-color="white">
+                              包邮
+                          </v-chip>
+                        </v-card></v-card-title>
+                    </div>
+                    <v-card-actions class="white justify-center">
+                      <v-btn color="primary" class="round-corner" @click="onAddToArrangement(predict_item.sku_id, predict_item.sku_name, predict_item.seckill_info.seckill_start_time_str, predict_item.seckill_info.startTimeMills, true)">添加</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-flex>
+              </v-layout>
+            </v-card-text>
+          </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-card>
@@ -270,7 +376,7 @@
                     size="150"
                     tile
                   >
-                    <v-img :src="`${skuData.imageUrl}`" contain></v-img>
+                    <v-img :src="`${skuData.imageUrl}`" @click="loadItemPage(skuData.sku_id)" contain></v-img>
                   </v-avatar>
                 </v-card-title>
                 <v-card-text>
@@ -362,7 +468,6 @@
                     </v-card>
                 </v-card-text>
                 <v-card-actions class="white justify-center">
-                  <v-btn color="primary" class="round-corner" @click="loadItemPage(skuData.sku_id)">详情</v-btn>
                   <v-btn color="primary" class="round-corner" @click="onAddToArrangement(skuData.sku_id, skuData.sku_name, null, null, false)">添加</v-btn>
                   <v-btn color="primary" class="round-corner" @click="deleteCustomSku()">清空</v-btn>
                 </v-card-actions>
@@ -869,6 +974,8 @@ export default {
     return {
       seckillPanelExpend:[true],
       skuPanelExpend:[false],
+      predictSeckillData: [],
+      predictExpend: [true],
       seckillData:[],
       skuData:null,
       sku_query_id: '',
@@ -1147,7 +1254,7 @@ export default {
       this.skuArrangement['shortWname'] = shortWname
       this.skuArrangement['status'] = this.$constants.service.arrangementStatus.planned
 
-      if(!isSeckillMode && this.skuArrangement['shortWname'].length>20){
+      if(this.skuArrangement['shortWname'].length>20){
         this.skuArrangement['shortWname'] = this.skuArrangement['shortWname'].substring(0, 20) + '...'
       }
     },
@@ -2005,19 +2112,30 @@ export default {
     },
     onSuccessSubmitQuerySeckillData: function(response,callbackParam) {
         if(response.data.body){
-          this.seckillData = response.data.body;
+          this.seckillData = response.data.body.parsed_arrange_list;
+          this.predictSeckillData = response.data.body.parsed_predict_list;
 
           for(var i=0;i<this.seckillData.length;i++){
             var seckillItems = this.seckillData[i]['seckill_items'];
             for(var j=0;j<seckillItems.length;j++){
+              var wareId= seckillItems[j]['wareId']
               seckillItems[j]['specificationLabelToolTip'] = seckillItems[j]['specificationLabel']
               if(seckillItems[j]['specificationLabel'] && seckillItems[j]['specificationLabel'].length>6){
                 seckillItems[j]['specificationLabel'] = seckillItems[j]['specificationLabel'].substring(0, 6)
               }
+
+              for(var k=0;k<this.predictSeckillData.length;k++){
+                var skuIdPredict = this.predictSeckillData[k].sku_id
+                if(skuIdPredict==wareId){
+                  this.predictSeckillData.splice(k, 1);
+                }
+              }
             }
           }
+
           this.seckillQuerySubmitted = true;
           this.seckillPanelExpend = [true]
+          this.predictExpend = [true]
         }
     },
     onFailuredSubmitQuerySeckillData: function(error,callbackParam) {

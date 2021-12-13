@@ -41,10 +41,7 @@
                   <table>
                   <tr v-for="item in props.item.item_info_array" :key="item.id">
                       <td width="10%" class="text-xs-center text-strong">
-                        <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`"></v-img>
-                      </td>
-                      <td class="text-xs-center text-strong">
-                        <v-btn color="primary" class="round-corner" @click="loadItemPage(item.sku_id)">详情</v-btn>
+                        <v-img contain height="200px" width="200px" aspect-ratio="1" :src="`${item.image}`" @click="loadItemPage(item.sku_id)"></v-img>
                       </td>
                       <td width="90%" class="text-xs-center text-strong">
                         <tr>
