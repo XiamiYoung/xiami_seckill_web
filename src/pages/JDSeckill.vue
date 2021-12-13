@@ -192,7 +192,7 @@
                             color="success"
                             text-color="white"
                           >
-                            {{predict_item.seckill_info.seckill_start_time_str}}
+                            {{predict_item.seckill_start_time_str}}
                           </v-chip>
                         </v-card-title>
                         <v-card-title
@@ -218,7 +218,7 @@
                               color="orange"
                               text-color="white"
                             >
-                              ¥{{predict_item.seckill_info.promo_price}}
+                              {{predict_item.promo_price}}
                             </v-chip>
                             <v-chip class="ma-2 chips-small"
                               color="grey"
@@ -229,40 +229,12 @@
                             <v-chip class="ma-2 chips-small"
                                 color="green"
                                 text-color="white">
-                                {{predict_item.seckill_info.seckill_discount}}
-                          </v-chip>
-                          <v-chip 
-                                v-if="predict_item.is_jd_delivery"
-                                class="ma-2 chips-small"
-                                color="green"
-                                text-color="white">
-                              京东配送
-                          </v-chip>
-                          <v-chip 
-                                v-else
-                                class="ma-2 chips-small"
-                                color="green"
-                                text-color="white">
-                              第三方配送
-                          </v-chip>
-                          <v-chip 
-                                v-if="predict_item.reserve_info"
-                                class="ma-2 chips-small"
-                                color="orange"
-                                text-color="white">
-                              预约
-                          </v-chip>
-                          <v-chip 
-                                v-if="predict_item.isFreeDelivery"
-                                class="ma-2 chips-small"
-                                color="red"
-                                text-color="white">
-                              包邮
+                                {{predict_item.rate}}
                           </v-chip>
                         </v-card></v-card-title>
                     </div>
                     <v-card-actions class="white justify-center">
-                      <v-btn color="primary" class="round-corner" @click="onAddToArrangement(predict_item.sku_id, predict_item.sku_name, predict_item.seckill_info.seckill_start_time_str, predict_item.seckill_info.startTimeMills, true)">添加</v-btn>
+                      <v-btn color="primary" class="round-corner" @click="onAddToArrangement(predict_item.sku_id, predict_item.sku_name, predict_item.seckill_start_time_str, predict_item.startTimeMills, true)">添加</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-flex>
