@@ -126,6 +126,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <go-top :size="backToTopSize" :bottom="backToTopMarginBottom"></go-top>
   </v-container>
 </template>
 
@@ -273,7 +274,9 @@ export default {
         black:'black',
         purple:'purple',
         green:'green'
-      }
+      },
+      backToTopSize: 50,
+      backToTopMarginBottom: 50
     };
   },
   methods: {

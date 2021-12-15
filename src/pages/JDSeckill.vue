@@ -917,6 +917,7 @@
             </v-card>
         </v-dialog>
     </div>
+    <go-top :size="backToTopSize" :bottom="backToTopMarginBottom"></go-top>
   </v-container>
 </template>
 
@@ -1001,7 +1002,9 @@ export default {
         medium: 2, // < 6 hours
         critical: 3, // < 2 hours
         expired: 4 // expired
-      }
+      },
+      backToTopSize: 50,
+      backToTopMarginBottom: 50
     };
   },
   methods: {
