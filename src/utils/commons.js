@@ -24,8 +24,10 @@ axios.interceptors.response.use(
   response => {
     if(response.headers
         &&response.headers['auth-token']
-        &&response.headers['logged-in-user']){
+        &&response.headers['logged-in-user']
+        &&response.headers['logged-in-user-level']){
             store.default.commit("setUserName", response.headers['logged-in-user']);
+            store.default.commit("setUserLevel", response.headers['logged-in-user-level']);
             store.default.commit("setToken", response.headers['auth-token']);
     }
     return response

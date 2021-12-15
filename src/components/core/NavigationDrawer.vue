@@ -35,6 +35,12 @@
           </v-list-tile-action>
           <v-list-tile-title :class="[{'active': 'JDOrderManage' === selectedRoute.route.name}, 'item-title' ]" >订单管理</v-list-tile-title>
         </v-list-tile>
+        <v-list-tile @click="changeRoute('SysManage')">
+          <v-list-tile-action>
+            <v-icon :color="iconColor">settings</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-title :class="[{'active': 'SysManage' === selectedRoute.route.name}, 'item-title' ]" >系统管理</v-list-tile-title>
+        </v-list-tile>
     </v-list-group>
     </v-list>
   </v-navigation-drawer>

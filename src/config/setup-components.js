@@ -11,9 +11,10 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import GoTop from "@inotom/vue-go-top"
+import {GChart} from "vue-google-charts"
 
 function setupComponents(Vue) {
-
+  Vue.component(VImageInput.name, VImageInput);
   Vue.component('toolbar', Toolbar);
   Vue.component('breadcrumbs', Breadcrumbs);
   Vue.component('navigation', Navigation);
@@ -21,8 +22,8 @@ function setupComponents(Vue) {
   Vue.component('widget', Widget);
   Vue.component('editor', quillEditor );
   Vue.component('avatar', Avataaars );
-  Vue.component(VImageInput.name, VImageInput);
   Vue.component('go-top', GoTop);
+  Vue.component('g-chart', GChart);
 }
 
 

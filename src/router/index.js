@@ -4,7 +4,7 @@ import Login from '../pages/Login.vue';
 import JDSeckill from '../pages/JDSeckill.vue';
 import JDUserManage from '../pages/JDUserManage.vue';
 import JDOrderManage from '../pages/JDOrderManage.vue';
-import SiteManagement from '../pages/SiteManagement.vue';
+import SysManage from '../pages/SysManage.vue';
 
 var store = require('@/store/store');
 
@@ -27,7 +27,6 @@ const router = new Router({
       props(route) { return route.query || {} },
       meta: {
         allowAnonymous: false,
-        selectedIndex: 1,
         breadcrumb: [
           { name: '抢购' }
         ]
@@ -40,7 +39,6 @@ const router = new Router({
       props(route) { return route.query || {} },
       meta: {
         allowAnonymous: false,
-        selectedIndex: 2,
         breadcrumb: [
           { name: '用户管理' }
         ]
@@ -53,21 +51,20 @@ const router = new Router({
       props(route) { return route.query || {} },
       meta: {
         allowAnonymous: false,
-        selectedIndex: 3,
         breadcrumb: [
-          { name: '管理' }
+          { name: '订单管理' }
         ]
       }
     },
     {
-      path: '/siteManage',
-      name: 'SiteManagement',
-      component: SiteManagement,
+      path: '/jd/sys/manage',
+      name: 'SysManage',
+      component: SysManage,
       props(route) { return route.query || {} },
       meta: {
         allowAnonymous: false,
         breadcrumb: [
-          { name: '网站全局管理' }
+          { name: '系统管理' }
         ]
       }
     }

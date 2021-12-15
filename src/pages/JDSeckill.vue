@@ -917,7 +917,7 @@
             </v-card>
         </v-dialog>
     </div>
-    <go-top :size="backToTopSize" :bottom="backToTopMarginBottom"></go-top>
+    <go-top v-if="!showOutputLog" :size="backToTopSize" :bottom="backToTopMarginBottom"></go-top>
   </v-container>
 </template>
 
