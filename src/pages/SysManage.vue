@@ -1,12 +1,12 @@
 <template>
   <v-container fluid grid-list-xl>
     <v-card class="sys-page-round-corner">
-        <v-card-title>
+        <v-card-title class="font-bold">
             系统状态
         </v-card-title>
         <v-card-text>
-            <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="!sysStatus"></v-progress-linear>
-            <v-layout row wrap v-if="sysStatus">
+            <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="!sysInfoCPU"></v-progress-linear>
+            <v-layout row wrap v-if="sysInfoCPU">
                 <v-flex xs4>
                     <v-layout row wrap class="justify-center">
                         <div>
@@ -56,7 +56,7 @@
         </v-card-text>
     </v-card>
     <v-card class="sys-page-round-corner card-margin-top">
-        <v-card-title>
+        <v-card-title class="font-bold">
             系统监控
         </v-card-title>
         <v-card-text>
@@ -167,7 +167,7 @@
     </v-card>
     <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="!loginUserList"></v-progress-linear>
     <v-card v-if="loginUserList" class="sys-page-round-corner card-margin-top">
-        <v-card-title>
+        <v-card-title class="font-bold">
             用户分析
         </v-card-title>
         <div v-for="login_user in loginUserList" :key="login_user.id" name="userCard" class="card-margin-top">
@@ -606,5 +606,8 @@ export default {
 .avatar-svg {
     width: 100px;
     height: 100px;
+}
+.font-bold {
+    font-weight: bold;
 }
 </style>
