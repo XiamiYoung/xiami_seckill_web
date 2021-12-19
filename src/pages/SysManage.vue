@@ -258,6 +258,36 @@
                     </v-layout>
                 </v-flex>
             </v-layout>
+            <v-layout row wrap>
+                <v-flex xs6>
+                    <v-layout row wrap class="justify-center">
+                        <div>
+                            <v-card-title class="justify-center">
+                            <g-chart
+                                type="PieChart"
+                                :data="login_user.categoryCountPieData"
+                                :options="categoryCountPieDataOptions"
+                            >
+                            </g-chart>
+                            </v-card-title>
+                        </div>
+                    </v-layout>
+                </v-flex>
+                <v-flex xs6>
+                    <v-layout row wrap class="justify-center">
+                        <div>
+                            <v-card-title class="justify-center">
+                            <g-chart
+                                type="PieChart"
+                                :data="login_user.addrCountPieData"
+                                :options="addrCountPieDataOptions"
+                            >
+                            </g-chart>
+                            </v-card-title>
+                        </div>
+                    </v-layout>
+                </v-flex>
+            </v-layout>
             <v-divider></v-divider>
         </div>
     </v-card>
@@ -289,18 +319,11 @@ export default {
     this.getSysInfoInterval = setInterval(() => {
         ins.getSysInfo()
     }, 5000)
-    this.triggerSysInfoInterval = setInterval(() => {
-        ins.triggerSysInfo()
-    }, 5000)
   },
   beforeDestroy: function(){
     if(this.getSysInfoInterval){
         clearInterval(this.getSysInfoInterval)
         this.getSysInfoInterval = null
-    }
-    if(this.triggerSysInfoInterval){
-        clearInterval(this.triggerSysInfoInterval)
-        this.triggerSysInfoInterval = null
     }
   },
   data() {
@@ -311,7 +334,6 @@ export default {
         sysInfoMemory:null,
         sysInfoNetworkInbount:null,
         sysInfoNetworkOutbount:null,
-        triggerSysInfoInterval: null,
         getSysInfoInterval: null,
         rebootServerDialog: false,
         loginUserList: [],
@@ -373,7 +395,13 @@ export default {
             width: 540,
             height: 500,
             is3D: true
-        }
+        },
+        addrCountPieDataOptions:{
+            title: '收货地址分布',
+            width: 540,
+            height: 500,
+            is3D: true
+        },
     };
   },
   methods: {
@@ -414,26 +442,6 @@ export default {
       }
     },
     onFailureGetSysInfo:function(error,callbackParam){
-      this.sysStatus = '停止'
-      this.upTime = 'N/A'
-    },
-    triggerSysInfo:function(){
-      var requestObj = {
-          url: this.$commons.getTargetHost() + "/site-admin/trigger-sys-info",
-          successCallback: this.onSuccessTriggerSysInfo,
-          failureCallback: this.onFailureTriggerSysInfo,
-          ins: this,
-          hideLoading: true
-      };
-
-      this.$commons.sendGatewayPost(requestObj);
-    },
-    onSuccessTriggerSysInfo:function(response,callbackParam){
-      if(response.data.body){
-          // do nothing
-      }
-    },
-    onFailureTriggerSysInfo:function(error,callbackParam){
       this.sysStatus = '停止'
       this.upTime = 'N/A'
     },
@@ -532,7 +540,8 @@ export default {
               }
               loginUser['orderUserCountPieData'] = this.buildPieChartForUser(loginUser.order_list, 'JDUser', 'nick_name')
               loginUser['leadingTimeCountPieData'] = this.buildRangePieChartForUser(loginUser.order_list, leadingTimeRangeList, 'LeadingTime', 'leading_time')
-            //   loginUser['categoryCountPieData'] = this.buildPieChartForUser(loginUser.order_list, 'Category', 'category')
+              loginUser['categoryCountPieData'] = this.buildPieChartForUser(loginUser.order_list, 'Category', 'category')
+              loginUser['addrCountPieData'] = this.buildPieChartForUser(loginUser.order_list, 'Addr', 'addr')
               loginUser['seckillPriceRangeCountPieData'] = this.buildRangePieChartForUser(loginUser.order_list, seckillPriceRangeList, 'SeckillPrice', 'sum_price')
               loginUser['originalPriceRangeCountPieData'] = this.buildRangePieChartForUser(loginUser.order_list, originlPriceRangeList, 'OriginalPrice', 'original_price')
           }
@@ -543,6 +552,13 @@ export default {
         pieData.push([pieHeaderKey, 'Order Count'])
         for(var i=0;i<userOrderList.length;i++){
             var pieItemKey = userOrderList[i][pieItemKeyName]
+            if(pieItemKeyName=='addr'){
+                if(pieItemKey.indexOf('区')==-1){
+                    pieItemKey = pieItemKey.substring(0, pieItemKey.lastIndexOf('市') + 1)
+                }else if(pieItemKey.indexOf('区')>-1){
+                    pieItemKey = pieItemKey.substring(0, pieItemKey.indexOf('区') + 1)
+                }
+            }
             var pieItemIndex = this.getPieItemIndex(pieData, pieItemKey)
             if(pieItemIndex==-1){
                 pieData.push([pieItemKey, 1])
