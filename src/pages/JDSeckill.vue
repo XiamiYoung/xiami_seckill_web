@@ -890,23 +890,33 @@
           </v-card>
         </v-dialog>
         <v-dialog :value="showOutputLog" v-if="showOutputLog" persistent scrollable max-width="1600px">
-            <v-card>
-              <v-card-title>执行日志</v-card-title>
+            <v-card class="round-corner">
+              <v-card-title>执行日志
+                <v-spacer></v-spacer>
+                <v-text-field
+                  v-model="logSearch"
+                  append-icon="search"
+                  label="关键字"
+                  single-line
+                  hide-details
+                  clearable
+                ></v-text-field>
+              </v-card-title>
               <v-divider></v-divider>
               <v-card-text id="logScrollContentContainer">
-                <v-list>
-                  <template v-for="item in executionLog[selectedUserForLog].logArray">
-                    <v-list-tile  :key="item.id">
-                      <v-list-tile-content>
-                        <v-list-tile-title v-text="item.message"></v-list-tile-title>
-                      </v-list-tile-content>
-                    </v-list-tile>
-                    <v-divider
-                      :key="item.id"
-                      :inset="false"
-                    ></v-divider>
-                  </template>
-                </v-list>
+                <v-data-table
+                  :search="logSearch"
+                  :headers="logTableHeaders"
+                  :items="executionLog[selectedUserForLog].logArray"
+                  :custom-filter="customFilter"
+                  class="elevation-1 log-data-table"
+                  :rows-per-page-items="rowsPerPageItems"
+                >
+                <template v-slot:items="props">
+                    <td v-if="props.item.message.indexOf('[Error]')!=-1" class="text-xs-left log-td-error">{{ props.item.message}}</td>
+                    <td v-else class="text-xs-left">{{ props.item.message}}</td>
+                </template>
+                </v-data-table>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions>
@@ -1003,6 +1013,16 @@ export default {
         critical: 3, // < 2 hours
         expired: 4 // expired
       },
+      logTableHeaders:[
+        {
+          text: 'Message',
+          align: 'left',
+          sortable: true,
+          value: 'mesasge',
+        }
+      ],
+      logSearch:'',
+      rowsPerPageItems: [-1], 
       backToTopSize: 50,
       backToTopMarginBottom: 50
     };
@@ -2234,6 +2254,28 @@ export default {
           this.sku_date = this.skuData['seckill_info']['seckill_start_time_str'].split(' ')[0]
           this.sku_time = this.skuData['seckill_info']['seckill_start_time_str'].split(' ')[1]
         }
+    },
+    filterByLogMesasge:function(log_array, search) {
+      for(var i=0;i<log_array.length;i++){
+        if (log_array[i]['message'].indexOf(search) > -1) {
+          return true;
+        }
+      }
+      return false;
+    },
+    customFilter(items, search, filter) {
+        var ins = this
+        search = search.toString().toLowerCase()
+        return items.filter(i => (
+          Object.keys(i).some(j => {
+              if(Array.isArray(i[j])){
+                return ins.filterByLogMesasge(i[j], search)
+              }else{
+                return filter(i[j], search)
+              }
+            }
+          )
+        ))
     }
   }
 };
@@ -2298,5 +2340,8 @@ export default {
   .users-card-row{
     margin-top: 20px;
     margin-bottom: 20px;
+  }
+  .log-td-error {
+    color:red
   }
 </style>
