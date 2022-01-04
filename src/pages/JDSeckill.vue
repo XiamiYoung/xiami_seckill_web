@@ -46,7 +46,15 @@
                         </v-btn>
                       </v-card-title>
                       <v-card-text>
+                            <div v-if="item.seckill_items.length==0">
+                              <v-chip 
+                                    class="ma-2 chips-small"
+                                    color="red"
+                                    text-color="white">
+                                  此时段没有超级秒杀
+                              </v-chip></div>
                             <div
+                              v-else
                               v-for="seckill_item in item.seckill_items" :key="seckill_item.id" :color="seckill_item.tagText?colors.red:colors.primary"
                             >
                               <v-layout row wrap>
