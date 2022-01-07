@@ -106,11 +106,6 @@
                                             >
                                               <font style="text-decoration:line-through;">¥{{seckill_item.jdPrice}}</font>
                                             </v-chip>
-                                            <v-chip class="ma-2 chips-small"
-                                                color="green"
-                                                text-color="white">
-                                                {{seckill_item.rate}}折
-                                          </v-chip>
                                           <v-tooltip top>
                                             <template v-slot:activator="{ on }" v-if="seckill_item.specificationLabel">
                                               <v-chip
@@ -156,6 +151,20 @@
                                                 color="red"
                                                 text-color="white">
                                               包邮
+                                          </v-chip>
+                                          <v-chip 
+                                              v-if="seckill_item.outOfStock"
+                                              class="ma-2 chips-small"
+                                              color="black"
+                                              text-color="white">
+                                              大连不销售
+                                          </v-chip>
+                                          <v-chip 
+                                              v-else-if="seckill_item.stockInfo=='无货'"
+                                              class="ma-2 chips-small"
+                                              color="black"
+                                              text-color="white">
+                                              大连无货
                                           </v-chip>
                                         </v-card></v-card-title>
                                     </div>
