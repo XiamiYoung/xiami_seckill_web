@@ -146,6 +146,13 @@
                                               预约
                                           </v-chip>
                                           <v-chip 
+                                                v-if="seckill_item.isMarathonProduct"
+                                                class="ma-2 chips-small"
+                                                color="red"
+                                                text-color="white">
+                                              Marathon模式
+                                          </v-chip>
+                                          <v-chip 
                                                 v-if="seckill_item.isFreeDelivery"
                                                 class="ma-2 chips-small"
                                                 color="red"
@@ -373,17 +380,47 @@
                     <v-card-text class="white justify-center">
                         {{skuData.sku_name}}
                       </v-card-text>
-                    <v-chip class="ma-2 chips-small"
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="green"
+                            text-color="white">
+                          ¥{{skuData.current_price}}
+                      </v-chip>
+                      <v-chip 
+                          v-if="skuData.stock_info=='无货'"
+                          class="ma-2 chips-small"
+                          color="black"
+                          text-color="white">
+                          大连无货
+                      </v-chip>
+                      <v-chip 
+                        v-else
+                        class="ma-2 chips-small"
                         color="orange"
                         text-color="white"
                       >
                         {{skuData.stock_info}}
                       </v-chip>
                       <v-chip 
-                            class="ma-2 chips-small"
-                            color="green"
-                            text-color="white">
-                          ¥{{skuData.current_price}}
+                        v-if="skuData.is_marathon_product"
+                        class="ma-2 chips-small"
+                        color="red"
+                        text-color="white">
+                        Marathon模式
+                      </v-chip>
+                      <v-chip 
+                          v-if="skuData.is_free_delivery"
+                          class="ma-2 chips-small"
+                          color="red"
+                          text-color="white">
+                          包邮
+                      </v-chip>
+                      <v-chip 
+                          v-if="skuData.out_of_stock"
+                          class="ma-2 chips-small"
+                          color="black"
+                          text-color="white">
+                          大连不销售
                       </v-chip>
                       <v-chip 
                             v-if="skuData.is_jd_delivery"
@@ -399,7 +436,7 @@
                             text-color="white">
                           第三方配送
                       </v-chip>
-                      <div v-if="skuData.is_reserve_product">
+                    <div v-if="skuData.is_reserve_product">
                         <v-chip 
                               class="ma-2 chips-small"
                               color="primary"
@@ -412,49 +449,42 @@
                               text-color="white">
                             预约人数 {{skuData.reserve_info.num}}
                       </v-chip>
-                  </div>
-                  <div v-else-if="skuData.seckill_info">
-                    <v-chip 
-                          class="ma-2 chips-small"
-                          color="red"
-                          text-color="white">
-                        秒杀
-                    </v-chip>
-                    <v-chip 
-                          class="ma-2 chips-small"
-                          color="red"
-                          text-color="white">
-                        秒杀价{{skuData.seckill_info.promo_price}}
-                    </v-chip>
-                    <v-chip 
-                          class="ma-2 chips-small"
-                          color="red"
-                          text-color="white">
-                        {{skuData.seckill_info.seckill_discount}}
-                    </v-chip>
-                  </div>
-                  <div v-else-if="skuData.is_presale_product">
-                    <v-chip 
-                          class="ma-2 chips-small"
-                          color="orange"
-                          text-color="white">
-                        预售
-                    </v-chip>
-                    <v-chip 
-                          class="ma-2 chips-small"
-                          color="orange"
-                          text-color="white">
-                        预售价格 {{skuData.presale_info.yuShouPrice}}
-                    </v-chip>
-                  </div>
-                  <v-chip 
-                        v-if="skuData.isFreeDelivery"
-                        class="ma-2 chips-small"
-                        color="red"
-                        text-color="white">
-                      包邮
-                  </v-chip>
-                    </v-card>
+                    </div>
+                    <div v-else-if="skuData.seckill_info">
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="red"
+                            text-color="white">
+                          秒杀
+                      </v-chip>
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="red"
+                            text-color="white">
+                          秒杀价{{skuData.seckill_info.promo_price}}
+                      </v-chip>
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="red"
+                            text-color="white">
+                          {{skuData.seckill_info.seckill_discount}}
+                      </v-chip>
+                    </div>
+                    <div v-else-if="skuData.is_presale_product">
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="orange"
+                            text-color="white">
+                          预售
+                      </v-chip>
+                      <v-chip 
+                            class="ma-2 chips-small"
+                            color="orange"
+                            text-color="white">
+                          预售价格 {{skuData.presale_info.yuShouPrice}}
+                      </v-chip>
+                    </div>
+                  </v-card>
                 </v-card-text>
                 <v-card-actions class="white justify-center">
                   <v-btn color="primary" class="round-corner" @click="onAddToArrangement(skuData.sku_id, skuData.sku_name, null, null, false)">添加</v-btn>
@@ -2132,8 +2162,8 @@ export default {
             for(var j=0;j<seckillItems.length;j++){
               var wareId= seckillItems[j]['wareId']
               seckillItems[j]['specificationLabelToolTip'] = seckillItems[j]['specificationLabel']
-              if(seckillItems[j]['specificationLabel'] && seckillItems[j]['specificationLabel'].length>6){
-                seckillItems[j]['specificationLabel'] = seckillItems[j]['specificationLabel'].substring(0, 6)
+              if(seckillItems[j]['specificationLabel'] && seckillItems[j]['specificationLabel'].length>12){
+                seckillItems[j]['specificationLabel'] = seckillItems[j]['specificationLabel'].substring(0, 12)
               }
 
               for(var k=0;k<this.predictSeckillData.length;k++){
