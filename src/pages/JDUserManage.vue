@@ -29,6 +29,24 @@
                         {{jd_user.nick_name}}
                       </v-chip>
                     </v-card-title>
+                    <v-card-title v-if="jd_user.delivery_coupon_count>-1" class="justify-center">
+                      <v-chip
+                        v-if="jd_user.delivery_coupon_count>0"
+                        class="ma-2"
+                        color="red"
+                        text-color="white"
+                      >
+                        运费券: {{jd_user.delivery_coupon_count}}张
+                      </v-chip>
+                      <v-chip
+                        v-else
+                        class="ma-2"
+                        color="green"
+                        text-color="white"
+                      >
+                        运费券: {{jd_user.delivery_coupon_count}}张
+                      </v-chip>
+                    </v-card-title>
                     <v-card-title class="justify-center">
                       <avatar class="avatar-svg"></avatar>
                     </v-card-title>
@@ -979,6 +997,7 @@ export default {
 
       if(userData['pc_cookie_expire_level']<4){
         this.getUserAddress(jd_user_data)
+        this.getUserDeliveryCoupon(jd_user_data)
       }else{
         userData['jd_user_address_list'] = []
       }
@@ -1426,6 +1445,37 @@ export default {
                   }
                 }
                 user['jd_user_address_list'] = displayAddressList
+                this.$set(this.jdUsers, index, user)
+              }
+            }
+          } 
+      }
+    },
+    getUserDeliveryCoupon:function(jd_user){
+      var ins = this
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/get-delivery-coupon",
+          successCallback: this.onSuccessGetUserDeliveryCoupon,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          successCallbackParamObj: jd_user,
+          postData:{
+            nick_name: jd_user['nick_name']
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessGetUserDeliveryCoupon:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+            var jd_user_data = callbackParam
+            for(var index=0;index<this.jdUsers.length;index++){
+              var user = this.jdUsers[index];
+              if(user['nick_name']==jd_user_data.nick_name){
+                var delivery_coupon_count = response.data.body['delivery_coupon_count']
+                user['delivery_coupon_count'] = delivery_coupon_count
                 this.$set(this.jdUsers, index, user)
               }
             }
