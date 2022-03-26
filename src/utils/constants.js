@@ -3,7 +3,7 @@ var baseContext = {
 module.exports = {
 	interface:{
 		backend:{
-			cloudEndpoint:"http://47.94.160.114:7366",
+			cloudEndpoint:"http://39.107.74.180:7366",
 			localEndpoint:"http://localhost:7366"
 		},
 		qq:{

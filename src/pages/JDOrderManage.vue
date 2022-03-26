@@ -54,6 +54,15 @@
                   </table>
                 </td>
                 <td class="text-xs-center text-strong td-border">
+                        <v-btn color="primary" class="round-corner" @click="showDeleteOrderDialog(props.item.order_id)">删除订单</v-btn>
+                        <v-btn color="primary" class="round-corner" @click="showCancelOrderDialog(props.item.nick_name, props.item.order_id)">取消订单</v-btn>
+                </td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.nick_name}}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.sum_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.target_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.original_price }}</td>
+                <td class="text-xs-center text-strong td-border">{{ props.item.saved_price }}</td>
+                <td class="text-xs-center text-strong td-border">
                     <v-chip
                         v-if="props.item.is_seckill"
                         class="ma-2"
@@ -75,19 +84,10 @@
                 </td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.leading_time}}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.stock_count}}</td>
-                <td class="text-xs-center text-strong td-border">{{ props.item.nick_name}}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.order_id}}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.order_time }}</td>
-                <td class="text-xs-center text-strong td-border">{{ props.item.sum_price }}</td>
-                <td class="text-xs-center text-strong td-border">{{ props.item.target_price }}</td>
-                <td class="text-xs-center text-strong td-border">{{ props.item.original_price }}</td>
-                <td class="text-xs-center text-strong td-border">{{ props.item.saved_price }}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.addr_name }}</td>
                 <td class="text-xs-center text-strong td-border">{{ props.item.addr }}</td>
-                <td class="text-xs-center text-strong td-border">
-                        <v-btn color="primary" class="round-corner" @click="showDeleteOrderDialog(props.item.order_id)">删除订单</v-btn>
-                        <v-btn color="primary" class="round-corner" @click="showCancelOrderDialog(props.item.nick_name, props.item.order_id)">取消订单</v-btn>
-                </td>
               </tr>
             </template>
             <template v-slot:no-results>
@@ -151,31 +151,10 @@ export default {
           class: "primary--text title"
         },
         {
-          text: '秒杀',
+          text: '订单操作',
           align: 'right',
           sortable: true,
-          value: 'is_seckill',
-          class: "primary--text title"
-        },
-        {
-          text: '预约',
-          align: 'right',
-          sortable: true,
-          value: 'is_reserve',
-          class: "primary--text title"
-        },
-        {
-          text: '提前时间',
-          align: 'right',
-          sortable: true,
-          value: 'leading_time',
-          class: "primary--text title"
-        },
-        {
-          text: '商品标签',
-          align: 'right',
-          sortable: true,
-          value: 'stock_count',
+          value: '',
           class: "primary--text title"
         },
         {
@@ -183,20 +162,6 @@ export default {
           align: 'right',
           sortable: true,
           value: 'nick_name',
-          class: "primary--text title"
-        },
-        {
-          text: '订单编号',
-          align: 'right',
-          sortable: true,
-          value: 'order_id',
-          class: "primary--text title"
-        },
-        {
-          text: '订单时间',
-          align: 'right',
-          sortable: true,
-          value: 'order_time',
           class: "primary--text title"
         },
         {
@@ -228,6 +193,48 @@ export default {
           class: "primary--text title"
         },
         {
+          text: '秒杀',
+          align: 'right',
+          sortable: true,
+          value: 'is_seckill',
+          class: "primary--text title"
+        },
+        {
+          text: '预约',
+          align: 'right',
+          sortable: true,
+          value: 'is_reserve',
+          class: "primary--text title"
+        },
+        {
+          text: '提前时间',
+          align: 'right',
+          sortable: true,
+          value: 'leading_time',
+          class: "primary--text title"
+        },
+        {
+          text: '商品标签',
+          align: 'right',
+          sortable: true,
+          value: 'stock_count',
+          class: "primary--text title"
+        },
+        {
+          text: '订单编号',
+          align: 'right',
+          sortable: true,
+          value: 'order_id',
+          class: "primary--text title"
+        },
+        {
+          text: '订单时间',
+          align: 'right',
+          sortable: true,
+          value: 'order_time',
+          class: "primary--text title"
+        },
+        {
           text: '收货人',
           align: 'right',
           sortable: true,
@@ -239,13 +246,6 @@ export default {
           align: 'right',
           sortable: true,
           value: 'addr',
-          class: "primary--text title"
-        },
-        {
-          text: '订单操作',
-          align: 'right',
-          sortable: true,
-          value: '',
           class: "primary--text title"
         }
       ],
