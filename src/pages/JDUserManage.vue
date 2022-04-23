@@ -668,11 +668,11 @@ export default {
       if(response.data.body){
           if(response.data.body['success']){
             if(response.data.body['src']){
-
               var ins = this
               this.qqImageLoaded = true
               this.qqImageUrl = response.data.body['src']
               this.selectedUserForMobileQR['src'] = ''
+              this.selectedUserForMobileQR['smsUrlReceived'] = false
 
               //stop image interval
               if(this.qqImageInterval){
@@ -1107,7 +1107,12 @@ export default {
               if('NEED_SECURITY_CODE_PWD' === response.data.body['error']){
                 this.needJDPwdInput = true
               }else if('NEED_SECURITY_CODE_MOBILE' === response.data.body['error']){
-                this.needMobileCode = true
+                // this.needMobileCode = true
+                if(!this.selectedUserForMobileQR['smsUrlReceived']){
+                  window.open(response.data.body['smsUrl'])
+                  this.onCloseMobileQRDialog()
+                }
+                this.selectedUserForMobileQR['smsUrlReceived'] = true
               }else if('SECURITY_CODE_INCORRECT' === response.data.body['error']){
                 this.selectedUserForMobileQR['security_code'] = ''
                 this.securityCodeDisabled = false
