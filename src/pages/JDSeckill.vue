@@ -1366,7 +1366,7 @@ export default {
       }else{
         for(var i=0;i<this.jdUsers.length;i++){
           var jdUser = this.jdUsers[i]
-          if(jdUser.pc_cookie_expire_level<4){
+          if(jdUser.mobile_cookie_expire_level<4){
             this.selectedUserForSku.push(jdUser['nick_name'])
           }
         }
