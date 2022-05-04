@@ -476,7 +476,7 @@ export default {
       }
 
       if(isUserExisted){
-        if(targetUser['pc_cookie_expire_level'] == this.tsExpireLevel['expired']){
+        if(targetUser['mobile_cookie_expire_level'] == this.tsExpireLevel['expired']){
           this.$commons.showMessage(nick_name+"登录信息已失效，请重新登录", this)
           return
         }

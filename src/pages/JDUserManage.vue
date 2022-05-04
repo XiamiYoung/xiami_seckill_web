@@ -97,7 +97,7 @@
                       <v-card-text class="text-center" v-if="jd_user.jd_user_address_list && jd_user.jd_user_address_list.length>0">
                         <v-layout row wrap class="justify-center">
                           <div>
-                              <v-btn color="primary" class="round-corner user-component-btn" block @click="saveDefaultAddress(jd_user)" >设置默认</v-btn>
+                              <v-btn color="primary" class="round-corner user-component-btn" block @click="saveDefaultAddress(jd_user)" :disabled="jd_user.pc_cookie_expire_level==4">设置默认</v-btn>
                           </div>
                         </v-layout>
                       </v-card-text>
@@ -302,9 +302,9 @@
                         </v-chip>
                         <v-chip v-else
                               class="ma-1 chips-small"
-                              :color="colors.black"
+                              :color="colors.blue_lighten_3"
                               text-color="white">
-                          PC无效
+                          PC未启用
                         </v-chip>
                         <v-card-text class="text-center">
                           <v-layout row wrap class="justify-center">
@@ -556,7 +556,8 @@ export default {
         primary:'primary',
         black:'black',
         purple:'purple',
-        green:'green'
+        green:'green',
+        blue_lighten_3: '#90CAF9'
       },
       tsExpireLevel:{
         normal: 1, // 24 - 6 hours
@@ -995,7 +996,7 @@ export default {
       userData['push_email'] = jd_user_data.push_email
       userData['enabled'] = jd_user_data.enabled
 
-      if(userData['pc_cookie_expire_level']<4){
+      if(userData['mobile_cookie_expire_level']<4){
         this.getUserAddress(jd_user_data)
         this.getUserDeliveryCoupon(jd_user_data)
       }else{
@@ -1433,6 +1434,9 @@ export default {
       if(response.data.body){
           if(response.data.body['success']){
             var jd_user_data = callbackParam
+            var addressId = 'adid'
+            var label = 'addrfull'
+            var addrDefault = 'default_address'
             for(var index=0;index<this.jdUsers.length;index++){
               var user = this.jdUsers[index];
               if(user['nick_name']==jd_user_data.nick_name){
@@ -1440,12 +1444,12 @@ export default {
                 var displayAddressList = []
                 for(var j=0;j<res.length;j++){
                   displayAddressList.push({
-                    'value': res[j]['id'],
-                    'label': res[j]['fullAddress'] + ' ' + res[j]['mobile'],
+                    'value': res[j][addressId],
+                    'label': res[j][label] + ' ' + res[j]['mobile'],
                     'recipient_name': res[j]['name']
                   })
-                  if(res[j]['addressDefault']){
-                    user['selected_default_address'] = res[j]['id']
+                  if(res[j][addrDefault] == "1"){
+                    user['selected_default_address'] = res[j][addressId]
                     user['recipient_name'] = res[j]['name']
                   }
                 }

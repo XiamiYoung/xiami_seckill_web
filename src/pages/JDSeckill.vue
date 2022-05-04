@@ -531,6 +531,13 @@
             label="自动清除过期计划"
             style="margin-left:10px"
           ></v-switch>
+          <v-switch
+            v-if="jdUsers.length!=0"
+            color="primary"
+            v-model="isIgnoreStockCheck"
+            label="忽略库存检查"
+            style="margin-left:10px"
+          ></v-switch>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchStartSeckill()">全部开始</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" :disabled="isBatchStartArrangementInProgress||isBatchCancelArrangementInProgress" @click="batchCancelSeckill()">全部终止</v-btn>
           <v-btn v-if="jdUsers.length!=0" color="primary" class="round-corner" @click="removeOutDatedArrangement(true, false)">清除过期</v-btn>
@@ -543,7 +550,7 @@
     <div v-for="jd_user in jdUsers" :key="jd_user.id" name="userCard" class="users-card-row">
       <v-layout row wrap>
         <v-flex xs2>
-          <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="450" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -589,7 +596,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="450" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -597,26 +604,34 @@
                         class="ma-1 chips-small"
                         :color="colors.green"
                         text-color="white">
-                      收货信息
+                      收货地址
                   </v-chip>
-                  <v-tooltip top>
-                    <template v-slot:activator="{ on }">
-                      <v-chip
-                        class="ma-1 chips-small"
-                        :color="colors.green"
-                        text-color="white"
-                        v-on="on"
-                      >
-                      {{jd_user.recipient_name}}
-                    </v-chip>
-                    </template>
-                    <v-chip
-                          class="ma-1 chips-small"
-                          :color="colors.green"
-                          text-color="white">
-                      {{jd_user.full_addr}}
-                    </v-chip>
-                  </v-tooltip>
+                  <v-card-text class="text-center">
+                    <v-layout row wrap class="justify-center">
+                      <div><strong v-html="jd_user.recipient_name"></strong></div>
+                    </v-layout>
+                  </v-card-text>
+                  <v-card-text class="text-center">
+                    <v-layout row wrap class="justify-center">
+                      <div>
+                        <v-progress-linear :size="22" :width="5" color="primary" :indeterminate="true" v-if="!jd_user.jd_user_address_list"></v-progress-linear>
+                        <strong v-if="jd_user.jd_user_address_list && jd_user.jd_user_address_list.length==0" v-html="jd_user.full_addr"></strong>
+                        <v-select
+                          v-else
+                          v-model="jd_user.selected_default_address"
+                          :items="jd_user.jd_user_address_list"
+                          :disabled="!jd_user.allow_seckill"
+                          item-value="value"
+                          item-text="label"
+                          menu-props="auto"
+                          label="Select"
+                          hide-details
+                          single-line
+                          @change="onSelectAddress(jd_user)"
+                        ></v-select>
+                      </div>
+                    </v-layout>
+                  </v-card-text>
                 </v-card-title>
                 <v-card-title class="justify-center">
                     <v-card-text>
@@ -643,7 +658,7 @@
           </v-card>
         </v-flex>
         <v-flex xs2>
-          <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
+          <v-card min-height="450" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
             <v-layout row wrap class="justify-center">
               <div>
                 <v-card-title class="justify-center">
@@ -667,9 +682,9 @@
                     </v-chip>
                     <v-chip v-else
                           class="ma-1 chips-small"
-                          :color="colors.black"
+                          :color="colors.blue_lighten_3"
                           text-color="white">
-                      PC无效
+                      PC未启用
                     </v-chip>
                     <v-card-text class="text-center">
                       <v-layout row wrap class="justify-center">
@@ -742,7 +757,7 @@
           </v-card>
         </v-flex>
         <v-flex xs6>
-            <v-card min-height="380" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
+            <v-card min-height="450" color="#B2DFDB" class="round-corner d-flex flex-column align-center justify-center">
               <v-layout>
                 <v-card-text>
                   <div v-for="arrenge in userArrangement[jd_user.nick_name]" :key="arrenge.id">
@@ -922,12 +937,15 @@
               >
                 全选
               </v-btn>
-              <v-checkbox
-                v-for="jd_user in jdUsers" :key="jd_user.id"
-                v-model="selectedUserForSku"
-                :label="`${jd_user.nick_name}`"
-                :value="`${jd_user.nick_name}`"
-              ></v-checkbox>
+              <div v-for="jd_user in jdUsers" :key="jd_user.id">
+                <v-checkbox
+                  :disabled="jd_user.mobile_cookie_expire_level==4"
+                  color="green"
+                  v-model="selectedUserForSku"
+                  :label="`${jd_user.nick_name}`"
+                  :value="`${jd_user.nick_name}`"
+                ></v-checkbox>
+              </div>
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
@@ -1061,6 +1079,7 @@ export default {
       selectedUserForSku:[],
       userArrangement:{},
       isIgnoreOutDated: true,
+      isIgnoreStockCheck: false,
       jdUsers:[],
       skuNumbers:[],
       selectedNumber:1,
@@ -1084,7 +1103,8 @@ export default {
         primary:'primary',
         black:'black',
         purple:'purple',
-        green:'green'
+        green:'green',
+        blue_lighten_3: '#90CAF9'
       },
       tsExpireLevel:{
         normal: 1, // 24 - 6 hours
@@ -1184,8 +1204,11 @@ export default {
       userData['push_token'] = jd_user_data.push_token
       userData['push_email'] = jd_user_data.push_email
 
-      if(userData['pc_cookie_expire_level']<4){
+      if(userData['mobile_cookie_expire_level']<4){
         this.getUserDeliveryCoupon(jd_user_data)
+        this.getUserAddress(jd_user_data)
+      }else{
+        userData['jd_user_address_list'] = []
       }
 
       if(!isUserExisted){
@@ -1229,6 +1252,7 @@ export default {
             jdUser['mobile_cookie_expire_level'] = userData['mobile_cookie_expire_level']
             jdUser['mobile_code_running'] = false
             jdUser['mobile'] = userData['mobile']
+            jdUser['leading_time'] = userData['leading_time']
             jdUser['leading_time'] = userData['leading_time']
             jdUser['jd_pwd'] = userData['jd_pwd']
             jdUser['push_token'] = userData['push_token']
@@ -1342,7 +1366,9 @@ export default {
       }else{
         for(var i=0;i<this.jdUsers.length;i++){
           var jdUser = this.jdUsers[i]
-          this.selectedUserForSku.push(jdUser['nick_name'])
+          if(jdUser.pc_cookie_expire_level<4){
+            this.selectedUserForSku.push(jdUser['nick_name'])
+          }
         }
       }
     },
@@ -1362,6 +1388,7 @@ export default {
           var shouldIgnore = false
           var nick_name = this.selectedUserForSku[i];
           var leading_time_of_user = 0
+          var addr_id_of_user = ''
           for(var j=0;j<this.jdUsers.length;j++){
               var jdUser = this.jdUsers[j]
               if(jdUser.nick_name == nick_name){
@@ -1374,6 +1401,7 @@ export default {
                 }
 
                 leading_time_of_user = this.getTargetUser(nick_name)['leading_time']
+                addr_id_of_user = this.getTargetUser(nick_name)['selected_default_address']
                 var foundSkuForUser = this.$commons.findKeyInJsonArray('skuId',this.skuArrangement['skuId'], this.userArrangement[nick_name], 'skus')
                 if(this.userArrangement[nick_name] && this.userArrangement[nick_name].length>2 && !foundSkuForUser){
                   this.$commons.showError("用户" + nick_name + "最多可以设置3个抢购计划", this);
@@ -1390,6 +1418,7 @@ export default {
           arrangementEachTime['startTimeMills'] = this.skuArrangement['startTimeMills']
           arrangementEachTime['status'] = this.skuArrangement['status']
           arrangementEachTime['leading_time'] = leading_time_of_user
+          arrangementEachTime['address_id'] = addr_id_of_user
           arrangementEachTime['skus'] = []
           
           var skuDetail = {
@@ -1595,10 +1624,10 @@ export default {
         return
       }
 
-      if(!target_user['pc_cookie_status'] || target_user['pc_cookie_expire_level']==this.tsExpireLevel['expired']){
-        this.$commons.showError('用户'+nick_name+'PC端无效', this);
-        return
-      }
+      // if(!target_user['pc_cookie_status'] || target_user['pc_cookie_expire_level']==this.tsExpireLevel['expired']){
+      //   this.$commons.showError('用户'+nick_name+'PC端无效', this);
+      //   return
+      // }
 
       if(!target_user['mobile_cookie_status'] || target_user['mobile_cookie_expire_level']==this.tsExpireLevel['expired']){
         this.$commons.showError('用户'+nick_name+'移动端无效', this);
@@ -1622,7 +1651,9 @@ export default {
           postData: {
                       'arrangement_list': this.userArrangement[nick_name],
                       'nick_name': nick_name,
-                      'leading_time': target_user['leading_time']
+                      'leading_time': target_user['leading_time'],
+                      'address_id': target_user['selected_default_address'],
+                      'ignore_stock_check': this.isIgnoreStockCheck
                     },
           successCallback: this.onSuccessStartArrangement,
           failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
@@ -1845,6 +1876,7 @@ export default {
           url: this.$commons.getTargetHost() + "/site/jd/add-or-remove-arrangement",
           postData: {
                       'leading_time': targetUser['leading_time'],
+                      'address_id': targetUser['selected_default_address'],
                       'target_time': target_time,
                       'nick_name': nick_name,
                       'is_add':is_add
@@ -1879,8 +1911,6 @@ export default {
               var ins = this
               if(response.data.body['user_arrangement'] && response.data.body['user_arrangement']['seckill_arrangement']){
                 this.userArrangement = response.data.body['user_arrangement']['seckill_arrangement']
-
-
 
                 // if running task is found
                 if(this.isAnyArrangementRunning()){
@@ -2065,6 +2095,7 @@ export default {
             var userArrangementStatusItem = seckill_arangement[i]
             var nick_name = userArrangementStatusItem['nick_name']
             var retLeadingTime = userArrangementStatusItem['leading_time']
+            var retAddrId = userArrangementStatusItem['address_id']
             var plannedArragementForUser = this.userArrangement[nick_name]
             var targetUser = this.getTargetUser(nick_name)
 
@@ -2094,6 +2125,7 @@ export default {
                     if(retLeadingTime&&callbackParam.isOnPageLoad){
                         var targetUser = this.getTargetUser(nick_name)
                         targetUser['leading_time'] = retLeadingTime
+                        targetUser['selected_default_address'] = retAddrId
                     }
                     if(plannedArragementForUser[k]['failure_msg']!=retFailureMsg){
                       plannedArragementForUser[k]['failure_msg'] = retFailureMsg
@@ -2287,6 +2319,62 @@ export default {
               if(user['nick_name']==jd_user_data.nick_name){
                 var delivery_coupon_count = response.data.body['delivery_coupon_count']
                 user['delivery_coupon_count'] = delivery_coupon_count
+                this.$set(this.jdUsers, index, user)
+              }
+            }
+          } 
+      }
+    },
+    onSelectAddress:function(jd_user){
+      for(var index=0;index<jd_user['jd_user_address_list'].length;index++){
+        if(jd_user['selected_default_address'] == jd_user['jd_user_address_list'][index]['value']){
+          jd_user['recipient_name'] = jd_user['jd_user_address_list'][index]['recipient_name']
+        }
+      }
+    },
+    getUserAddress:function(jd_user){
+      var ins = this
+
+      var requestObj = {
+          url: this.$commons.getTargetHost() + "/site/jd/get-user-address",
+          successCallback: this.onSuccessGetUserAddress,
+          failureCallback: function(error,callbackParam){ins.$commons.defaultFailureCallback(error,ins,callbackParam)},
+          successCallbackParamObj: jd_user,
+          postData:{
+            nick_name: jd_user['nick_name']
+          },
+          ins: this,
+          hideLoading: true
+      };
+      this.$commons.sendGatewayPost(requestObj);
+      
+    },
+    onSuccessGetUserAddress:function(response, callbackParam){
+      if(response.data.body){
+          if(response.data.body['success']){
+            var jd_user_data = callbackParam
+            var addressId = 'adid'
+            var label = 'addrfull'
+            var addrDefault = 'default_address'
+            for(var index=0;index<this.jdUsers.length;index++){
+              var user = this.jdUsers[index];
+              if(user['nick_name']==jd_user_data.nick_name){
+                var res = response.data.body['jd_user_address_list']
+                var displayAddressList = []
+                for(var j=0;j<res.length;j++){
+                  displayAddressList.push({
+                    'value': res[j][addressId],
+                    'label': res[j][label] + ' ' + res[j]['mobile'],
+                    'recipient_name': res[j]['name']
+                  })
+                  if(res[j][addrDefault] == "1"){
+                    if(!user['selected_default_address']){
+                      user['selected_default_address'] = res[j][addressId]
+                    }
+                    user['recipient_name'] = res[j]['name']
+                  }
+                }
+                user['jd_user_address_list'] = displayAddressList
                 this.$set(this.jdUsers, index, user)
               }
             }
