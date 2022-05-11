@@ -173,13 +173,6 @@
                                               text-color="white">
                                               大连无货
                                           </v-chip>
-                                           <v-chip 
-                                              v-if="seckill_item.disableCoupon"
-                                              class="ma-2 chips-small"
-                                              color="brown lighten-1"
-                                              text-color="white">
-                                              不支持运费券
-                                          </v-chip>
                                         </v-card></v-card-title>
                                     </div>
                                     <v-card-actions class="white justify-center">
@@ -442,13 +435,6 @@
                             color="green"
                             text-color="white">
                           第三方配送
-                      </v-chip>
-                      <v-chip 
-                            v-if="skuData.disableCoupon"
-                            class="ma-2 chips-small"
-                            color="brown lighten-1"
-                            text-color="white">
-                          不支持运费券
                       </v-chip>
                     <div v-if="skuData.is_reserve_product">
                         <v-chip 
