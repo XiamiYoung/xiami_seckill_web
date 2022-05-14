@@ -925,7 +925,7 @@
               </v-btn>
               <div v-for="jd_user in jdUsers" :key="jd_user.id">
                 <v-checkbox
-                  :disabled="jd_user.mobile_cookie_expire_level==4"
+                  :disabled="jd_user.mobile_cookie_expire_level==4||jd_user.pc_cookie_expire_level==4"
                   color="green"
                   v-model="selectedUserForSku"
                   :label="`${jd_user.nick_name}`"
@@ -1352,7 +1352,7 @@ export default {
       }else{
         for(var i=0;i<this.jdUsers.length;i++){
           var jdUser = this.jdUsers[i]
-          if(jdUser.mobile_cookie_expire_level<4){
+          if(jdUser.mobile_cookie_expire_level<4&&jdUser.pc_cookie_expire_level<4){
             this.selectedUserForSku.push(jdUser['nick_name'])
           }
         }
