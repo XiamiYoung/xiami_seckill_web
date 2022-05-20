@@ -286,25 +286,25 @@
                               class="ma-1 chips-small"
                               :color="colors.green"
                               text-color="white">
-                          PC大于6h
+                          京东大于6小时
                         </v-chip>
                         <v-chip v-else-if="jd_user.pc_cookie_expire_level==2"
                               class="ma-1 chips-small"
                               :color="colors.purple"
                               text-color="white">
-                          PC小于6h
+                          京东小于6小时
                         </v-chip>
                         <v-chip v-else-if="jd_user.pc_cookie_expire_level==3"
                               class="ma-1 chips-small"
                               :color="colors.red"
                               text-color="white">
-                          PC小于2h
+                          京东小于2小时
                         </v-chip>
                         <v-chip v-else
                               class="ma-1 chips-small"
-                              :color="colors.blue_lighten_3"
+                              :color="colors.black"
                               text-color="white">
-                          PC未启用
+                          PC未登录
                         </v-chip>
                         <v-card-text class="text-center">
                           <v-layout row wrap class="justify-center">
@@ -371,25 +371,25 @@
                             class="ma-1 chips-small"
                             :color="colors.green"
                             text-color="white">
-                        移动大于6h
+                        QQ大于5天
                       </v-chip>
                       <v-chip v-else-if="jd_user.mobile_cookie_expire_level==2"
                             class="ma-1 chips-small"
                             :color="colors.purple"
                             text-color="white">
-                        移动小于6h
+                        QQ小于5天
                       </v-chip>
                       <v-chip v-else-if="jd_user.mobile_cookie_expire_level==3"
                             class="ma-1 chips-small"
                             :color="colors.red"
                             text-color="white">
-                        移动小于2h
+                        QQ小于2天
                       </v-chip>
                       <v-chip v-else
                             class="ma-1 chips-small"
                             :color="colors.black"
                             text-color="white">
-                        移动无效
+                        QQ无效
                       </v-chip>
                       <v-card-text class="text-center">
                         <v-layout row wrap class="justify-center">
@@ -556,8 +556,7 @@ export default {
         primary:'primary',
         black:'black',
         purple:'purple',
-        green:'green',
-        blue_lighten_3: '#90CAF9'
+        green:'green'
       },
       tsExpireLevel:{
         normal: 1, // 24 - 6 hours
@@ -583,7 +582,7 @@ export default {
         var pc_cookie_ts = jdUser['pc_cookie_expire_ts']
         var mobile_cookie_ts = jdUser['mobile_cookie_expire_ts']
         jdUser['pc_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(pc_cookie_ts)]
-        jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(mobile_cookie_ts)]
+        jdUser['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevelMobile(mobile_cookie_ts)]
       }
     },
     onConfirmLogoutBtn:function(isConfirm){
@@ -988,7 +987,7 @@ export default {
       userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
       userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
       userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
-      userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
+      userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevelMobile(jd_user_data.mobile_cookie_expire_ts)]
       userData['leading_time'] = jd_user_data.leading_time
       userData['mobile'] = jd_user_data.mobile
       userData['jd_pwd'] = jd_user_data.jd_pwd
@@ -1011,7 +1010,7 @@ export default {
           userData['mobile_cookie_expire_ts'] = jd_user_data.mobile_cookie_expire_ts
           userData['mobile_cookie_ts_label'] = jd_user_data.mobile_cookie_ts_label
           userData['mobile_cookie_expire_ts_label'] = jd_user_data.mobile_cookie_expire_ts_label
-          userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevel(jd_user_data.mobile_cookie_expire_ts)]
+          userData['mobile_cookie_expire_level'] = this.tsExpireLevel[this.$commons.getExpireLevelMobile(jd_user_data.mobile_cookie_expire_ts)]
         }else{
           userData['mobile_cookie_status'] = false
           userData['mobile_cookie_ts'] = ''

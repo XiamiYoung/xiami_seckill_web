@@ -352,6 +352,22 @@ var commonsJS = {
       return 'normal'
     }
   },
+  getExpireLevelMobile:function(ts){
+    // normal: 1, // 30 - 5 days
+    // medium: 2, // < 5 days
+    // critical: 3, // < 2 days
+    // expired: 4 // expired
+    var nowTime = Number(new Date())
+    if(ts - nowTime <= 0){
+      return 'expired'
+    }else if(ts-nowTime <= 2 * 24 * 60 * 60 * 1000){
+      return 'critical'
+    }else if(ts-nowTime <= 5 * 24 * 60 * 60 * 1000){
+      return 'medium'
+    }else{
+      return 'normal'
+    }
+  },
   isJsonEquals:function(obj1, obj2){
     return lodash.isEqual(obj1, obj2)
   }
