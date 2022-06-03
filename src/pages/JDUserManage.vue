@@ -302,9 +302,9 @@
                         </v-chip>
                         <v-chip v-else
                               class="ma-1 chips-small"
-                              :color="colors.black"
+                              :color="colors.blue_lighten_3"
                               text-color="white">
-                          PC未登录
+                          京东app未启用
                         </v-chip>
                         <v-card-text class="text-center">
                           <v-layout row wrap class="justify-center">
@@ -556,7 +556,8 @@ export default {
         primary:'primary',
         black:'black',
         purple:'purple',
-        green:'green'
+        green:'green',
+        blue_lighten_3: '#90CAF9'
       },
       tsExpireLevel:{
         normal: 1, // 24 - 6 hours
